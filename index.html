@@ -13,52 +13,55 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 10px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-        #timer { font-family: monospace; font-size: 1.1rem; color: var(--yellow); min-width: 80px; }
+        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; flex-shrink: 0; }
+        #timer { font-family: monospace; font-size: 1.2rem; color: var(--yellow); }
 
-        .nav-group { display: flex; gap: 4px; overflow-x: auto; padding: 5px 0; }
-        .dropdown { position: relative; }
-        .dropbtn { color: white; padding: 8px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; white-space: nowrap; }
-        .btn-exames { background-color: #e74c3c; } /* Nova cor para exames */
+        .nav-group { display: flex; gap: 8px; align-items: center; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropbtn { color: white; padding: 10px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; }
+        
+        .btn-exames { background-color: #e74c3c; }
         .btn-struct { background-color: var(--accent); }
         .btn-correc { background-color: var(--orange); }
         .btn-postit { background-color: var(--yellow); color: #333; }
         .btn-dicas { background-color: var(--purple); }
 
-        .dropdown-content { display: none; position: absolute; background: white; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); right: 0; border-radius: 6px; padding: 8px; z-index: 2000; max-height: 80vh; overflow-y: auto; }
+        .dropdown-content { 
+            display: none; position: absolute; background: white; min-width: 220px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); right: 0; border-radius: 6px; 
+            padding: 8px; z-index: 2000; max-height: 70vh; overflow-y: auto; 
+        }
+        /* Hover para Computador, JS tratará o clique se necessário */
         .dropdown:hover .dropdown-content { display: block; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.8rem; cursor: pointer; color: #333; }
-        .menu-item:hover { background: #f0f0f0; }
+
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem; cursor: pointer; color: #333; }
+        .menu-item:hover { background: #f8f9fa; }
 
         main { display: flex; flex: 1; overflow: hidden; }
         
-        /* SIDEBAR MURAL */
-        .sidebar { width: 220px; background: #eaeff2; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; padding: 10px; gap: 10px; }
-        .sidebar h4 { font-size: 0.65rem; color: #555; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 10px; }
-        
+        /* SIDEBAR (Mural) */
+        .sidebar { width: 220px; background: #eaeff2; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; padding: 10px; gap: 10px; flex-shrink: 0; }
+        .sidebar h4 { font-size: 0.65rem; color: #555; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
         .sticky-note { padding: 8px; border-radius: 4px; font-size: 0.7rem; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); border-left: 4px solid; background: white; margin-bottom: 5px; }
         
         /* EDITOR CENTRAL */
-        .work-section { flex: 1; display: flex; flex-direction: column; background: white; }
-        
-        #aviso-edicao { 
-            display: none; background: var(--yellow); padding: 10px; 
-            text-align: center; font-weight: bold; font-size: 0.8rem; 
-            border-bottom: 2px solid #d4ac0d; 
-        }
-
-        .editor-header { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .work-section { flex: 1; display: flex; flex-direction: column; background: white; min-width: 0; }
         #area-peca { 
-            flex: 1; padding: 20px; border: none; font-family: 'Courier New', monospace; 
+            flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; 
             font-size: 16px; line-height: 1.6; outline: none; resize: none;
             background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 1.6em; 
         }
 
+        .editor-header { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+
         /* PDFs */
-        .pdf-section { width: 35%; background: #525659; display: flex; flex-direction: column; gap: 5px; padding: 5px; overflow-y: auto; }
-        .pdf-box { background: #333; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
-        .pdf-header { padding: 5px 10px; color: white; font-size: 0.6rem; display: flex; justify-content: space-between; }
+        .pdf-section { width: 35%; background: #525659; display: flex; flex-direction: column; gap: 5px; padding: 5px; overflow-y: auto; flex-shrink: 0; }
+        .pdf-box { background: #333; border-radius: 4px; overflow: hidden; }
+        .pdf-header { padding: 6px 10px; color: white; font-size: 0.65rem; display: flex; justify-content: space-between; align-items: center; }
         .pdf-frame { width: 100%; height: 42vh; border: none; background: white; }
+
+        /* AVISO EDIÇÃO */
+        #aviso-edicao { display: none; background: var(--yellow); padding: 10px; text-align: center; font-weight: bold; font-size: 0.8rem; border-bottom: 2px solid #d4ac0d; }
 
         /* CONSULTA FULL */
         .consulta-full { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; display: none; flex-direction: column; }
@@ -67,11 +70,15 @@
 
         .btn-action { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 0.65rem; }
 
+        /* RESPONSIVIDADE CELULAR */
         @media (max-width: 1024px) {
-            .sidebar { display: none; } /* Esconde sidebar no mobile para focar no texto */
-            main { flex-direction: column; }
-            .pdf-section { width: 100%; height: 50vh; }
-            .nav-group { overflow-x: scroll; -webkit-overflow-scrolling: touch; }
+            header { height: auto; padding: 10px; flex-direction: column; gap: 10px; }
+            .nav-group { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+            main { flex-direction: column; overflow-y: auto; }
+            .sidebar { width: 100%; height: auto; order: 3; }
+            .work-section { width: 100%; height: 70vh; order: 1; }
+            .pdf-section { width: 100%; height: auto; order: 2; }
+            .pdf-frame { height: 60vh; }
         }
     </style>
 </head>
@@ -81,36 +88,43 @@
     <div id="timer">05:00:00</div>
     <div class="nav-group">
         <div class="dropdown">
-            <button class="dropbtn btn-exames">📚 EXAMES 35-45</button>
-            <div class="dropdown-content" id="list-exames-dropdown">
-                </div>
+            <button class="dropbtn btn-exames" onclick="toggleDropdown('list-exames-dropdown')">📚 EXAMES</button>
+            <div class="dropdown-content" id="list-exames-dropdown"></div>
         </div>
-        <div class="dropdown"><button class="dropbtn btn-struct">📑 Estruturas</button><div class="dropdown-content" id="list-db_estruturas"></div></div>
-        <div class="dropdown"><button class="dropbtn btn-correc">⚖️ Correção</button><div class="dropdown-content" id="list-db_correcoes"></div></div>
-        <div class="dropdown"><button class="dropbtn btn-postit">📌 Post-its</button><div class="dropdown-content" id="list-db_postits"></div></div>
-        <div class="dropdown"><button class="dropbtn btn-dicas">👩‍🏫 Dicas Prof</button><div class="dropdown-content" id="list-db_dicas"></div></div>
+        <div class="dropdown">
+            <button class="dropbtn btn-struct" onclick="toggleDropdown('list-db_estruturas')">📑 ESTRUTURAS</button>
+            <div class="dropdown-content" id="list-db_estruturas"></div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn btn-correc" onclick="toggleDropdown('list-db_correcoes')">⚖️ CORREÇÃO</button>
+            <div class="dropdown-content" id="list-db_correcoes"></div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn btn-postit" onclick="toggleDropdown('list-db_postits')">📌 POST-ITS</button>
+            <div class="dropdown-content" id="list-db_postits"></div>
+        </div>
     </div>
 </header>
 
 <div id="aviso-edicao">
     ⚠️ MODO EDIÇÃO: <span id="nome-item-editando"></span> 
-    <button class="btn-action" style="background:var(--green); margin-left:10px" onclick="salvarAlteracoes()">SALVAR NO BANCO</button>
+    <button class="btn-action" style="background:var(--green); margin-left:10px" onclick="salvarAlteracoes()">SALVAR</button>
     <button class="btn-action" style="background:#e74c3c; margin-left:5px" onclick="cancelarEdicao()">CANCELAR</button>
 </div>
 
 <main>
     <aside class="sidebar">
-        <h4 class="mural-content">📌 Mural de Fixação</h4>
-        <div id="mural-content" class="mural-content"></div>
-        <button class="btn-action" style="background:#7f8c8d; width:100%; margin-top:15px; font-size:0.5rem" onclick="fazerBackup()">📥 BAIXAR BACKUP</button>
+        <h4>📌 MURAL DE FIXAÇÃO</h4>
+        <div id="mural-content"></div>
+        <button class="btn-action" style="background:#7f8c8d; width:100%; margin-top:15px;" onclick="fazerBackup()">📥 BACKUP GERAL</button>
     </aside>
 
     <section class="work-section">
         <div class="editor-header">
-            <span id="label-exame" style="font-weight: bold; font-size: 0.7rem; color:var(--primary)">📍 SELECIONE O EXAME ACIMA</span>
-            <button class="btn-action" style="background:var(--green)" onclick="exportarTXT()">💾 SALVAR PEÇA</button>
+            <span id="label-exame" style="font-weight: bold; font-size: 0.7rem; color:var(--primary)">📍 AGUARDANDO EXAME...</span>
+            <button class="btn-action" style="background:var(--green)" onclick="exportarTXT()">💾 EXPORTAR TXT</button>
         </div>
-        <textarea id="area-peca" placeholder="O texto da sua peça aparecerá aqui..."></textarea>
+        <textarea id="area-peca" placeholder="Comece a escrever sua peça aqui..."></textarea>
     </section>
 
     <section class="pdf-section">
@@ -140,19 +154,24 @@
     let cachePeca = ""; 
     let textoConsultado = "";
 
+    // Toggle para mobile (clique no botão)
+    function toggleDropdown(id) {
+        const el = document.getElementById(id);
+        const isVisible = el.style.display === 'block';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+        el.style.display = isVisible ? 'none' : 'block';
+    }
+
     function montarMenuExames() {
         const container = document.getElementById('list-exames-dropdown');
         container.innerHTML = "";
-        // Loop de 35 a 45
         for (let i = 35; i <= 45; i++) {
             const item = document.createElement('div');
             item.className = 'menu-item';
-            item.innerHTML = `<span><b>EXAME OAB XXX${i}</b></span> <span>📄</span>`;
+            item.innerHTML = `<span><b>EXAME OAB XXX${i}</b></span>`;
             item.onclick = () => {
                 carregarExame(i);
-                // Fecha dropdown após clique (importante no mobile)
                 container.style.display = 'none';
-                setTimeout(() => container.style.display = '', 500);
             };
             container.appendChild(item);
         }
@@ -161,13 +180,15 @@
     function carregarExame(num) {
         document.getElementById('v-enu').src = `./ro${num}.pdf`;
         document.getElementById('v-gab').src = `./ro${num}-gabarito.pdf`;
-        document.getElementById('label-exame').innerText = `📍 OAB XXX${num}`;
+        document.getElementById('label-exame').innerText = `📍 EXAME OAB XXX${num}`;
+        if(window.innerWidth < 1024) document.querySelector('.work-section').scrollIntoView();
     }
 
     function renderizarTudo() {
         bancos.forEach(banco => {
             const db = JSON.parse(localStorage.getItem(banco)) || {};
             const container = document.getElementById('list-' + banco);
+            if(!container) return;
             container.innerHTML = Object.keys(db).map(id => `
                 <div class="menu-item">
                     <span onclick="abrirConsulta('${banco}', '${id}')" style="flex:1"><b>${db[id].nome}</b></span>
@@ -177,25 +198,13 @@
         });
 
         const mural = document.getElementById('mural-content');
-        if(mural) {
-            mural.innerHTML = "";
-            ['db_postits', 'db_dicas'].forEach(b => {
-                const db = JSON.parse(localStorage.getItem(b)) || {};
-                Object.values(db).forEach(item => {
-                    const cor = b === 'db_postits' ? 'var(--yellow)' : 'var(--purple)';
-                    mural.innerHTML += `<div class="sticky-note" style="border-color:${cor}"><b>${item.nome}</b><br>${item.texto.substring(0,40)}...</div>`;
-                });
+        mural.innerHTML = "";
+        ['db_postits'].forEach(b => {
+            const db = JSON.parse(localStorage.getItem(b)) || {};
+            Object.values(db).forEach(item => {
+                mural.innerHTML += `<div class="sticky-note" style="border-color:var(--yellow)"><b>${item.nome}</b><br>${item.texto.substring(0,60)}...</div>`;
             });
-        }
-    }
-
-    function excluirItem(banco, id) {
-        if(confirm("Excluir item permanentemente?")) {
-            let db = JSON.parse(localStorage.getItem(banco));
-            delete db[id];
-            localStorage.setItem(banco, JSON.stringify(db));
-            renderizarTudo();
-        }
+        });
     }
 
     function entrarModoEdicao(banco, id) {
@@ -208,18 +217,19 @@
         document.getElementById('area-peca').value = `${item.nome}\n---\n${item.texto}`;
         document.getElementById('nome-item-editando').innerText = item.nome;
         document.getElementById('aviso-edicao').style.display = "block";
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     }
 
     function salvarAlteracoes() {
         let db = JSON.parse(localStorage.getItem(ctx.banco)) || {};
-        const conteudo = document.getElementById('area-peca').value.split('\n---\n');
+        const lines = document.getElementById('area-peca').value.split('\n---\n');
         const id = ctx.id === 'novo' ? 'ID'+Date.now() : ctx.id;
-        db[id] = { nome: conteudo[0].trim(), texto: conteudo[1] || "" };
+        db[id] = { nome: lines[0].trim(), texto: lines[1] || "" };
         localStorage.setItem(ctx.banco, JSON.stringify(db));
-        finalizarEdicao();
+        cancelarEdicao();
     }
 
-    function finalizarEdicao() {
+    function cancelarEdicao() {
         modoEdicao = false;
         document.getElementById('area-peca').value = cachePeca;
         document.getElementById('aviso-edicao').style.display = "none";
@@ -233,37 +243,32 @@
         document.getElementById('corpo-consulta').innerText = db[id].texto;
         document.getElementById('header-consulta').style.backgroundColor = cores[banco];
         document.getElementById('janela-consulta').style.display = 'flex';
+        document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
     }
 
     function fecharConsulta() { document.getElementById('janela-consulta').style.display = 'none'; }
+    
     function inserirNoEditor() { 
-        if(modoEdicao) return;
         document.getElementById('area-peca').value += "\n" + textoConsultado; 
         fecharConsulta(); 
     }
 
-    function expandir(id) {
-        const el = document.getElementById(id);
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    function exportarTXT() { 
+        const b = new Blob([document.getElementById('area-peca').value], {type:'text/plain'}); 
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = "PecaOAB.txt"; a.click(); 
     }
 
     function fazerBackup() {
         const dados = {};
         bancos.forEach(b => dados[b] = JSON.parse(localStorage.getItem(b)));
         const blob = new Blob([JSON.stringify(dados)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_OAB_${new Date().toLocaleTimeString()}.json`;
-        a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_OAB.json`; a.click();
     }
 
-    function exportarTXT() { 
-        const b = new Blob([document.getElementById('area-peca').value], {type:'text/plain'}); 
-        const a = document.createElement('a'); 
-        a.href = URL.createObjectURL(b); 
-        a.download = "MinhaPeca.txt"; 
-        a.click(); 
+    function expandir(id) {
+        const el = document.getElementById(id);
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     }
 
     window.onload = () => {
@@ -274,6 +279,13 @@
             document.getElementById('timer').textContent = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${sc<10?'0'+sc:sc}`;
             s--;
         }, 1000);
+        
+        // Fechar menus ao clicar fora
+        window.onclick = (event) => {
+            if (!event.target.matches('.dropbtn')) {
+                document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+            }
+        }
     };
 </script>
 </body>
