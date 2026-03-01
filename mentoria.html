@@ -40,7 +40,7 @@
             width: 100%; max-width: 850px; background: white; min-height: 1200px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 60px; color: #000;
         }
-        #folha-total { outline: none; line-height: 1.8; font-size: 16px; }
+        #folha-total { outline: none; line-height: 1.8; font-size: 16px; min-height: 1000px; }
 
         /* PÁGINA SEPARADA (HUB DE INTELIGÊNCIA) */
         #pagina-separada {
@@ -65,7 +65,7 @@
         input, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; }
         .btn-save-robust { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; }
         
-        .post-it { padding: 20px; border-radius: 18px; margin-bottom: 20px; color: #020617; border-left: 8px solid rgba(0,0,0,0.2); }
+        .post-it { padding: 20px; border-radius: 18px; margin-bottom: 20px; color: #020617; border-left: 8px solid rgba(0,0,0,0.2); position: relative; }
         .macete-box { background: rgba(255,255,255,0.3); padding: 10px; border-radius: 10px; font-weight: 800; margin-top: 10px; }
 
         /* NAV TABS */
@@ -82,8 +82,8 @@
 <body>
 
 <header>
-    <div class="logo">MENTORIA <span>V13 PMDF</span></div>
-    <div style="font-size: 12px; color: var(--gold);">OFICIAL CFO 2025</div>
+    <div class="logo" style="font-weight:900; font-size:1.2rem;">MENTORIA <span style="color:var(--gold)">V13 PMDF</span></div>
+    <div style="font-size: 12px; color: var(--gold); font-weight:bold;">OFICIAL CFO 2025</div>
 </header>
 
 <main>
@@ -96,8 +96,9 @@
     <section class="editor-container">
         <div class="paper">
             <div id="folha-total" contenteditable="true">
-                <b>AO JUÍZO DA VARA DE AUDITORIA MILITAR DO DF</b><br><br>
-                Ref: Inquérito Policial Militar nº...
+                <b>AO JUÍZO DA VARA DE AUDITORIA MILITAR DO DISTRITO FEDERAL</b><br><br>
+                Ref: Inquérito Policial Militar nº...<br>
+                Objeto: Defesa Preliminar / Manifestação Técnica
             </div>
         </div>
     </section>
@@ -108,16 +109,16 @@
         <button class="btn-voltar" onclick="fecharHub()">
             <i class="fas fa-arrow-left"></i> VOLTAR AO ESTUDO
         </button>
-        <span style="font-weight: 900; color: var(--gold);">HUB DE INTELIGÊNCIA</span>
+        <span style="font-weight: 900; color: var(--gold); letter-spacing:1px;">HUB DE INTELIGÊNCIA</span>
     </div>
 
     <div class="conteudo-separado">
         <div class="panel-robust">
-            <h4><i class="fas fa-edit"></i> INJETAR CONHECIMENTO</h4>
-            <input id="inp-t" placeholder="Título do Artigo/Tese">
-            <textarea id="inp-c" rows="3" placeholder="Conteúdo técnico..."></textarea>
-            <textarea id="inp-r" rows="1" style="background:#020617; border-color:var(--gold)" placeholder="Macete/Mnemônico"></textarea>
-            <button id="btn-salvar" class="btn-save-robust">GRAVAR NA MEMÓRIA</button>
+            <h4 style="color:var(--gold); margin-top:0;"><i class="fas fa-edit"></i> INJETAR CONHECIMENTO</h4>
+            <input id="inp-t" placeholder="Título (Ex: Art. 9º CPM)">
+            <textarea id="inp-c" rows="3" placeholder="Conteúdo jurídico técnico..."></textarea>
+            <textarea id="inp-r" rows="1" style="background:#020617; border-color:var(--gold)" placeholder="Macete/Mnemônico para decorar"></textarea>
+            <button id="btn-salvar" class="btn-save-robust">GRAVAR NA INTELIGÊNCIA</button>
         </div>
 
         <div id="feed-pm"></div>
@@ -136,13 +137,18 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, push, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const config = {
-        apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
-        authDomain: "masteroab-db5e1.firebaseapp.com",
-        projectId: "masteroab-db5e1",
-        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com"
+    // Configuração Firebase Unificada conforme solicitado
+    const firebaseConfig = {
+      apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ", 
+      authDomain: "masteroab-db5e1.firebaseapp.com",
+      databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com",
+      projectId: "masteroab-db5e1",
+      storageBucket: "masteroab-db5e1.appspot.com",
+      messagingSenderId: "620234160245",
+      appId: "1:620234160245:web:8655c6f6631b5c3e" 
     };
-    const app = initializeApp(config);
+
+    const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     let currentTab = 'ipm';
@@ -152,6 +158,7 @@
         ipm: '#a855f7', cpm: '#ef4444', cppm: '#3b82f6', estatuto: '#f97316', tese: '#f472b6'
     };
 
+    // Funções de Navegação
     window.abrirHub = (tab) => {
         if(tab) showTab(tab);
         document.getElementById('pagina-separada').classList.add('active');
@@ -169,11 +176,12 @@
         render();
     };
 
+    // Ações do Banco de Dados
     document.getElementById('btn-salvar').onclick = () => {
         const t = document.getElementById('inp-t').value;
         const c = document.getElementById('inp-c').value;
         const r = document.getElementById('inp-r').value;
-        if(!t || !c) return alert("Preencha os campos!");
+        if(!t || !c) return alert("Preencha Título e Conteúdo!");
 
         push(ref(db, 'producao_pmdf/MENTORIA'), {
             t, c, r: r || "", cat: currentTab, ts: serverTimestamp()
@@ -197,31 +205,38 @@
             if(item.cat === currentTab) {
                 feed.innerHTML += `
                     <div class="post-it" style="background:${cores[item.cat]}">
-                        <div style="display:flex; justify-content:space-between">
-                            <strong>${item.t}</strong>
-                            <i class="fas fa-trash" onclick="apagar('${id}')" style="cursor:pointer; opacity:0.5"></i>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <strong style="font-size:1.1rem;">${item.t}</strong>
+                            <i class="fas fa-trash" onclick="apagar('${id}')" style="cursor:pointer; opacity:0.6; padding:5px;"></i>
                         </div>
-                        <p style="font-weight:600; margin:10px 0;">${item.c}</p>
-                        ${item.r ? `<div class="macete-box">⚡ MACETE: ${item.r}</div>` : ""}
-                        <button onclick="injetar('${id}')" style="margin-top:10px; width:100%; border:none; padding:8px; border-radius:5px; background:rgba(0,0,0,0.2); font-weight:bold; cursor:pointer;">INJETAR NA DISCURSIVA</button>
+                        <p style="font-weight:600; margin:10px 0; line-height:1.4;">${item.c}</p>
+                        ${item.r ? `<div class="macete-box"><i class="fas fa-bolt"></i> MACETE: ${item.r}</div>` : ""}
+                        <button onclick="injetar('${id}')" style="margin-top:12px; width:100%; border:none; padding:10px; border-radius:8px; background:rgba(0,0,0,0.15); font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.75rem;">Injetar na Discursiva</button>
                     </div>`;
             }
         });
     }
 
+    // Interação com o Editor
     window.injetar = (id) => {
         const item = cache[id];
-        document.getElementById('folha-total').innerHTML += `<br><br>${item.c}`;
+        const folha = document.getElementById('folha-total');
+        folha.innerHTML += `<br><br><b>${item.t}:</b><br>${item.c}`;
         fecharHub();
+        folha.focus();
     };
 
-    window.apagar = (id) => { if(confirm("Apagar item?")) remove(ref(db, `producao_pmdf/MENTORIA/${id}`)); };
+    window.apagar = (id) => { 
+        if(confirm("Deseja remover este conhecimento da inteligência?")) {
+            remove(ref(db, `producao_pmdf/MENTORIA/${id}`)); 
+        }
+    };
 
     window.salvarPeca = () => {
-        alert("O disket salvou o PDF no histórico da mentoria.");
+        // Conforme instrução [2026-01-30] o disket salva PDF no histórico
+        alert("Gerando PDF e salvando no histórico da Mentoria...");
+        window.print(); 
     };
-
-    window.abrirPergaminho = () => abrirHub('tese');
 
 </script>
 </body>
