@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ESTUDO EDITAL PMDF 2023 - SOLDADO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOLHA PMDF - LEGISLAÇÃO VIGENTE 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { --primary: #064e3b; --gold: #fbbf24; --bg: #f8fafc; --sidebar: #022c22; }
@@ -12,64 +12,56 @@
         header { background: var(--primary); padding: 10px 20px; border-bottom: 3px solid var(--gold); display: flex; justify-content: space-between; align-items: center; color: white; z-index: 100; }
         .badge { background: var(--gold); color: black; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 10px; }
 
-        /* LAW-BAR: LEIS EXTRAÍDAS DO EDITAL 04/2023 */
-        .law-bar { background: #022c22; padding: 10px 20px; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #065f46; scrollbar-width: thin; }
-        .law-link { color: #a7f3d0; text-decoration: none; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.3s; padding: 6px 12px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid transparent; }
-        .law-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); border-color: var(--gold); }
-        .law-link i { color: var(--gold); }
-
+        /* LAW-BAR ATUALIZADA 2026 */
+        .law-bar { background: #022c22; padding: 10px 20px; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #065f46; }
+        .law-link { color: #a7f3d0; text-decoration: none; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.3s; padding: 6px 12px; border-radius: 4px; background: rgba(255,255,255,0.05); }
+        .law-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
+        
         main { display: flex; flex: 1; overflow: hidden; }
         .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 15px; border-right: 1px solid #065f46; }
-        .btn-side { width: 50px; height: 50px; border: none; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--gold); cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-        .btn-side:hover { background: var(--gold); color: black; transform: scale(1.05); }
+        .btn-side { width: 50px; height: 50px; border: none; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--gold); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .editor-view { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; align-items: center; }
         .paper-official { 
             width: 100%; max-width: 800px; background: white; min-height: 1200px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 50px 60px; position: relative;
             background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 100% 2.2rem; line-height: 2.2rem; border: 1px solid #cbd5e1;
+            background-size: 100% 2.2rem; line-height: 2.2rem;
         }
-        #editor { outline: none; font-family: 'Courier New', Courier, monospace; font-size: 18px; color: #1e293b; text-align: justify; }
+        #editor { outline: none; font-family: 'Courier New', monospace; font-size: 18px; color: #1e293b; text-align: justify; }
 
         #mentoria-hub { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; }
         #mentoria-hub.active { display: block; }
         .close-hub { position: absolute; top: 20px; left: 20px; z-index: 10000; padding: 12px 25px; background: var(--gold); border: none; font-weight: 900; cursor: pointer; border-radius: 8px; }
-
-        @media print { .sidebar, header, .law-bar, .close-hub { display: none !important; } .editor-view { padding: 0; } .paper-official { box-shadow: none; border: none; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div><i class="fas fa-shield-halved"></i> PMDF <span style="color:var(--gold)">EDITAL 2023</span></div>
+    <div><i class="fas fa-shield-halved"></i> PMDF <span style="color:var(--gold)">VIGENTE 2026</span></div>
     <div id="counter" class="badge">LINHAS: 01</div>
 </header>
 
 <nav class="law-bar">
-    <a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm" target="_blank" class="law-link"><i class="fas fa-scale-balanced"></i> CF/88 (ARTS 37, 42, 142, 144)</a>
-    <a href="https://sinj.df.gov.br/sinj/Norma/25390/Lei_7289_18_12_1984.html" target="_blank" class="law-link"><i class="fas fa-book"></i> ESTATUTO (LEI 7.289/84)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/leis/l6450.htm" target="_blank" class="law-link"><i class="fas fa-sitemap"></i> ORG. BÁSICA (LEI 6.450/77)</a>
-    <a href="https://sinj.df.gov.br/sinj/Norma/34211/Decreto_10260_16_02_1987.html" target="_blank" class="law-link"><i class="fas fa-gavel"></i> RDPM (DEC. 10.260/87)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" target="_blank" class="law-link"><i class="fas fa-gun"></i> PENAL MILITAR (DL 1.001/69)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" target="_blank" class="law-link"><i class="fas fa-file-signature"></i> PROC. PENAL MILITAR (DL 1.002/69)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm" target="_blank" class="law-link"><i class="fas fa-handcuffs"></i> ABUSO AUTORIDADE (L 13.869)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14751.htm" target="_blank" class="law-link"><i class="fas fa-star"></i> NOVA LEI ORGÂNICA NACIONAL (L14.751/23)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001compilado.htm" target="_blank" class="law-link"><i class="fas fa-gavel"></i> CPM (ATUALIZADO 2024)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" target="_blank" class="law-link"><i class="fas fa-handcuffs"></i> CPPM (VIGENTE)</a>
+    <a href="https://sinj.df.gov.br/sinj/Norma/25390/Lei_7289_18_12_1984.html" target="_blank" class="law-link"><i class="fas fa-book"></i> ESTATUTO PMDF (COMPILADO)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm" target="_blank" class="law-link"><i class="fas fa-scale-balanced"></i> CF/88 (PÓS-EC 132/23)</a>
+    <a href="https://sinj.df.gov.br/sinj/Norma/34211/Decreto_10260_16_02_1987.html" target="_blank" class="law-link"><i class="fas fa-triangle-exclamation"></i> RDPM (DECRETO 10.260)</a>
 </nav>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" onclick="abrirMentoria()" title="Mentoria Inteligente"><i class="fas fa-robot"></i></button>
-        <button class="btn-side" onclick="window.print()" title="Salvar PDF"><i class="fas fa-save"></i></button>
-        <button class="btn-side" onclick="document.execCommand('undo')" title="Desfazer"><i class="fas fa-undo"></i></button>
-        <button class="btn-side" onclick="limpar()" style="margin-top: auto; color: #ef4444;"><i class="fas fa-trash-can"></i></button>
+        <button class="btn-side" onclick="abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" onclick="window.print()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" onclick="document.execCommand('undo')"><i class="fas fa-undo"></i></button>
     </aside>
 
     <section class="editor-view">
         <div class="paper-official">
             <div id="editor" contenteditable="true" spellcheck="false" oninput="contarLinhas()">
-                <b>ESTUDO DIRIGIDO - EDITAL PMDF 2023</b><br>
-                <b>LEGISLAÇÃO ESPECÍFICA APLICADA À PMDF</b><br><br>
-                TESES E ANOTAÇÕES: 
+                <b>ESTUDO LEGISLAÇÃO ATUALIZADA - 2026</b><br><br>
             </div>
         </div>
     </section>
@@ -87,12 +79,10 @@
         document.getElementById('counter').innerText = `LINHAS: ${String(lines).padStart(2, '0')}`;
     }
     window.receberTexto = (texto) => {
-        const ed = document.getElementById('editor');
-        ed.focus();
+        const ed = document.getElementById('editor'); ed.focus();
         document.execCommand('insertHTML', false, `<br>${texto}<br>`);
         abrirMentoria();
     };
-    function limpar() { if(confirm("Apagar rascunho?")) document.getElementById('editor').innerHTML = "<b>ESTUDO DIRIGIDO...</b>"; }
 </script>
 </body>
 </html>
