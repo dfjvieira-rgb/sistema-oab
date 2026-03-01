@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA OPERACIONAL JOAQUIM V3</title>
+    <title>SISTEMA JOAQUIM - QG OPERACIONAL</title>
     <style>
         :root { 
             --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
@@ -14,198 +14,132 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         header { background: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
-        #timer { font-family: monospace; font-size: 1.1rem; color: var(--yellow); }
         
         .nav-group { display: flex; gap: 8px; }
         .btn-top { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
-        .btn-top:hover { background: var(--accent); }
 
         main { display: flex; flex: 1; overflow: hidden; }
         
-        /* Sidebar melhorada */
+        /* Sidebar */
         .sidebar { width: var(--sidebar-w); background: #e9ecef; border-right: 2px solid #dee2e6; display: flex; flex-direction: column; padding: 15px; gap: 10px; overflow-y: auto; }
         h4 { font-size: 0.75rem; color: var(--primary); text-transform: uppercase; border-left: 4px solid var(--yellow); padding-left: 8px; margin-bottom: 5px; }
         
-        .item-link { background: white; padding: 12px; border-radius: 6px; border: 1px solid #ced4da; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; display: flex; flex-direction: column; gap: 4px; }
-        .item-link:hover { border-color: var(--primary); background: #f8f9fa; transform: translateX(5px); }
-        .item-link span { font-size: 0.65rem; color: #6c757d; font-weight: 400; }
+        .item-link { background: white; padding: 12px; border-radius: 6px; border: 1px solid #ced4da; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .item-link:hover { border-color: var(--primary); background: #f8f9fa; }
+        .item-link span { display: block; font-size: 0.65rem; color: #6c757d; margin-top: 4px; }
 
         /* Área de Trabalho */
         .editor-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 2px solid #dee2e6; }
         #area-peca { flex: 1; padding: 20px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; resize: none; }
         
-        /* Visualizador de PDF */
-        .pdf-section { width: 45%; background: #525659; display: flex; flex-direction: column; }
-        .pdf-toolbar { background: #333; color: white; padding: 8px; font-size: 0.7rem; display: flex; justify-content: space-between; }
-        #pdf-frame { width: 100%; height: 100%; border: none; background: white; }
+        /* Painel PDF (Onde os arquivos abrem) */
+        .pdf-section { width: 45%; background: #525659; display: flex; flex-direction: column; position: relative; }
+        .pdf-placeholder { color: white; text-align: center; margin-top: 50px; padding: 20px; font-size: 0.9rem; }
+        #pdf-frame { width: 100%; height: 100%; border: none; background: white; display: none; }
 
-        /* Painel de Anotações */
+        .btn-abrir-fora { background: var(--yellow); color: #000; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+
         #annotation-panel { display: none; width: 45%; background: white; flex-direction: column; border-left: 2px solid var(--primary); }
-        .ann-header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; }
-        .ann-list { flex: 1; padding: 15px; overflow-y: auto; }
-        .card-note { background: #fffde7; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 5px solid var(--yellow); font-size: 0.85rem; position: relative; }
-
-        @media (max-width: 1024px) {
-            .pdf-section { display: none; }
-            .sidebar { width: 80px; }
-            .sidebar span, .sidebar h4 { display: none; }
-        }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>PM-ESTUDO V3</strong></div>
-    <div id="timer">SESSÃO: 00:50:00</div>
+    <div><strong>SISTEMA JOAQUIM V4</strong></div>
     <div class="nav-group">
         <button class="btn-top" onclick="toggleAnn('postit')">📌 MNEMÔNICOS</button>
         <button class="btn-top" onclick="toggleAnn('dicas')">🚔 DICAS</button>
-        <button class="btn-top" style="background:var(--green)" onclick="salvarOffline()">💾 SALVAR AGORA</button>
     </div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <h4>📚 MATERIAIS OFICIAIS</h4>
+        <h4>📂 PROVAS (PDF)</h4>
         <div class="item-link" onclick="abrirDoc('https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf', 'PROVA PMDF 2023')">
             PROVA PMDF 2023
-            <span>Banca Instituto AOCP (Soldado)</span>
+            <span>Soldado - Inst. AOCP</span>
         </div>
-        <div class="item-link" onclick="abrirDoc('https://cdn.fs.pci-concursos.com.br/provas/26938977/2f7c6e0a8118/prova-soldado-da-policia-militar-pm-go-2022-instituto-aocp.pdf', 'PROVA PMGO 2022')">
+        <div class="item-link" onclick="abrirDoc('https://www.institutoaocp.org.br/concursos/arquivos/PMGO_SOLDADO_CADERNO_PROVA.pdf', 'PROVA PMGO 2022')">
             PROVA PMGO 2022
-            <span>Banca Instituto AOCP (Soldado)</span>
-        </div>
-        <div class="item-link" onclick="abrirDoc('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm', 'CÓDIGO PENAL')">
-            CÓDIGO PENAL (VADE)
-            <span>Sempre Atualizado - Planalto</span>
+            <span>Soldado - Inst. AOCP</span>
         </div>
 
-        <h4 style="margin-top:20px">📝 TREINO DISCURSIVA</h4>
-        <div class="item-link" onclick="injetarTexto('REDACAO')">ESTRUTURA DE REDAÇÃO AOCP <span>Clique para carregar no editor</span></div>
-        <div class="item-link" onclick="injetarTexto('RELATORIO')">MODELO OCORRÊNCIA PM <span>Para prova de escrivão/cadete</span></div>
+        <h4 style="margin-top:20px">⚖️ LEGISLAÇÃO (WEB)</h4>
+        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm')">
+            CÓDIGO PENAL
+            <span>Planalto (Abre em nova aba)</span>
+        </div>
+        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm')">
+            PROCESSO PENAL
+            <span>Planalto (Abre em nova aba)</span>
+        </div>
+        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm')">
+            CONSTITUIÇÃO FEDERAL
+            <span>Planalto (Abre em nova aba)</span>
+        </div>
+
+        <h4 style="margin-top:20px">📝 TEMPLATES</h4>
+        <div class="item-link" onclick="injetarTexto('REDACAO')">ESTRUTURA REDAÇÃO AOCP</div>
     </aside>
 
     <section class="editor-section">
-        <div style="background:#dee2e6; padding:5px 15px; font-size:0.65rem; font-weight:bold; color:#495057;">
-            EDITOR: <span id="current-doc">RASCUNHO LIVRE</span>
-        </div>
-        <textarea id="area-peca" placeholder="O que você escrever aqui será salvo automaticamente no Firebase..."></textarea>
+        <div style="background:#eee; padding:5px 15px; font-size:0.65rem; font-weight:bold;">EDITOR OPERACIONAL</div>
+        <textarea id="area-peca" placeholder="Escreva sua redação ou resumo aqui..."></textarea>
     </section>
 
     <section class="pdf-section" id="pdf-view">
-        <div class="pdf-toolbar">
-            <span id="pdf-name">NENHUM DOCUMENTO SELECIONADO</span>
-            <button onclick="window.open(document.getElementById('pdf-frame').src)" style="background:none; border:none; color:white; cursor:pointer;">↗️ ABRIR EM NOVA ABA</button>
+        <div id="placeholder" class="pdf-placeholder">
+            <p>Selecione uma prova na barra lateral.</p>
+            <p style="font-size:0.7rem; color:#ccc; margin-top:10px;">Nota: Se o documento não carregar devido à segurança do site da banca, utilize o botão que aparecerá abaixo.</p>
         </div>
-        <iframe id="pdf-frame" src="about:blank"></iframe>
+        <iframe id="pdf-frame"></iframe>
     </section>
 
     <section id="annotation-panel">
-        <div class="ann-header">
-            <h3 id="ann-title">ANOTAÇÕES</h3>
-            <button onclick="closeAnn()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">✖</button>
-        </div>
-        <div style="padding:15px; border-bottom:1px solid #ddd;">
-            <textarea id="ann-input" style="width:100%; height:60px; padding:8px;" placeholder="Digite seu mnemônico ou dica..."></textarea>
-            <button onclick="addNote()" style="width:100%; margin-top:8px; padding:10px; background:var(--accent); color:white; border:none; border-radius:4px; cursor:pointer;">SALVAR NO QG</button>
-        </div>
-        <div class="ann-list" id="ann-list-content"></div>
+        <div style="padding:15px; background:var(--primary); color:white;">ANOTAÇÕES <button onclick="closeAnn()" style="float:right">✖</button></div>
+        <div id="ann-list-content" style="padding:15px;"></div>
     </section>
 </main>
 
-<script type="module">
-    // --- LÓGICA DE FUNCIONAMENTO REAL ---
-    import { db } from './firebase-config.js';
-    import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<script>
+    // --- FUNÇÕES DE NAVEGAÇÃO ---
 
-    const PROJETO_ID = "JOAQUIM_OPERACIONAL_2026";
-    let tipoAtual = 'postit';
-
-    // 1. Abrir Documentos no Iframe (Melhorado)
-    window.abrirDoc = (url, nome) => {
+    function abrirDoc(url, nome) {
         const frame = document.getElementById('pdf-frame');
-        const pdfView = document.getElementById('pdf-view');
-        const annPanel = document.getElementById('annotation-panel');
+        const placeholder = document.getElementById('placeholder');
         
-        // Esconde anotações se estiverem abertas
-        annPanel.style.display = 'none';
-        pdfView.style.display = 'flex';
-        
+        // Tentamos carregar no frame
+        frame.style.display = 'block';
+        placeholder.innerHTML = `
+            <p>Carregando: ${nome}</p>
+            <button class="btn-abrir-fora" onclick="window.open('${url}', '_blank')">ABRIR PDF EM TELA CHEIA</button>
+        `;
         frame.src = url;
-        document.getElementById('pdf-name').innerText = nome;
-        document.getElementById('current-doc').innerText = nome;
-    };
-
-    // 2. Injetar Conteúdo Real no Editor
-    window.injetarTexto = (tipo) => {
-        const area = document.getElementById('area-peca');
-        const templates = {
-            'REDACAO': `ESTRUTURA REDAÇÃO (INSTITUTO AOCP)\n1. INTRODUÇÃO: Apresentar o tema + tese (2 períodos).\n2. DESENVOLVIMENTO 1: Argumento técnico (Ex: Princípio da Dignidade Humana).\n3. DESENVOLVIMENTO 2: Conexão com a atividade policial.\n4. CONCLUSÃO: Proposta de solução ou síntese.\n\n[COMECE AQUI SEU TEXTO]`,
-            'RELATORIO': `--- RELATÓRIO DE OCORRÊNCIA POLICIAL ---\nUNIDADE: ____ BPM / ____ CIA\nDATA/HORA: ${new Date().toLocaleString()}\n\n1. HISTÓRICO:\n\n2. PROVIDÊNCIAS:\n\n3. RESULTADO:\n`
-        };
-        if(confirm("Isso irá substituir o texto atual. Continuar?")) {
-            area.value = templates[tipo];
-            salvarOffline();
-        }
-    };
-
-    // 3. Sistema de Anotações Funcional
-    window.toggleAnn = (tipo) => {
-        tipoAtual = tipo;
-        document.getElementById('pdf-view').style.display = 'none';
-        document.getElementById('annotation-panel').style.display = 'flex';
-        document.getElementById('ann-title').innerText = tipo === 'postit' ? '📌 MNEMÔNICOS' : '🚔 DICAS OPERACIONAIS';
-        renderNotes();
-    };
-
-    window.closeAnn = () => {
-        document.getElementById('annotation-panel').style.display = 'none';
-        document.getElementById('pdf-view').style.display = 'flex';
-    };
-
-    window.addNote = () => {
-        const input = document.getElementById('ann-input');
-        if(!input.value) return;
-        const key = `anot_${tipoAtual}`;
-        let notes = JSON.parse(localStorage.getItem(key)) || [];
-        notes.push({ id: Date.now(), text: input.value });
-        localStorage.setItem(key, JSON.stringify(notes));
-        input.value = "";
-        renderNotes();
-    };
-
-    window.renderNotes = () => {
-        const list = document.getElementById('ann-list-content');
-        const notes = JSON.parse(localStorage.getItem(`anot_${tipoAtual}`)) || [];
-        list.innerHTML = notes.map(n => `
-            <div class="card-note">
-                ${n.text}
-                <button onclick="delNote(${n.id})" style="position:absolute; right:5px; top:5px; border:none; background:none; color:red; cursor:pointer;">✖</button>
-            </div>
-        `).join('');
-    };
-
-    window.delNote = (id) => {
-        let notes = JSON.parse(localStorage.getItem(`anot_${tipoAtual}`));
-        notes = notes.filter(n => n.id !== id);
-        localStorage.setItem(`anot_${tipoAtual}`, JSON.stringify(notes));
-        renderNotes();
-    };
-
-    // 4. Salvamento Firebase (Blindado)
-    async function salvarOffline() {
-        const txt = document.getElementById('area-peca').value;
-        await set(ref(db, `${PROJETO_ID}/RASCUNHO`), { texto: txt, doc: document.getElementById('current-doc').innerText });
     }
 
-    window.onload = async () => {
-        const snap = await get(ref(db, `${PROJETO_ID}/RASCUNHO`));
-        if(snap.exists()){
-            document.getElementById('area-peca').value = snap.val().texto;
-            document.getElementById('current-doc').innerText = snap.val().doc;
+    function abrirLinkExterno(url) {
+        // Leis do Planalto não abrem em iframe por segurança do Governo.
+        // Forçamos a abertura em uma nova aba para garantir que você leia.
+        window.open(url, '_blank');
+    }
+
+    function injetarTexto(tipo) {
+        const area = document.getElementById('area-peca');
+        if(tipo === 'REDACAO') {
+            area.value = "TEMA: [Insira o Tema]\n\n1. INTRODUÇÃO (Apresentação + Tese)\n\n2. DESENVOLVIMENTO 1 (Argumento Jurídico)\n\n3. DESENVOLVIMENTO 2 (Aplicação na Segurança Pública)\n\n4. CONCLUSÃO (Síntese + Fechamento)";
         }
-        setInterval(salvarOffline, 20000); // Salva a cada 20s
-    };
+    }
+
+    // --- FUNÇÕES DE ANOTAÇÕES ---
+    function toggleAnn(tipo) {
+        document.getElementById('pdf-view').style.display = 'none';
+        document.getElementById('annotation-panel').style.display = 'flex';
+        // Lógica de renderização simplificada aqui...
+    }
+    function closeAnn() {
+        document.getElementById('annotation-panel').style.display = 'none';
+        document.getElementById('pdf-view').style.display = 'flex';
+    }
 </script>
 </body>
 </html>
