@@ -10,7 +10,7 @@
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --mentoria: #a855f7; --sidebar-w: 70px;
-            --perigo: #ef4444; --success: #10b981; --biblioteca: #3b82f6;
+            --perigo: #ef4444; --success: #10b981; --biblioteca: #3b82f6; --edital: #475569;
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -52,19 +52,14 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 110000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 95%; max-width: 550px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
         
-        /* GRID DE GAVETAS */
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-gaveta { padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
-        .btn-gaveta:hover { border-color: var(--gold); background: #fff; }
+        .btn-gaveta:hover { border-color: var(--gold); }
 
-        /* BIBLIOTECA - LISTA DE LEIS */
         .item-lei { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .item-lei:hover { background: #f8fafc; }
         .tag-lei { font-size: 10px; background: #1e293b; color: var(--gold); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
 
-        /* TOAST */
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; }
-        
         .item-arquivo { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
     </style>
 </head>
@@ -74,7 +69,6 @@
 
 <header>
     <div class="logo">MASTER OAB <span>| PMDF ELITE</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">SISTEMA DE GESTÃO TÁTICA</div>
 </header>
 
 <main>
@@ -82,6 +76,7 @@
         <button class="btn-side" style="background:#facc15; color:#000" onclick="window.criarNovoTreino()"><i class="fas fa-plus"></i></button>
         <button class="btn-side" style="background:var(--success);" onclick="window.abrirMenuSalvar()"><i class="fas fa-save"></i></button>
         <button class="btn-side" style="background:#334155;" onclick="window.abrirGerenciador()"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" style="background:var(--edital);" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')"><i class="fas fa-file-pdf"></i></button>
         <button class="btn-side" style="background:var(--biblioteca);" onclick="window.abrirBiblioteca()"><i class="fas fa-book-open"></i></button>
         <hr style="width:60%; opacity:0.1; margin:5px 0">
         <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
@@ -94,14 +89,14 @@
             </div>
             <div class="paper">
                 <div id="folha-total" contenteditable="true" spellcheck="false">
-                    <b>INICIAR PRODUÇÃO...</b><br><br>
+                    <b>INICIAR PRODUÇÃO PMDF...</b><br><br>
                 </div>
             </div>
         </section>
 
         <div id="pdf-sidebar">
             <div class="pdf-header">
-                <span id="pdf-titulo">LEGISLAÇÃO</span>
+                <span id="pdf-titulo">DOCUMENTO</span>
                 <div style="display:flex; gap:15px">
                     <span onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold);"><i class="fas fa-expand"></i> MAX</span>
                     <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red;"></i>
@@ -143,24 +138,13 @@
 <div class="modal" id="modal-biblioteca">
     <div class="modal-body">
         <h2 style="font-size:18px; border-bottom:2px solid var(--biblioteca); padding-bottom:5px; margin-bottom:15px;">BIBLIOTECA CRIMINAL</h2>
-        <div style="max-height: 450px; overflow-y: auto;">
-            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', 'CPP')">
-                <div><span class="tag-lei">CPP</span> <b>Código de Processo Penal</b></div><i class="fas fa-file-alt"></i>
-            </div>
-            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l7960.htm', 'PRISÃO TEMPORÁRIA')">
-                <div><span class="tag-lei">L7960</span> <b>Lei de Prisão Temporária</b></div><i class="fas fa-file-alt"></i>
-            </div>
-            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l9099.htm', 'JECRIM')">
-                <div><span class="tag-lei">L9099</span> <b>Lei dos Juizados (TCO)</b></div><i class="fas fa-file-alt"></i>
-            </div>
-            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm', 'MARIA DA PENHA')">
-                <div><span class="tag-lei">L11340</span> <b>Lei Maria da Penha</b></div><i class="fas fa-file-alt"></i>
-            </div>
-            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12850.htm', 'ORCRIM')">
-                <div><span class="tag-lei">L12850</span> <b>Org. Criminosas</b></div><i class="fas fa-file-alt"></i>
-            </div>
+        <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', 'CPP')">
+            <div><span class="tag-lei">CPP</span> <b>Código de Processo Penal</b></div><i class="fas fa-file-alt"></i>
         </div>
-        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:black; color:white; border-radius:8px; cursor:pointer;">FECHAR</button>
+        <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm', 'MARIA DA PENHA')">
+            <div><span class="tag-lei">L11340</span> <b>Lei Maria da Penha</b></div><i class="fas fa-file-alt"></i>
+        </div>
+        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:black; color:white; border-radius:8px;">FECHAR</button>
     </div>
 </div>
 
@@ -184,56 +168,42 @@
     window.idAtual = null;
     window.missaoNome = "MISSÃO SEM TÍTULO";
 
-    // --- SALVAMENTO ---
     window.abrirMenuSalvar = () => document.getElementById('modal-salvar-lista').style.display = 'flex';
-    
     window.executarSalvamento = async (gaveta) => {
         const conteudo = document.getElementById('folha-total').innerHTML;
         const id = window.idAtual || Date.now().toString();
         document.getElementById('modal-salvar-lista').style.display = 'none';
         try {
-            await set(ref(db, `producao_v13/HISTORICO_PMDF/${id}`), {
-                nome: window.missaoNome,
-                data: new Date().toLocaleString('pt-BR'),
-                gaveta: gaveta,
-                conteudo: conteudo
-            });
+            await set(ref(db, `producao_v13/HISTORICO_PMDF/${id}`), { nome: window.missaoNome, data: new Date().toLocaleString('pt-BR'), gaveta: gaveta, conteudo: conteudo });
             window.idAtual = id;
             const t = document.getElementById('toast'); t.style.display = 'block';
             setTimeout(() => t.style.display = 'none', 2500);
         } catch(e) { alert("Erro ao salvar."); }
     };
 
-    // --- GERENCIADOR ---
     window.abrirGerenciador = () => { document.getElementById('modal-gerenciador').style.display = 'flex'; window.voltarGavetasGerenciador(); };
     window.voltarGavetasGerenciador = () => { document.getElementById('view-gavetas-ger').style.display = 'grid'; document.getElementById('view-arquivos-ger').style.display = 'none'; document.getElementById('nav-gerenciador').style.display = 'none'; };
     
     window.abrirPastaGerenciador = async (gaveta) => {
+        const lista = document.getElementById('lista-arquivos');
         document.getElementById('view-gavetas-ger').style.display = 'none';
         document.getElementById('view-arquivos-ger').style.display = 'block';
         document.getElementById('nav-gerenciador').style.display = 'block';
-        const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "Carregando...";
+        lista.innerHTML = "Sincronizando...";
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
         if(snap.exists()){
             const docs = Object.keys(snap.val()).map(k => ({id:k, ...snap.val()[k]})).filter(i => i.gaveta === gaveta).reverse();
-            lista.innerHTML = docs.length ? "" : "Gaveta vazia.";
+            lista.innerHTML = docs.length ? "" : "Pasta vazia.";
             docs.forEach(doc => {
                 const item = document.createElement('div');
                 item.className = 'item-arquivo';
-                item.onclick = () => {
-                    document.getElementById('folha-total').innerHTML = doc.conteudo;
-                    window.missaoNome = doc.nome; window.idAtual = doc.id;
-                    document.getElementById('identificador-peca').innerText = doc.nome;
-                    document.getElementById('modal-gerenciador').style.display = 'none';
-                };
+                item.onclick = () => { document.getElementById('folha-total').innerHTML = doc.conteudo; window.missaoNome = doc.nome; window.idAtual = doc.id; document.getElementById('identificador-peca').innerText = doc.nome; document.getElementById('modal-gerenciador').style.display = 'none'; };
                 item.innerHTML = `<div><b>${doc.nome}</b><br><small>${doc.data}</small></div>`;
                 lista.appendChild(item);
             });
         }
     };
 
-    // --- BIBLIOTECA E PDF ---
     window.abrirBiblioteca = () => document.getElementById('modal-biblioteca').style.display = 'flex';
     window.abrirPDFNoLado = (url, titulo) => {
         document.getElementById('pdf-frame').src = url;
@@ -246,11 +216,7 @@
 
     window.criarNovoTreino = () => {
         const n = prompt("NOME DA MISSÃO:");
-        if(n) {
-            window.missaoNome = n.toUpperCase(); window.idAtual = null;
-            document.getElementById('identificador-peca').innerText = window.missaoNome;
-            document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`;
-        }
+        if(n) { window.missaoNome = n.toUpperCase(); window.idAtual = null; document.getElementById('identificador-peca').innerText = window.missaoNome; document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`; }
     };
 </script>
 </body>
