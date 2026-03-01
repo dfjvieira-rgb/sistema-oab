@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SISTEMA JOAQUIM PM | MASTER OAB</title>
+    <title>SISTEMA OPERACIONAL | QG JOAQUIM 2026</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -13,14 +13,17 @@
             --bg-paper: #cbd5e1; 
             --mentoria: #16a34a; /* Verde Militar */
             --sidebar-w: 70px;
-            --questoes: #2563eb; --teses: #dc2626; --biblioteca: #475569;
+            --questoes: #2563eb; 
+            --teses: #dc2626; 
+            --inteligencia: #facc15;
+            --peca: #a855f7;
         }
 
         body.dark-mode { --bg-paper: #020617; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', system-ui, sans-serif; 
             background: var(--primary); 
             height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white;
         }
@@ -31,32 +34,35 @@
             border-bottom: 2px solid var(--gold); z-index: 5000;
         }
 
-        .logo { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; }
+        .logo { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .logo span { color: var(--gold); }
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
+        /* SIDEBAR COMPLETA COM TODOS OS BOTÕES */
         .sidebar { 
             width: var(--sidebar-w); background: #001529; display: flex; 
-            flex-direction: column; align-items: center; gap: 10px; padding: 15px 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
+            flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; 
+            border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto;
         }
 
         .btn-side { 
-            width: 50px; min-height: 50px; border: none; border-radius: 10px; 
+            width: 48px; min-height: 48px; border: none; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; color: white; 
             cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05); position: relative;
         }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        .btn-side i { font-size: 1.1rem; color: var(--gold); }
+        .btn-side:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+        .btn-side i { font-size: 1.2rem; }
 
+        /* Tooltips */
         .btn-side::after {
             content: attr(data-label); position: absolute; left: 60px; background: #000; color: #fff;
             padding: 6px 12px; border-radius: 6px; font-size: 10px; white-space: nowrap; 
             opacity: 0; pointer-events: none; transition: 0.2s; z-index: 6000; border: 1px solid var(--gold);
         }
-        .btn-side:hover::after { opacity: 1; left: 75px; }
+        .btn-side:hover::after { opacity: 1; left: 70px; }
 
+        /* ÁREA DO EDITOR */
         .editor-container { 
             flex: 1; display: flex; flex-direction: column; 
             background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
@@ -71,27 +77,30 @@
         #identificador-peca { 
             padding: 12px; background: #f8fafc; text-align: center; 
             font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold);
-            cursor: pointer; text-transform: uppercase; font-size: 0.8rem;
+            cursor: pointer; text-transform: uppercase; font-size: 0.75rem;
         }
         
-        .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; }
+        .toolbar-liberdade { display: flex; background: #fff; }
         .btn-lib { 
             flex: 1; padding: 12px; border: none; background: transparent; 
-            cursor: pointer; font-weight: 800; font-size: 0.7rem; 
+            cursor: pointer; font-weight: 800; font-size: 0.65rem; 
             text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
         }
 
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 1500px; }
+        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.3); min-height: 1500px; padding: 40px; }
 
+        /* PDF VIEWER */
         #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; border-left: 0 solid var(--gold); }
-        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
+        #pdf-viewer.active { width: 45%; border-left: 4px solid var(--gold); }
 
-        .pdf-controls { background: #0f172a; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 12px; }
+        .pdf-controls { background: #0f172a; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 11px; align-items: center; }
         iframe { width: 100%; flex: 1; border: none; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
-        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; }
+        /* MODAIS */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; padding: 10px; }
+        .modal-body { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
+        .opt-btn { width: 100%; padding: 15px; margin-bottom: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; font-size: 0.85rem; }
+        .opt-btn:hover { background: #f1f5f9; border-color: var(--gold); }
 
         @media (max-width: 768px) { .sidebar { display: none; } #pdf-viewer.active { width: 100%; position: absolute; inset: 0; z-index: 9000; } }
     </style>
@@ -99,28 +108,36 @@
 <body class="dark-mode">
 
 <header>
-    <div class="logo">QG JOAQUIM <span>PM/OAB</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">DIRETÓRIO: C:\SISTEMA-OAB</div>
+    <div class="logo">SISTEMA <span>OAB/PM 2026</span></div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">DIR: C:\SISTEMA-OAB</div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--gold); color:#000" data-label="CENTRAL PDF" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder-open"></i></button>
-        <button class="btn-side" style="background:var(--questoes)" data-label="50 QUESTÕES" onclick="window.modoAtual='QUESTOES'; window.atualizarDisplayModo()"><i class="fas fa-list-check"></i></button>
-        <button class="btn-side" style="background:#facc15; color:#000" data-label="REDAÇÃO/RELATÓRIO" onclick="window.modoAtual='REDACAO'; window.atualizarDisplayModo()"><i class="fas fa-pen-nib"></i></button>
-        <button class="btn-side" style="background:var(--mentoria)" data-label="BLINDAR MASTER" onclick="window.finalizarPeca()"><i class="fas fa-cloud-arrow-up"></i></button>
-        <hr style="width:70%; opacity:0.1; margin:5px 0">
+        <button class="btn-side" style="background:var(--gold); color:#000" data-label="CENTRAL PDF" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-file-pdf"></i></button>
+        <button class="btn-side" style="background:var(--questoes)" data-label="50 QUESTÕES" onclick="window.abrirSistemaLeis('QUESTOES')"><i class="fas fa-list-check"></i></button>
+        <button class="btn-side" style="background:var(--teses)" data-label="TESES PENAIS" onclick="window.abrirSistemaLeis('TESES')"><i class="fas fa-gavel"></i></button>
+        <button class="btn-side" style="background:var(--inteligencia); color:#000" data-label="NÃO CONFUNDA" onclick="window.abrirSistemaLeis('INTELIGENCIAS')"><i class="fas fa-brain"></i></button>
+        <button class="btn-side" style="background:var(--peca)" data-label="QUAL A PEÇA?" onclick="window.abrirSistemaLeis('PECA')"><i class="fas fa-scale-balanced"></i></button>
+        
+        <hr style="width:60%; opacity:0.2; margin:5px 0">
+        
+        <button class="btn-side" style="background:#475569;" data-label="PERGAMINHO" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i></button>
         <button class="btn-side" style="background:#334155;" data-label="GAVETAS MASTER" onclick="window.gerenciadorPasta()"><i class="fas fa-box-archive"></i></button>
-        <button class="btn-side" style="background:#475569;" data-label="MODELOS PM" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i></button>
+        <button class="btn-side" style="background:#10b981;" data-label="BLINDAR AGORA" onclick="window.finalizarPeca()"><i class="fas fa-cloud-arrow-up"></i></button>
+        
+        <hr style="width:60%; opacity:0.2; margin:5px 0">
+        
+        <button class="btn-side" style="background:var(--mentoria);" data-label="IA MENTOR" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
     </aside>
 
     <section class="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomearTreino()">MISSÃO ATUAL... <i class="fas fa-pen"></i></div>
+            <div id="identificador-peca" onclick="window.renomearTreino()">MISSAO: NOVO TREINO PM/OAB <i class="fas fa-pen"></i></div>
             <div class="toolbar-liberdade">
                 <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-eraser"></i> Limpar</button>
-                <button class="btn-lib" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-file-pdf"></i> Salvar PDF</button>
+                <button class="btn-lib" onclick="window.togglePDF()"><i class="fas fa-expand"></i> Foco PDF</button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-file-export"></i> Gerar PDF</button>
             </div>
         </div>
         <div class="paper">
@@ -131,7 +148,7 @@
     <section id="pdf-viewer">
         <div class="pdf-controls">
             <span id="pdf-title">DOCUMENTO</span>
-            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; cursor:pointer; font-weight:bold;">X</button>
+            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; cursor:pointer; font-weight:bold; border-radius:4px">X</button>
         </div>
         <iframe id="pdf-frame"></iframe>
     </section>
@@ -139,10 +156,10 @@
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <div id="modal-back-btn" style="display:none; cursor:pointer; color:var(--gold); font-weight:bold;" onclick="window.gerenciadorPasta()">← VOLTAR</div>
-        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold); padding-bottom:10px;"></h2>
+        <div id="modal-back-btn" style="display:none; cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px" onclick="window.gerenciadorPasta()">← VOLTAR</div>
+        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:2px solid var(--gold); padding-bottom:10px; font-size:1.1rem"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer; font-weight:bold;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer; font-weight:bold; border:none;">FECHAR</button>
     </div>
 </div>
 
@@ -151,15 +168,15 @@
     import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // CONFIGURAÇÃO DE BLINDAGEM MASTER OAB NA PASTA PM
+    // CONFIGURAÇÃO DE BLINDAGEM NO FIREBASE
     window.db = db;
     const PATH_BASE = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
     const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_FINALIZADOS";
 
-    window.modoAtual = localStorage.getItem('modoAtual_pm') || "REDACAO"; 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_pm') || "NOVO TREINO PM";
+    window.modoAtual = "REDACAO"; 
+    window.pecaAtualNome = "NOVO TREINO OPERACIONAL";
 
-    // BIBLIOTECA OFICIAL - EXAMES 35 A 39
+    // LISTA DE PDFs (Arquivos do 35 ao 39)
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: "35º Exame - Prova", url: "ro35.pdf" },
         { nome: "35º Exame - Gabarito", url: "ro35-gabarito.pdf" },
@@ -175,22 +192,45 @@
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
-        atualizarDisplayModo();
         await carregarRascunho();
         setInterval(salvarAutomatico, 20000); 
     };
 
-    // --- FUNÇÕES DE PDF ---
+    // --- FUNÇÃO DO SISTEMA DE LEIS (QUESTÕES, TESES, INTELIGÊNCIAS) ---
+    window.abrirSistemaLeis = (tipo) => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        const titulos = {
+            'QUESTOES': '📝 50 QUESTÕES ESTRATÉGICAS',
+            'TESES': '⚖️ TESES PENAIS E TRABALHISTAS',
+            'INTELIGENCIAS': '💡 INTELIGÊNCIA: NÃO CONFUNDA',
+            'PECA': '🔍 QUAL É A PEÇA?'
+        };
+        
+        document.getElementById('modal-title').innerText = titulos[tipo];
+        document.getElementById('modal-back-btn').style.display = "none";
+        
+        content.innerHTML = `<p style="font-size:0.9rem; color:#666">Carregando base de dados do exame 35 ao 39...</p>`;
+        
+        // Aqui você pode injetar os conteúdos específicos de cada exame conforme estudarmos
+        setTimeout(() => {
+            content.innerHTML = `<div class="opt-btn"><span>Ver Base do Exame 39 (AOCP)</span> <i class="fas fa-chevron-right"></i></div>
+                                 <div class="opt-btn"><span>Ver Base do Exame 38</span> <i class="fas fa-chevron-right"></i></div>`;
+        }, 500);
+        
+        modal.style.display = 'flex';
+    };
+
+    // --- CENTRAL DE PDF ---
     window.abrirBibliotecaPDF = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📚 CENTRAL DE PROVAS";
+        document.getElementById('modal-title').innerText = "📚 BIBLIOTECA DE PROVAS";
         content.innerHTML = "";
         window.LISTA_PDF_BIBLIOTECA.forEach(pdf => {
             const div = document.createElement('div');
             div.className = 'opt-btn';
-            div.innerHTML = `<span>${pdf.nome}</span> <i class="fas fa-file-pdf" style="color:red"></i>`;
+            div.innerHTML = `<span>${pdf.nome}</span> <i class="fas fa-file-pdf" style="color:#dc2626"></i>`;
             div.onclick = () => { window.verPDF(pdf.url, pdf.nome); modal.style.display = 'none'; };
             content.appendChild(div);
         });
@@ -205,61 +245,22 @@
         viewer.classList.add('active');
     };
 
-    // --- GAVETAS MASTER ---
-    window.gerenciadorPasta = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 GAVETAS MASTER PM";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTOES')"><span>GAVETA: 50 QUESTÕES</span> <i class="fas fa-list-check" style="color:var(--questoes)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDACAO')"><span>GAVETA: REDAÇÕES</span> <i class="fas fa-pen-nib" style="color:#facc15"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('RELATORIO')"><span>GAVETA: RELATÓRIOS</span> <i class="fas fa-file-shield" style="color:var(--mentoria)"></i></div>
-        `;
-        modal.style.display = 'flex';
-    };
+    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active'); };
+    window.togglePDF = () => { document.getElementById('pdf-viewer').classList.toggle('active'); };
 
-    window.abrirGavetaEspecifica = async (tipoGaveta) => {
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "block";
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
-        content.innerHTML = "Lendo Master OAB...";
-        try {
-            const snap = await get(ref(db, PATH_HISTORICO));
-            content.innerHTML = "";
-            if (snap.exists()) {
-                const filtrados = Object.keys(snap.val())
-                    .map(k => ({ id: k, ...snap.val()[k] }))
-                    .filter(item => item.exame === tipoGaveta);
-                if(filtrados.length === 0) content.innerHTML = "Gaveta vazia.";
-                filtrados.reverse().forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'opt-btn';
-                    div.innerHTML = `<strong>${item.peca}</strong>`;
-                    div.onclick = () => {
-                        document.getElementById('editor-principal').innerHTML = item.conteudo;
-                        document.getElementById('universal-modal').style.display = 'none';
-                    };
-                    content.appendChild(div);
-                });
-            } else content.innerHTML = "Vazia.";
-        } catch (e) { content.innerHTML = "Erro de conexão."; }
-    };
-
-    // --- BLINDAGEM ---
+    // --- BLINDAGEM E GAVETAS ---
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
-        if(!ed || ed.innerHTML.length < 10) return;
-        if (!confirm(`Blindar "${window.pecaAtualNome}" no Master OAB?`)) return;
-        try {
-            const idFinal = Date.now().toString();
-            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
-                exame: window.modoAtual, 
-                peca: `${window.pecaAtualNome} (${new Date().toLocaleString()})`, 
+        if(!ed || ed.innerText.length < 5) return;
+        if(confirm("Deseja BLINDAR este rascunho permanentemente?")) {
+            const id = Date.now().toString();
+            await set(ref(db, `${PATH_HISTORICO}/${id}`), {
+                nome: window.pecaAtualNome,
+                data: new Date().toLocaleString(),
                 conteudo: ed.innerHTML
             });
-            alert("✅ Blindado com sucesso!");
-        } catch (e) { alert("Erro ao blindar."); }
+            alert("✅ Blindagem concluída!");
+        }
     };
 
     async function salvarAutomatico() { 
@@ -272,18 +273,15 @@
         if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
     }
 
-    window.atualizarDisplayModo = () => {
-        localStorage.setItem('modoAtual_pm', window.modoAtual);
-        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen"></i>`;
+    window.renomearTreino = () => {
+        const n = prompt("Qual o nome desta missão?", window.pecaAtualNome);
+        if(n) { 
+            window.pecaAtualNome = n; 
+            document.getElementById('identificador-peca').innerHTML = `${n} <i class="fas fa-pen"></i>`;
+        }
     };
 
-    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active'); };
-    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('active'); };
-    window.renomearTreino = () => {
-        const n = prompt("Nome do Documento:", window.pecaAtualNome);
-        if(n) { window.pecaAtualNome = n; window.atualizarDisplayModo(); }
-    };
-    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar rascunho atual?")) document.getElementById('editor-principal').innerHTML = ""; };
 </script>
 </body>
 </html>
