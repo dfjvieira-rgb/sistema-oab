@@ -235,21 +235,25 @@
     import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // --- CONFIGURAÇÃO MASTER OAB / PM 2026 ---
-    const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_OFICIAL";
-    const PATH_RASCUNHO = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
+    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER (ESTRUTURA PM 2026) ---
+    // O uso do prefixo "PM2026_" garante que não haja colisão com o projeto OAB
+    const PREFIXO = "PM2026";
+    const PATH_HISTORICO = `${PREFIXO}/HISTORICO_OFICIAL`;
+    const PATH_RASCUNHO = `${PREFIXO}/MASTER_RASCUNHO`;
 
     window.db = db;
-    window.activeEx = localStorage.getItem('activeEx') || "39";
-    window.modoAtual = localStorage.getItem('modoAtual') || "TREINO"; 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO";
+    
+    // Recuperação de estado isolada via LocalStorage com prefixo único
+    window.activeEx = localStorage.getItem(`${PREFIXO}_activeEx`) || "39";
+    window.modoAtual = localStorage.getItem(`${PREFIXO}_modoAtual`) || "TREINO"; 
+    window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "NOVO TREINO PM";
 
     window.historicoUndo = [];
     let debounceTimer = null;
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
 
-    // --- BIBLIOTECA DE APOIO ---
+    // --- BIBLIOTECA DE APOIO ESPECÍFICA ---
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
         { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
@@ -259,7 +263,7 @@
     ];
 
     window.onload = async () => {
-        // Inicializa a Folha com as 150 linhas mecânicas
+        // Inicializa a FolhaEngine (Garante as 150 linhas padrão FGV)
         FolhaEngine.montar('folha-total');
         atualizarDisplayModo(); 
         
@@ -286,10 +290,10 @@
         }, 1000);
 
         await carregarRascunho();
-        setInterval(salvarAutomatico, 30000); // Backup automático a cada 30s
+        setInterval(salvarAutomatico, 30000); 
     };
 
-    // --- INTELIGÊNCIA DOS EXAMES (35-39) ---
+    // --- INTELIGÊNCIA DOS EXAMES ANALISADOS (35-39) ---
     window.injetarTeses = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -305,13 +309,13 @@
         modal.style.display = 'flex';
     };
 
-    // --- GESTÃO DE GAVETAS (FIREBASE MASTER) ---
+    // --- GESTÃO DE GAVETAS (FIREBASE ISOLADO PM) ---
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
         const tipo = window.modoAtual; 
         const nomeAlvo = window.pecaAtualNome;
 
-        if(!confirm(`Deseja salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
+        if(!confirm(`[PLANO PM] Salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
 
         try {
             const idFinal = Date.now().toString();
@@ -321,17 +325,17 @@
             await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
                 exame: tipo, 
                 peca: `${nomeAlvo} (${dataF})`, 
-                conteudo: ed.innerHTML
+                conteudo: ed.innerHTML,
+                origem: "PM_REDACOES"
             });
-            alert("✅ Guardado no Plano de Voo!");
-        } catch (e) { alert("Erro ao salvar no Firebase."); }
+            alert("✅ Guardado no Plano de Voo PM!");
+        } catch (e) { alert("Erro ao salvar no Firebase PM."); }
     };
 
-    // --- FUNÇÕES DE NAVEGAÇÃO E PDF ---
+    // --- NAVEGAÇÃO E PDFs ---
     window.verPDF = (t) => {
         const f = document.getElementById('pdf-frame');
         let url = "";
-        
         switch(t) {
             case 'P': url = `ro${window.activeEx}.pdf`; break;
             case 'G': url = `ro${window.activeEx}-gabarito.pdf`; break;
@@ -339,9 +343,8 @@
             case 'LP': url = 'livro_processo.pdf'; break;
             case 'LM': url = 'livro_material.pdf'; break;
         }
-        
         f.src = url;
-        document.getElementById('pdf-title').innerText = `DOCUMENTO: ${url}`;
+        document.getElementById('pdf-title').innerText = `PM APOIO: ${url}`;
         document.getElementById('pdf-viewer').classList.add('active');
         window.toggleRecolherEditor(); 
     };
@@ -357,7 +360,7 @@
             b.onclick = () => { 
                 window.activeEx = i.toString(); 
                 window.modoAtual = i.toString(); 
-                window.pecaAtualNome = "PEÇA OFICIAL"; 
+                window.pecaAtualNome = "PEÇA OFICIAL PM"; 
                 persistirERefrescar();
                 modal.style.display = 'none';
             };
@@ -366,7 +369,31 @@
         modal.style.display = 'flex';
     };
 
-    // --- UTILITÁRIOS ---
+    // --- PERSISTÊNCIA E BACKUP ---
+    function persistirERefrescar() {
+        localStorage.setItem(`${PREFIXO}_modoAtual`, window.modoAtual);
+        localStorage.setItem(`${PREFIXO}_pecaAtualNome`, window.pecaAtualNome);
+        localStorage.setItem(`${PREFIXO}_activeEx`, window.activeEx);
+        atualizarDisplayModo();
+    }
+
+    async function salvarAutomatico() { 
+        const ed = document.getElementById('editor-principal'); 
+        if(ed && ed.innerText.trim() !== "") {
+            await set(ref(db, PATH_RASCUNHO), { 
+                conteudo: ed.innerHTML, 
+                timestamp: Date.now(),
+                contexto: "PM_WORK" 
+            }); 
+        }
+    }
+
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, PATH_RASCUNHO)); 
+        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
+    }
+
+    // --- UI TOOLS ---
     window.desfazer = () => {
         if(window.historicoUndo.length > 1) {
             window.historicoUndo.pop();
@@ -376,43 +403,26 @@
     };
 
     window.renomearTreino = () => {
-        const n = prompt("Nome do Documento:", window.pecaAtualNome);
+        const n = prompt("Nome do Documento PM:", window.pecaAtualNome);
         if (n) { window.pecaAtualNome = n; persistirERefrescar(); }
     };
 
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed && ed.innerText.trim() !== "") {
-            await set(ref(db, PATH_RASCUNHO), { conteudo: ed.innerHTML, timestamp: Date.now() }); 
-        }
-    }
-
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, PATH_RASCUNHO)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
-
-    function persistirERefrescar() {
-        localStorage.setItem('modoAtual', window.modoAtual);
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
-        localStorage.setItem('activeEx', window.activeEx);
-        atualizarDisplayModo();
-    }
-
     window.atualizarDisplayModo = () => {
-        document.getElementById('ex-display').innerText = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
+        const label = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
+        document.getElementById('ex-display').innerText = `PM: ${label}`;
         document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
     };
 
-    // Funções de interface (fechar, recolher) mantidas conforme Parte 1
     window.fecharPDF = () => {
         document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
         document.getElementById('editor-container').classList.remove('collapsed');
     };
+
     window.toggleRecolherEditor = () => {
         document.getElementById('editor-container').classList.toggle('collapsed');
         document.getElementById('pdf-viewer').classList.toggle('full-view');
     };
+
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
 </script>
