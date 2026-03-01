@@ -1,89 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SISTEMA JOAQUIM - QG OPERACIONAL PMDF/PMGO</title>
+    <style>
+        :root { 
+            --primary: #1a252f; --accent: #1e5c2d; --bg: #f4f7f6; 
+            --orange: #d35400; --green: #27ae60; --purple: #8e44ad; 
+            --yellow: #f1c40f; --text: #2c3e50; --header-h: 60px; 
+            --sidebar-w: 260px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
+        #timer { font-family: monospace; font-size: 1.2rem; color: var(--yellow); font-weight: bold; }
+        
+        .nav-group { display: flex; gap: 5px; }
+        .dropbtn { color: white; padding: 8px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
+        .btn-struct { background-color: var(--accent); }
+        .btn-correc { background-color: var(--orange); }
+        .btn-postit { background-color: var(--yellow); color: #333; }
+        .btn-dicas { background-color: var(--purple); }
+
+        .dropdown { position: relative; }
+        .dropdown-content { display: none; position: absolute; background: white; min-width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); right: 0; border-radius: 6px; padding: 8px; z-index: 2000; border: 1px solid #ddd; }
+        .dropdown:hover .dropdown-content { display: block; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.8rem; color: #333; cursor: pointer; }
+
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        
+        .sidebar { width: var(--sidebar-w); background: #eaeff2; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; transition: width 0.3s; }
+        .sidebar.collapsed { width: 0; overflow: hidden; border: none; }
+        .sidebar-content { padding: 12px; display: flex; flex-direction: column; gap: 15px; }
+        
+        h4 { font-size: 0.65rem; color: #666; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .exame-btn { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
+        .exame-btn.active { background: var(--accent); color: white; }
+
+        .work-section { width: 45%; display: flex; flex-direction: column; background: white; flex-shrink: 0; border-right: 1px solid #ccc; }
+        #area-peca { flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 1.6em; resize: none; }
+        #resizer { width: 10px; background: #cbd5e0; cursor: col-resize; z-index: 10; border-left: 1px solid #a0aec0; }
+
+        .pdf-section { flex: 1; background: #525659; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; }
+        .pdf-box { background: #333; border-radius: 4px; overflow: hidden; height: 100%; }
+        .pdf-header { padding: 6px 10px; color: white; font-size: 0.7rem; display: flex; justify-content: space-between; background: #2c3e50; }
+        .pdf-frame { width: 100%; height: 90vh; border: none; background: white; }
+
+        #annotations-manager-panel { display: none; flex: 1; background: var(--bg); flex-direction: column; }
+        .tabs { display: flex; background: #ddd; }
+        .tab-button { padding: 10px 15px; border: none; cursor: pointer; font-size: 0.8rem; background: #eee; }
+        .tab-button.active { background: var(--bg); border-bottom: 2px solid var(--accent); }
+        .tab-content { padding: 15px; overflow-y: auto; flex: 1; }
+
+        .annotation-list-item { padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; position: relative; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
+        .type-postit { background: var(--yellow); }
+        .type-dicas { background: var(--green); color: white; }
+
+        @media (max-width: 1024px) {
+            #resizer { display: none; }
+            main { flex-direction: column; }
+            .work-section { width: 100% !important; height: 50vh; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <button id="mobile-toggle" style="background:#34495e; color:white; border:none; padding:8px; border-radius:4px; display:none;" onclick="toggleSidebarMobile()">☰ MENU</button>
+        <div id="timer">OPERAÇÃO: 00:50:00</div>
+    </div>
+    <div class="nav-group">
+        <div class="dropdown">
+            <button class="dropbtn btn-struct">⚖️ VADE POLICIAL</button>
+            <div class="dropdown-content">
+                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm')">Código Penal</div>
+                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm')">Processo Penal</div>
+                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm')">Constituição Federal</div>
+            </div>
+        </div>
+        <button class="dropbtn btn-postit" onclick="openAnnotationsPanel('postit')">📌 Post-its</button>
+        <button class="dropbtn btn-dicas" onclick="openAnnotationsPanel('dicas')">🚔 Dicas PM</button>
+    </div>
+</header>
+
+<main id="main-container">
+    <aside class="sidebar" id="sidebar-main">
+        <div class="sidebar-content">
+            <h4>📂 PROVAS ANTERIORES</h4>
+            <div id="lista-provas">
+                <div class="exame-btn" onclick="carregarPDF('https://bit.ly/prova-pmdf-2023', 'PMDF 2023')">👮 PMDF 2023 (AOCP)</div>
+                <div class="exame-btn" onclick="carregarPDF('https://bit.ly/prova-pmgo-2022', 'PMGO 2022')">👮 PMGO 2022 (GOAL)</div>
+            </div>
+            
+            <h4 style="margin-top:15px">💾 DADOS</h4>
+            <button class="btn-action" style="background:#27ae60; width:100%; color:white; padding:8px; border:none; cursor:pointer;" onclick="fazerBackup()">EXPORTAR TXT</button>
+            <button class="btn-action" style="background:#2980b9; width:100%; margin-top:5px; color:white; padding:8px; border:none; cursor:pointer;" onclick="document.getElementById('input-file').click()">IMPORTAR</button>
+            <input type="file" id="input-file" style="display:none" onchange="importarBackup(this)">
+        </div>
+    </aside>
+
+    <section class="work-section" id="editor-area">
+        <div class="editor-header" style="padding:10px; display:flex; justify-content:space-between; align-items:center; background:#eee;">
+            <span id="label-exame" style="font-size:0.7rem; font-weight:bold;">📍 FOCO: PMDF / PMGO</span>
+            <button style="background:var(--accent); color:white; border:none; padding:4px 8px; cursor:pointer;" onclick="gerarRelatorio()">MODELO RELATÓRIO</button>
+        </div>
+        <textarea id="area-peca" placeholder="Comece seu treino aqui..."></textarea>
+    </section>
+
+    <div id="resizer"></div>
+
+    <section class="pdf-section" id="pdf-panel">
+        <div class="pdf-box">
+            <div class="pdf-header">
+                <span id="pdf-title">LEITURA TÉCNICA</span>
+                <button onclick="expandir()" style="background:none; border:none; color:white;">🔄</button>
+            </div>
+            <iframe id="v-enu" class="pdf-frame" src="about:blank"></iframe>
+        </div>
+    </section>
+
+    <section id="annotations-manager-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('postit')">Post-its</button>
+                <button class="tab-button" onclick="switchTab('dicas')">Dicas</button>
+            </div>
+            <button class="btn-action" style="background:#e74c3c; color:white; border:none; padding:5px 10px;" onclick="closeAnnotationsPanel()">FECHAR</button>
+        </div>
+        <div class="tab-content">
+            <textarea id="annotation-input" style="width:100%; height:100px; padding:10px;" placeholder="Nova anotação..."></textarea>
+            <button style="width:100%; padding:10px; background:var(--primary); color:white; border:none; margin-top:10px;" onclick="saveAnnotation()">SALVAR NO QG</button>
+            <div id="annotations-list" style="margin-top:20px;"></div>
+        </div>
+    </section>
+</main>
+
 <script type="module">
-    // MANTENDO SUA INTEGRAÇÃO COM FIREBASE
     import { db } from './firebase-config.js';
     import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const PROJETO_ID = "SISTEMA_OPERACIONAL_JOAQUIM";
-    window.pecaAtualNome = localStorage.getItem('estudo_nome') || "TREINO OPERACIONAL";
+    const PROJETO_ID = "SISTEMA_JOAQUIM_PM";
+    let currentAnnotationType = 'postit';
 
-    // --- ACERVO DE PROVAS ANTERIORES (PMDF & PMGO) ---
-    const BANCO_PROVAS = [
-        { id: 'PMDF_2023', banca: 'AOCP', cargo: 'Soldado PMDF 2023', url: 'https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf' },
-        { id: 'PMGO_2022', banca: 'GOAL', cargo: 'Soldado PMGO 2022', url: 'https://bit.ly/prova-pmgo-2022' }, // Link representativo do acervo
-        { id: 'PMDF_DISC', banca: 'AOCP', cargo: 'Espelho Discursiva PMDF', url: 'https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_espelho_redacao.pdf' }
-    ];
-
+    // --- CARREGAMENTO INICIAL ---
     window.onload = async () => {
-        document.getElementById('label-exame').innerText = window.pecaAtualNome;
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 30000);
-    };
-
-    // --- FUNÇÃO PARA CARREGAR A PROVA NO SEU PDF-PANEL ---
-    window.abrirProvasFGV = () => {
-        const modal = document.getElementById('universal-modal') || { style: {} };
-        const content = document.getElementById('annotations-list'); // Usando seu container de lista
-        
-        let html = `<h4 style="color:var(--primary)">📋 PROVAS ANTERIORES</h4>`;
-        BANCO_PROVAS.forEach(p => {
-            html += `
-                <div class="exame-btn" onclick="window.carregarProvaNoSistema('${p.url}', '${p.cargo}')">
-                    <strong>${p.cargo}</strong><br>
-                    <small>Banca: ${p.banca}</small>
-                </div>`;
-        });
-        
-        // Se estiver usando o painel de anotações como modal temporário:
-        openAnnotationsPanel('provas'); 
-        document.getElementById('annotations-list').innerHTML = html;
-    };
-
-    window.carregarProvaNoSistema = (url, nome) => {
-        document.getElementById('v-enu').src = url;
-        window.pecaAtualNome = "PROVA: " + nome;
-        document.getElementById('label-exame').innerText = window.pecaAtualNome;
-        closeAnnotationsPanel(); // Volta para a visão de PDF
-    };
-
-    // --- PERSISTÊNCIA E BACKUP (CONFORME SEU PEDIDO) ---
-    async function salvarAutomatico() {
-        const conteudo = document.getElementById('area-peca').value;
-        if(conteudo) {
-            set(ref(db, `${PROJETO_ID}/RASCUNHO`), { 
-                texto: conteudo, 
-                meta: window.pecaAtualNome,
-                timestamp: Date.now() 
-            });
-        }
-    }
-
-    async function carregarRascunho() {
         const snap = await get(ref(db, `${PROJETO_ID}/RASCUNHO`));
-        if(snap.exists()) {
-            document.getElementById('area-peca').value = snap.val().texto;
-            window.pecaAtualNome = snap.val().meta;
-        }
-    }
-
-    // --- FUNÇÕES DE INTERFACE ---
-    window.fazerBackup = () => {
-        const data = document.getElementById('area-peca').value;
-        const blob = new Blob([data], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `ESTUDO_${window.pecaAtualNome}.txt`;
-        a.click();
+        if(snap.exists()) document.getElementById('area-peca').value = snap.val().texto;
+        setInterval(salvarAutomatico, 30000);
+        renderAnnotations();
     };
 
-    // Mantendo suas funções de anotações integradas
+    // --- FUNÇÕES DE PDF E PROVAS ---
+    window.carregarPDF = (url, nome = "VADE MECUM") => {
+        document.getElementById('v-enu').src = url;
+        document.getElementById('pdf-title').innerText = nome;
+        closeAnnotationsPanel();
+    };
+
+    // --- SISTEMA DE ANOTAÇÕES ---
     window.openAnnotationsPanel = (type) => {
+        currentAnnotationType = type;
         document.getElementById('pdf-panel').style.display = 'none';
         document.getElementById('annotations-manager-panel').style.display = 'flex';
-        renderAnnotations(type);
+        renderAnnotations();
     };
 
     window.closeAnnotationsPanel = () => {
         document.getElementById('pdf-panel').style.display = 'flex';
         document.getElementById('annotations-manager-panel').style.display = 'none';
     };
+
+    window.switchTab = (type) => {
+        currentAnnotationType = type;
+        renderAnnotations();
+    };
+
+    window.saveAnnotation = () => {
+        const text = document.getElementById('annotation-input').value;
+        if(!text) return;
+        const key = `pm_anot_${currentAnnotationType}`;
+        let data = JSON.parse(localStorage.getItem(key)) || [];
+        data.push({id: Date.now(), text: text, date: new Date().toLocaleString()});
+        localStorage.setItem(key, JSON.stringify(data));
+        document.getElementById('annotation-input').value = "";
+        renderAnnotations();
+    };
+
+    window.renderAnnotations = () => {
+        const list = document.getElementById('annotations-list');
+        list.innerHTML = "";
+        const key = `pm_anot_${currentAnnotationType}`;
+        const data = JSON.parse(localStorage.getItem(key)) || [];
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = `annotation-list-item type-${currentAnnotationType}`;
+            div.innerHTML = `<p>${item.text}</p><small>${item.date}</small>
+                             <button onclick="deleteAnot(${item.id})" style="position:absolute; right:5px; top:5px; border:none; background:none; color:red; cursor:pointer;">✖</button>`;
+            list.appendChild(div);
+        });
+    };
+
+    window.deleteAnot = (id) => {
+        const key = `pm_anot_${currentAnnotationType}`;
+        let data = JSON.parse(localStorage.getItem(key));
+        data = data.filter(i => i.id !== id);
+        localStorage.setItem(key, JSON.stringify(data));
+        renderAnnotations();
+    };
+
+    // --- BACKUP E SALVAMENTO ---
+    async function salvarAutomatico() {
+        const txt = document.getElementById('area-peca').value;
+        set(ref(db, `${PROJETO_ID}/RASCUNHO`), { texto: txt });
+    }
+
+    window.fazerBackup = () => {
+        const conteudo = document.getElementById('area-peca').value;
+        const blob = new Blob([conteudo], {type: 'text/plain'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "meu_estudo_pm.txt";
+        link.click();
+    };
+
+    window.gerarRelatorio = () => {
+        const modelo = "--- RELATÓRIO POLICIAL MILITAR ---\nOCORRÊNCIA: \nDATA: \nLOCAL: \n\nRELATO DOS FATOS:\n\n\n\nPROVIDÊNCIAS ADOTADAS:\n";
+        document.getElementById('area-peca').value = modelo;
+    };
 </script>
+</body>
+</html>
