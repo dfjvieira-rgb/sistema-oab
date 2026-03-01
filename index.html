@@ -54,7 +54,9 @@
             width: 50px; height: 50px; border: none; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; color: white; 
             cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
+            position: relative;
         }
+        .btn-side:hover { background: rgba(255,255,255,0.15); }
         .btn-side i { font-size: 1.2rem; color: var(--pmdf-accent); }
 
         /* EDITOR CONTAINER */
@@ -70,20 +72,20 @@
             outline: none;
         }
 
-        /* --- PÁGINA DE MENTORIA (MODO NOVA PÁGINA) --- */
+        /* --- PÁGINA DE MENTORIA (MODO NOVA PÁGINA - ORIGINAL) --- */
         #pagina-mentoria {
             position: fixed; inset: 0; 
             background: #0f172a; 
             z-index: 10000; 
-            display: none; /* Escondido por padrão */
+            display: none; 
             flex-direction: column;
-            animation: fadeInPage 0.3s ease-in-out;
+            animation: slideInPage 0.3s ease-out;
         }
         #pagina-mentoria.active { display: flex; }
 
-        @keyframes fadeInPage {
-            from { opacity: 0; transform: scale(1.05); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes slideInPage {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .mentoria-nav { 
@@ -108,7 +110,7 @@
         .card-intel h3 { color: #fff; margin-bottom: 10px; font-size: 1.1rem; }
         .card-intel p { color: #94a3b8; font-size: 0.85rem; line-height: 1.5; }
 
-        /* MODAL DE RESPOSTA DA INTELIGÊNCIA */
+        /* MODAL DE RESPOSTA */
         #modal-intel-result {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9);
             z-index: 11000; display: none; align-items: center; justify-content: center;
@@ -124,76 +126,79 @@
 
 <header>
     <div class="logo">PMDF <span>CFO 2025</span></div>
-    <div id="status-pm" style="font-size: 10px; font-weight: bold; color: var(--pmdf-accent);">EDITAL 03/2025 ATIVO</div>
+    <div id="status-pm" style="font-size: 10px; font-weight: bold; color: var(--pmdf-accent);">PROJETO ORIGINAL - EDITAL 03/2025</div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--mentoria-bg);" onclick="window.abrirPaginaMentoria()">
-            <i class="fas fa-brain"></i>
+        <button class="btn-side" style="background:var(--mentoria-bg);" onclick="window.abrirPaginaMentoria()" title="Abrir Mentoria">
+            <i class="fas fa-robot"></i>
         </button>
-        <button class="btn-side" onclick="window.abrirPergaminho()">
+        <button class="btn-side" onclick="window.abrirPergaminho()" title="Estruturas">
             <i class="fas fa-scroll"></i>
         </button>
-        <button class="btn-side" style="background:#059669;" onclick="window.salvarDisquete()">
+        <button class="btn-side" style="background:#059669;" onclick="window.salvarDisquete()" title="Blindar Peça">
             <i class="fas fa-save"></i>
         </button>
     </aside>
 
     <section class="editor-container">
         <div class="paper" id="editor-principal" contenteditable="true">
-            </div>
+            <b>AO SENHOR COMANDANTE GERAL DA POLÍCIA MILITAR DO DISTRITO FEDERAL (Ou Autoridade Competente)</b><br><br>
+            OBJETO: RECURSO ADMINISTRATIVO / DEFESA PRÉVIA<br><br>
+            [Digite seu texto definitivo aqui conforme o padrão Cebraspe...]
+        </div>
     </section>
 </main>
 
 <div id="pagina-mentoria">
     <div class="mentoria-nav">
-        <span style="font-weight: 900; letter-spacing: 1px;">🧠 HUB DE INTELIGÊNCIAS PMDF</span>
-        <button onclick="window.fecharPaginaMentoria()" style="background:var(--pmdf-accent); border:none; padding:10px 20px; border-radius:8px; font-weight:900; cursor:pointer;">VOLTAR AO EDITOR</button>
+        <span style="font-weight: 900; letter-spacing: 1px;"><i class="fas fa-shield-alt"></i> HUB DE INTELIGÊNCIAS PMDF</span>
+        <button onclick="window.fecharPaginaMentoria()" style="background:var(--pmdf-accent); border:none; padding:10px 20px; border-radius:8px; font-weight:900; cursor:pointer;">FECHAR E VOLTAR</button>
     </div>
     
     <div class="mentoria-grid">
-        <div class="card-intel" onclick="window.carregarIntel('CRIMES_MILITARES')">
+        <div class="card-intel" onclick="window.carregarIntel('DIREITO_PENAL_MILITAR')">
             <i class="fas fa-gavel"></i>
-            <h3>Crimes Militares</h3>
-            <p>Análise do Art. 9º do CPM (Crimes em tempo de paz e extensão da competência).</p>
+            <h3>Direito Penal Militar</h3>
+            <p>Análise de Crimes Militares (Art. 9º CPM), Penas e Extinção de Punibilidade conforme o Edital.</p>
         </div>
-        <div class="card-intel" onclick="window.carregarIntel('PROC_ADM')">
-            <i class="fas fa-file-invoice"></i>
-            <h3>IPM e Sindicância</h3>
-            <p>Ritos de Polícia Judiciária Militar para o posto de Oficial.</p>
+        <div class="card-intel" onclick="window.carregarIntel('IPM_PROC')">
+            <i class="fas fa-file-signature"></i>
+            <h3>IPM e Polícia Judiciária</h3>
+            <p>Procedimentos de Inquérito Policial Militar e Sindicâncias sob a ótica do Oficial.</p>
         </div>
-        <div class="card-intel" onclick="window.carregarIntel('REQUISITOS_TAF')">
-            <i class="fas fa-running"></i>
-            <h3>Diretrizes TAF/Saúde</h3>
-            <p>Critérios do edital para exames médicos, psicológicos e toxicológicos.</p>
+        <div class="card-intel" onclick="window.carregarIntel('DISCURSIVA_CESPE')">
+            <i class="fas fa-pen-fancy"></i>
+            <h3>Discursiva Cebraspe</h3>
+            <p>Padrão de resposta, critérios de correção e proibição de identificação do candidato.</p>
         </div>
-        <div class="card-intel" onclick="window.carregarIntel('CESPE_DISCURSIVA')">
-            <i class="fas fa-pen-nib"></i>
-            <h3>Padrão Cebraspe</h3>
-            <p>Teses de redação e estrutura de resposta definitiva sem identificação.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('LEGISLACAO_PM')">
+        <div class="card-intel" onclick="window.carregarIntel('ESTATUTO_PMDF')">
             <i class="fas fa-balance-scale"></i>
             <h3>Lei 7.289/84</h3>
-            <p>Estatuto dos Policiais Militares e prerrogativas do cargo.</p>
+            <p>Estatuto dos Policiais Militares e Legislação Correlata exigida no concurso.</p>
+        </div>
+        <div class="card-intel" onclick="window.carregarIntel('TAF_SAUDE')">
+            <i class="fas fa-heartbeat"></i>
+            <h3>Saúde e TAF</h3>
+            <p>Checklist de exames, atestados e o detalhamento do Laudo Psiquiátrico (Anexo VI).</p>
         </div>
     </div>
 </div>
 
 <div id="modal-intel-result">
     <div class="result-body">
-        <h2 id="intel-titulo" style="color: var(--mentoria-bg); margin-bottom: 20px; border-bottom: 2px solid #eee;"></h2>
-        <div id="intel-texto" style="white-space: pre-wrap; margin-bottom: 30px; font-size: 15px; line-height: 1.6; max-height: 350px; overflow-y: auto;"></div>
+        <h2 id="intel-titulo" style="color: var(--mentoria-bg); margin-bottom: 20px; border-bottom: 2px solid #eee; text-transform: uppercase; font-size: 1.2rem;"></h2>
+        <div id="intel-texto" style="white-space: pre-wrap; margin-bottom: 30px; font-size: 15px; line-height: 1.6; max-height: 350px; overflow-y: auto; color: #333;"></div>
         <div style="display: flex; gap: 10px;">
-            <button onclick="window.injetarNaPeca()" style="flex: 1; padding: 15px; background: var(--mentoria-bg); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">INJETAR TEXTO</button>
+            <button onclick="window.injetarNaPeca()" style="flex: 2; padding: 15px; background: var(--mentoria-bg); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">INJETAR NA DISCURSIVA</button>
             <button onclick="document.getElementById('modal-intel-result').style.display='none'" style="flex: 1; padding: 15px; background: #eee; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">CANCELAR</button>
         </div>
     </div>
 </div>
 
 <script>
-    // NAVEGAÇÃO ENTRE PÁGINAS
+    // NAVEGAÇÃO
     window.abrirPaginaMentoria = () => {
         document.getElementById('pagina-mentoria').classList.add('active');
     };
@@ -202,33 +207,37 @@
         document.getElementById('pagina-mentoria').classList.remove('active');
     };
 
-    // BANCO DE DADOS EDITALÍCIO
+    // INTELIGÊNCIAS MAPEADAS DO EDITAL 03/2025
     const DATA_PMDF = {
-        CRIMES_MILITARES: "CRIMES MILITARES (ART. 9º CPM):\n- Foco na nova redação da Lei 13.491/2017.\n- Crimes praticados por militares em serviço contra civis (competência do Tribunal do Júri se houver dolo contra a vida).",
-        CESPE_DISCURSIVA: "PADRÃO CEBRASPE (CFO):\n- Resposta técnica fundamentada.\n- Proibição de rubricas ou sinais que identifiquem o candidato.\n- Avaliação de legibilidade, respeito às margens e paragrafação.",
-        REQUISITOS_TAF: "SAÚDE E TAF (EDITAL 03/2025):\n- Exame Toxicológico: Larga janela de detecção (mínimo 60 dias).\n- Laudo Psiquiátrico: Deve descrever humor, afeto, cognição e inteligência."
+        DIREITO_PENAL_MILITAR: "SÍNTESE EDITAL PMDF:\n- Aplicação da lei penal militar.\n- Crime: Dolo, Culpa, Erro de Direito.\n- Crimes contra a autoridade ou disciplina militar.\n- Crimes contra o serviço e dever militar.\n- Extinção da punibilidade (Art. 123 CPM).",
+        DISCURSIVA_CESPE: "PADRÃO CEBRASPE:\n- Texto dissertativo (até 30 linhas).\n- Proibição de rubricas/marcas identificadoras.\n- Avaliação: Domínio do tema + Legibilidade + Respeito às margens.\n- O rascunho não é considerado para nota.",
+        TAF_SAUDE: "DIRETRIZES DE SAÚDE:\n- Atestado médico deve constar: 'Apto para realizar o TAF'.\n- Exame de Sanidade Mental (Psiquiátrico) deve conter: Cognição, Inteligência, Tirocínio e Juízo Crítico.\n- Toxicológico: Janela de 60 dias mínima.",
+        IPM_PROC: "POLÍCIA JUDICIÁRIA MILITAR:\n- Competência para o cargo de Oficial.\n- Atos do Inquérito Policial Militar.\n- Sindicância Administrativa conforme Lei 6.450/77."
     };
 
     window.carregarIntel = (chave) => {
         const titulo = chave.replace(/_/g, ' ');
         document.getElementById('intel-titulo').innerText = titulo;
-        document.getElementById('intel-texto').innerText = DATA_PMDF[chave] || "Mapeando diretrizes do Edital para esta função...";
+        document.getElementById('intel-texto').innerText = DATA_PMDF[chave] || "Conteúdo em mapeamento técnico...";
         document.getElementById('modal-intel-result').style.display = 'flex';
     };
 
     window.injetarNaPeca = () => {
         const texto = document.getElementById('intel-texto').innerText;
         const editor = document.getElementById('editor-principal');
-        editor.innerText += "\n\n" + texto;
+        editor.innerHTML += "<br><br><b>[INJEÇÃO MENTORIA]:</b><br>" + texto;
         
-        // Fecha tudo e volta para o editor
         document.getElementById('modal-intel-result').style.display = 'none';
         window.fecharPaginaMentoria();
         editor.focus();
     };
 
     window.salvarDisquete = () => {
-        alert("Peça Blindada! Salva no histórico de Mentoria PMDF.");
+        alert("SISTEMA BLINDADO: Peça salva no histórico oficial PMDF 2025.");
+    };
+
+    window.abrirPergaminho = () => {
+        alert("Carregando esqueletos de peças militares...");
     };
 </script>
 </body>
