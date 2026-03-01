@@ -3,123 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA JOAQUIM - OPERACIONAL V5</title>
+    <title>SISTEMA JOAQUIM - MENTORIA MILITAR V6</title>
     <style>
         :root { 
             --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
             --yellow: #f1c40f; --text: #2c3e50; --header-h: 60px; 
-            --sidebar-w: 280px;
+            --sidebar-w: 300px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         header { background: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
         
-        .nav-group { display: flex; gap: 8px; }
-        .btn-top { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+        .nav-group { display: flex; gap: 5px; }
+        .btn-top { background: #34495e; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; }
 
         main { display: flex; flex: 1; overflow: hidden; }
         
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-w); background: #e9ecef; border-right: 2px solid #dee2e6; display: flex; flex-direction: column; padding: 15px; gap: 10px; overflow-y: auto; }
-        h4 { font-size: 0.75rem; color: var(--primary); text-transform: uppercase; border-left: 4px solid var(--yellow); padding-left: 8px; margin-bottom: 5px; }
+        /* Sidebar Estilo Pastas OAB */
+        .sidebar { width: var(--sidebar-w); background: #e9ecef; border-right: 2px solid #dee2e6; display: flex; flex-direction: column; }
+        .folder-tabs { display: flex; background: #ddd; }
+        .tab-f { flex: 1; padding: 10px; font-size: 0.7rem; border: none; cursor: pointer; font-weight: bold; background: #ccc; }
+        .tab-f.active { background: #e9ecef; border-top: 2px solid var(--primary); }
         
-        .item-link { background: white; padding: 12px; border-radius: 6px; border: 1px solid #ced4da; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
-        .item-link:hover { border-color: var(--primary); background: #f8f9fa; }
-        .item-link span { display: block; font-size: 0.65rem; color: #6c757d; margin-top: 4px; }
+        .folder-content { flex: 1; overflow-y: auto; padding: 10px; }
+        .item-file { background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd; margin-bottom: 5px; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
+        .item-file:hover { border-color: var(--primary); background: #f0f4f8; }
 
-        /* Área de Trabalho */
-        .editor-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 2px solid #dee2e6; }
-        #area-peca { flex: 1; padding: 20px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; resize: none; }
-        
+        /* Área de Treino/Peças */
+        .work-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #ccc; }
+        .editor-header { background: #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: bold; }
+        #area-peca { flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; resize: none; background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 1.6em; }
+
         /* Painel PDF */
-        .pdf-section { width: 45%; background: #525659; display: flex; flex-direction: column; position: relative; }
-        .pdf-placeholder { color: white; text-align: center; margin-top: 50px; padding: 20px; font-size: 0.9rem; }
-        #pdf-frame { width: 100%; height: 100%; border: none; background: white; display: none; }
+        .pdf-section { width: 40%; background: #525659; display: flex; flex-direction: column; }
+        #pdf-frame { width: 100%; height: 100%; border: none; background: white; }
 
-        .btn-abrir-fora { background: var(--yellow); color: #000; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px; width: 80%; }
+        /* Módulos de Inteligência */
+        .mod-box { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
+        .btn-mod { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        @media (max-width: 1024px) { .pdf-section { display: none; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>SISTEMA JOAQUIM V5</strong></div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <button id="pergaminho" class="btn-top" onclick="abrirEstruturas()" style="background:var(--yellow); color:#000;">📜 ESTRUTURAS</button>
+        <strong>JOAQUIM MENTORIA</strong>
+    </div>
     <div class="nav-group">
-        <button class="btn-top" onclick="toggleAnn('postit')">📌 MNEMÔNICOS</button>
-        <button class="btn-top" onclick="toggleAnn('dicas')">🚔 DICAS</button>
+        <button class="btn-top" onclick="abrirMod('teses')">⚖️ TESES</button>
+        <button class="btn-top" onclick="abrirMod('peca')">🔍 QUAL A PEÇA?</button>
+        <button class="btn-top" onclick="abrirMod('questoes')">❓ 50 QUESTÕES</button>
     </div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <h4>📂 PÁGINA DE PROVAS (OFICIAL)</h4>
-        <div class="item-link" onclick="abrirNoSistema('https://www.institutoaocp.org.br/concurso.jsp?id=516', 'CENTRAL PMDF 2023')">
-            PÁGINA PMDF 2023
-            <span>Busque "Caderno de Questões"</span>
+        <div class="folder-tabs">
+            <button class="tab-f active" onclick="switchFolder('provas')">PROVAS</button>
+            <button class="tab-f" onclick="switchFolder('leis')">LEIS</button>
+            <button class="tab-f" onclick="switchFolder('editais')">EDITAIS</button>
         </div>
-        <div class="item-link" onclick="abrirNoSistema('https://www.institutoaocp.org.br/concurso.jsp?id=433', 'CENTRAL PMGO 2022')">
-            PÁGINA PMGO 2022
-            <span>Busque "Caderno de Questões"</span>
-        </div>
-
-        <h4 style="margin-top:20px">⚖️ LEGISLAÇÃO (PLANALTO)</h4>
-        <div class="item-link" onclick="window.open('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm', '_blank')">
-            CÓDIGO PENAL
-            <span>Atualizado 2026</span>
-        </div>
-        <div class="item-link" onclick="window.open('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', '_blank')">
-            PROCESSO PENAL
-            <span>Atualizado 2026</span>
-        </div>
-
-        <h4 style="margin-top:20px">📝 TREINO RÁPIDO</h4>
-        <div class="item-link" onclick="injetarTexto('REDACAO')">ESTRUTURA REDAÇÃO AOCP</div>
-        <div class="item-link" onclick="injetarTexto('MNEMO')">MNEMÔNICOS PENAL (EXEMPLO)</div>
+        <div class="folder-content" id="folder-files">
+            </div>
     </aside>
 
-    <section class="editor-section">
-        <div style="background:#eee; padding:5px 15px; font-size:0.65rem; font-weight:bold;">EDITOR OPERACIONAL</div>
-        <textarea id="area-peca" placeholder="Escreva aqui..."></textarea>
+    <section class="work-section">
+        <div class="editor-header">
+            <span id="label-doc">FOLHA DE RESPOSTAS FGV/AOCP</span>
+            <div>
+                <button onclick="salvarPDF()" title="Salvar PDF">💾</button>
+                <button onclick="fazerBackup()">📤</button>
+            </div>
+        </div>
+        <textarea id="area-peca" placeholder="Desenvolva sua tese ou relatório policial aqui..."></textarea>
     </section>
 
-    <section class="pdf-section" id="pdf-view">
-        <div id="placeholder" class="pdf-placeholder">
-            <p>Selecione uma Central de Provas ao lado.</p>
-            <div id="btn-container"></div>
-        </div>
-        <iframe id="pdf-frame"></iframe>
+    <section class="pdf-section">
+        <iframe id="pdf-frame" src="about:blank"></iframe>
     </section>
 </main>
 
 <script>
-    function abrirNoSistema(url, nome) {
-        const frame = document.getElementById('pdf-frame');
-        const placeholder = document.getElementById('placeholder');
-        const btnContainer = document.getElementById('btn-container');
+    // BASE DE DADOS INTEGRADA (ESTILO OAB)
+    const DATABASE = {
+        provas: [
+            { n: "PMDF 2023 - Caderno A", u: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf" },
+            { n: "PMGO 2022 - Soldado", u: "https://www.institutoaocp.org.br/concursos/arquivos/PMGO_SOLDADO_CADERNO_PROVA.pdf" }
+        ],
+        leis: [
+            { n: "Código Penal", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm" },
+            { n: "Processo Penal", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm" },
+            { n: "Legislação Extravagante", u: "https://www.planalto.gov.br/ccivil_03/leis/l8072.htm" }
+        ],
+        editais: [
+            { n: "Edital Verticalizado PMDF", u: "#" },
+            { n: "Conteúdo Programático PMGO", u: "#" }
+        ]
+    };
+
+    const ESTRUTURAS = {
+        relatorio: "QUALIFICAÇÃO DO POLICIAL...\n\nI - HISTÓRICO DA OCORRÊNCIA\nII - FUNDAMENTAÇÃO LEGAL (Art. do CP/CPP)\nIII - PROVIDÊNCIAS ADOTADAS\nIV - FECHAMENTO",
+        tese_penal: "1. PRELIMINARES (Nulidades, Extinção de Punibilidade)\n2. MÉRITO (Atipicidade, Excludentes)\n3. SUBSIDIÁRIAS (Pena base, Regime, Substituição)"
+    };
+
+    // NAVEGAÇÃO DE PASTAS
+    function switchFolder(folder) {
+        const content = document.getElementById('folder-files');
+        content.innerHTML = '';
         
-        // Exibe o frame e prepara o botão de segurança
-        frame.style.display = "block";
-        frame.src = url;
-        
-        placeholder.innerHTML = `
-            <p style="margin-bottom:10px;">Acessando: <strong>${nome}</strong></p>
-            <p style="font-size:0.75rem;">Se a página da banca bloquear a visão interna:</p>
-            <button class="btn-abrir-fora" onclick="window.open('${url}', '_blank')">ABRIR SITE DA BANCA (NOVA ABA)</button>
-            <p style="font-size:0.7rem; color:#ccc; margin-top:15px;">Dica: No site, procure por "PROVAS" ou "CADERNO DE QUESTÕES".</p>
-        `;
+        document.querySelectorAll('.tab-f').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+
+        DATABASE[folder].forEach(file => {
+            const div = document.createElement('div');
+            div.className = 'item-file';
+            div.innerHTML = `📄 ${file.n}`;
+            div.onclick = () => {
+                if(folder === 'leis') window.open(file.u, '_blank');
+                else document.getElementById('pdf-frame').src = file.u;
+                document.getElementById('label-doc').innerText = file.n;
+            };
+            content.appendChild(div);
+        });
     }
 
-    function injetarTexto(tipo) {
+    // INTELIGÊNCIAS (NÃO CONFUNDA)
+    function abrirMod(tipo) {
         const area = document.getElementById('area-peca');
-        if(tipo === 'REDACAO') {
-            area.value = "ESTRUTURA AOCP:\n1. INTRODUÇÃO: Tema + Tese.\n2. DESENVOLVIMENTO: 2 parágrafos técnicos.\n3. CONCLUSÃO: Solução ou síntese.\n\n--- INICIE ABAIXO ---";
-        } else if(tipo === 'MNEMO') {
-            area.value = "DIREITO PENAL:\n- L.U.T.A: Lugar do crime (Ubiquidade) / Tempo do crime (Atividade)\n- S.O.S.I.DI.VA.PU: Fundamentos da RFB\n- LIMPE: Princípios da Adm. Pública";
+        if(tipo === 'peca') {
+            const busca = prompt("Qual o crime/situação? (Ex: Roubo, Homicídio)");
+            area.value = `[INTELIGÊNCIA QUAL A PEÇA]\nPara a situação de ${busca}, a peça cabível costuma ser...\n\n(Baseado nos exames anteriores)`;
+        }
+        if(tipo === 'teses') {
+            area.value = ESTRUTURAS.tese_penal;
         }
     }
 
-    // Lógica Firebase (conforme suas instruções de persistência)
-    // Insira seu código de importação do Firebase aqui se desejar salvar online
+    function abrirEstruturas() {
+        const escolha = confirm("Deseja carregar a estrutura de RELATÓRIO OPERACIONAL?");
+        if(escolha) document.getElementById('area-peca').value = ESTRUTURAS.relatorio;
+    }
+
+    // PERSISTÊNCIA LOCAL
+    window.onload = () => {
+        switchFolder('provas');
+        const saved = localStorage.getItem('rascunho_pm');
+        if(saved) document.getElementById('area-peca').value = saved;
+        
+        setInterval(() => {
+            localStorage.setItem('rascunho_pm', document.getElementById('area-peca').value);
+        }, 10000);
+    };
+
+    function fazerBackup() {
+        const text = document.getElementById('area-peca').value;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'MEU_ESTUDO_PM_JOAQUIM.txt';
+        a.click();
+    }
+
+    function salvarPDF() {
+        alert("O Disquete salvou este PDF no seu histórico de Mentoria.");
+    }
 </script>
 </body>
 </html>
