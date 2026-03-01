@@ -161,3 +161,146 @@
 
 </body>
 </html>
+<script type="module">
+    import { db } from './firebase-config.js';
+    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { FolhaEngine } from './folha-engine.js';
+
+    // CONFIGURAÇÃO DE BLINDAGEM MASTER OAB
+    window.db = db;
+    const PATH_BASE = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
+    const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_FINALIZADOS";
+
+    window.modoAtual = localStorage.getItem('modoAtual') || "REDACAO"; 
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO";
+
+    window.historicoUndo = [];
+    let debounceTimer = null;
+
+    // BIBLIOTECA PM
+    window.LISTA_PDF_BIBLIOTECA = [
+        { nome: "EDITAL PMDF 2023", url: "edital_pmdf.pdf" },
+        { nome: "PROVA AOCP PMDF", url: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf" },
+        { nome: "CRIMES MILITARES - RESUMO", url: "crimes_militares.pdf" }
+    ];
+
+    window.onload = async () => {
+        FolhaEngine.montar('folha-total');
+        atualizarDisplayModo(); 
+        
+        setTimeout(() => {
+            const ed = document.getElementById('editor-principal');
+            if(ed) {
+                ed.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const html = ed.innerHTML;
+                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
+                            window.historicoUndo.push(html);
+                        }
+                    }, 800);
+                });
+            }
+        }, 1000);
+        await carregarRascunho();
+        setInterval(salvarAutomatico, 20000); 
+    };
+
+    // LÓGICA DE GAVETAS MASTER
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-back-btn').style.display = "none";
+        document.getElementById('modal-title').innerText = "📂 GAVETAS MASTER PM";
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTOES')"><span>GAVETA: 50 QUESTÕES</span> <i class="fas fa-list-check" style="color:var(--questoes)"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDACAO')"><span>GAVETA: REDAÇÕES</span> <i class="fas fa-pen-nib" style="color:#facc15"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('RELATORIO')"><span>GAVETA: RELATÓRIOS</span> <i class="fas fa-file-shield" style="color:var(--mentoria)"></i></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.abrirGavetaEspecifica = async (tipoGaveta) => {
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-back-btn').style.display = "block";
+        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
+        content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Acessando Firebase...</div>";
+        
+        try {
+            const snap = await get(ref(db, PATH_HISTORICO));
+            content.innerHTML = "";
+            if (snap.exists()) {
+                const filtrados = Object.keys(snap.val())
+                    .map(k => ({ id: k, ...snap.val()[k] }))
+                    .filter(item => item.exame === tipoGaveta);
+                
+                if(filtrados.length === 0) content.innerHTML = "Gaveta vazia.";
+                filtrados.reverse().forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'opt-btn';
+                    div.innerHTML = `<strong onclick="window.carregarPecaPasta('${item.id}')">${item.peca}</strong>`;
+                    content.appendChild(div);
+                });
+            } else content.innerHTML = "Vazia.";
+        } catch (e) { content.innerHTML = "Erro de conexão."; }
+    };
+
+    // BLINDAGEM FINAL
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        if(!ed || ed.innerHTML.length < 10) return;
+        if (!confirm(`Blindar "${window.pecaAtualNome}"?`)) return;
+
+        try {
+            const idFinal = Date.now().toString();
+            const dataF = new Date().toLocaleString('pt-BR');
+            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
+                exame: window.modoAtual, 
+                peca: `${window.pecaAtualNome} (${dataF})`, 
+                conteudo: ed.innerHTML
+            });
+            alert("✅ Blindado no MasterOAB!");
+        } catch (e) { alert("Erro ao blindar."); }
+    };
+
+    // PERGAMINHO (MODELOS)
+    window.abrirPergaminho = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📜 ESTRUTURAS PM";
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.injetarEstrutura('REDAÇÃO')"><span>REDAÇÃO AOCP</span></div>
+            <div class="opt-btn" onclick="window.injetarEstrutura('RELATÓRIO')"><span>RELATÓRIO POLICIAL</span></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.injetarEstrutura = (tipo) => {
+        const ed = document.getElementById('editor-principal');
+        const modelos = {
+            'REDAÇÃO': '<b>REDAÇÃO AOCP - TEMA: ...</b><br><br>1. Introdução...<br>2. Desenvolvimento...',
+            'RELATÓRIO': '<b>RELATÓRIO DE OCORRÊNCIA PM</b><br><br>DATA: ...<br>HISTÓRICO: ...'
+        };
+        ed.innerHTML = modelos[tipo];
+        document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    async function salvarAutomatico() { 
+        const ed = document.getElementById('editor-principal'); 
+        if(ed) await set(ref(db, PATH_BASE), { conteudo: ed.innerHTML }); 
+    }
+
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, PATH_BASE)); 
+        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
+    }
+
+    window.atualizarDisplayModo = () => {
+        document.getElementById('ex-display').innerText = window.modoAtual;
+        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen"></i>`;
+    };
+
+    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active', 'full-view'); };
+    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('active'); };
+</script>
+
