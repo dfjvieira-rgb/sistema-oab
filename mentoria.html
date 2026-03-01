@@ -3,85 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA MENTORIA V13 - OPERACIONAL</title>
+    <title>CENTRAL DE INTELIGÊNCIA - PMDF</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --primary: #020617; --gold: #fbbf24; --card: #1e293b; 
-            --nc: #f472b6; --law: #10b981; --peca: #a855f7;
+            --pmdf-verde: #064e3b; 
+            --pmdf-verde-escuro: #022c22;
+            --pmdf-ouro: #fbbf24; 
+            --pmdf-ouro-dim: #b45309;
+            --bg-tatico: #0f172a;
+            --card-tatico: #1e293b;
+            --texto: #e2e8f0;
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background-color: var(--bg-tatico); 
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+            color: var(--texto); margin: 0; display: flex; flex-direction: column; height: 100vh; 
+        }
+
+        /* HEADER TÁTICO */
+        .header-operacional {
+            background: var(--pmdf-verde-escuro);
+            padding: 15px 25px;
+            border-bottom: 2px solid var(--pmdf-ouro);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .header-title { font-family: 'Oswald', sans-serif; letter-spacing: 2px; font-size: 1.2rem; color: var(--pmdf-ouro); }
+        .header-status { font-size: 10px; color: #10b981; animation: pulse 2s infinite; }
 
         /* BUSCA E TABS */
-        .top-nav { background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); }
-        .search-container { display: flex; gap: 10px; margin-bottom: 10px; }
-        input, textarea { flex: 1; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; font-size: 14px; }
-        
-        .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; }
-        .tab { padding: 10px 15px; background: #0f172a; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; white-space: nowrap; color: #64748b; border: 1px solid transparent; }
-        .tab.active { color: var(--gold); border-color: var(--gold); background: rgba(251, 191, 36, 0.1); }
-
-        /* FORMULÁRIO DE ENTRADA */
-        .input-panel { background: #0f172a; padding: 15px; border-bottom: 1px solid #334155; display: none; }
-        .input-panel.active { display: block; }
-        .btn-save { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 6px; font-weight: 900; cursor: pointer; margin-top: 10px; }
-
-        /* FEED DE DADOS */
-        .content-scroll { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; align-content: start; }
-        
-        .card { 
-            background: var(--card); border-radius: 12px; padding: 15px; border-left: 5px solid var(--gold);
-            position: relative; animation: slideUp 0.3s ease;
+        .search-area { background: rgba(2, 44, 34, 0.8); padding: 10px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .search-input { 
+            background: #020617; border: 1px solid var(--pmdf-ouro); padding: 12px; 
+            color: var(--pmdf-ouro); border-radius: 4px; font-family: 'JetBrains Mono';
         }
-        .card h4 { margin: 0 0 10px 0; font-size: 14px; color: var(--gold); text-transform: uppercase; }
-        .card p { font-size: 13px; line-height: 1.5; color: #cbd5e1; margin-bottom: 15px; }
-        .card .badge { position: absolute; top: 10px; right: 10px; font-size: 9px; background: rgba(255,255,255,0.1); padding: 3px 6px; border-radius: 4px; }
-        
-        .card-actions { display: flex; gap: 8px; }
-        .btn-card { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer; }
-        .btn-inj { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
-        .btn-del { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .tab-btn { 
+            background: transparent; border: 1px solid #334155; color: #94a3b8; 
+            padding: 8px 15px; cursor: pointer; border-radius: 0px; font-size: 11px; font-weight: bold;
+            text-transform: uppercase;
+        }
+        .tab-btn.active { background: var(--pmdf-ouro); color: black; border-color: var(--pmdf-ouro); }
 
-        /* FLOATING ACTION BUTTON */
-        .fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 200; }
+        /* CONTEÚDO */
+        .main-feed { flex: 1; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        .card-missao { 
+            background: var(--card-tatico); border: 1px solid #334155; position: relative;
+            padding: 20px; border-top: 4px solid var(--pmdf-ouro);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .card-missao::before { content: "DATA_REC: 2026"; position: absolute; top: -12px; left: 10px; font-size: 8px; background: var(--bg-tatico); padding: 2px 5px; color: #64748b; }
+
+        .card-tag { font-size: 9px; color: var(--pmdf-ouro); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .card-title { font-family: 'Oswald', sans-serif; margin: 0 0 10px 0; color: white; letter-spacing: 1px; }
+        .card-body { font-size: 13px; line-height: 1.6; color: #cbd5e1; margin-bottom: 20px; }
+
+        /* BOTÕES DE AÇÃO */
+        .action-row { display: flex; gap: 10px; }
+        .btn-tatico { 
+            flex: 1; padding: 10px; cursor: pointer; border: 1px solid var(--pmdf-ouro);
+            background: transparent; color: var(--pmdf-ouro); font-weight: bold; font-family: 'JetBrains Mono';
+            font-size: 10px; text-transform: uppercase;
+        }
+        .btn-tatico:hover { background: var(--pmdf-ouro); color: black; }
+        .btn-danger { border-color: #ef4444; color: #ef4444; }
+        .btn-danger:hover { background: #ef4444; color: white; }
+
+        /* PAINEL DE ADIÇÃO (FAB) */
+        .add-panel { 
+            position: fixed; bottom: 80px; right: 20px; background: var(--card-tatico); 
+            border: 2px solid var(--pmdf-ouro); padding: 20px; width: 300px; display: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); z-index: 1000;
+        }
+        .add-panel.active { display: block; }
+        .fab { 
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; 
+            background: var(--pmdf-ouro); color: black; border-radius: 0; display: flex; 
+            align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 1001;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--pmdf-verde); }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <div class="search-container">
-        <input type="text" id="main-search" placeholder="🔍 Buscar em toda a inteligência..." onkeyup="filtrarCards()">
-    </div>
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('all', this)">TUDO</div>
-        <div class="tab" onclick="switchTab('nc', this)">NÃO CONFUNDA</div>
-        <div class="tab" onclick="switchTab('lei', this)">LEIS/ARTIGOS</div>
-        <div class="tab" onclick="switchTab('peca', this)">ESTRUTURAS</div>
-        <div class="tab" onclick="switchTab('tese', this)">TESES</div>
+<header class="header-operacional">
+    <div class="header-title">INTELIGÊNCIA PMDF <span style="font-weight: 300;">V13</span></div>
+    <div class="header-status"><i class="fas fa-satellite-dish"></i> LINK SATÉLITE ATIVO</div>
+</header>
+
+<div class="search-area">
+    <input type="text" id="tatico-search" class="search-input" placeholder="> FILTRAR INTELIGÊNCIA..." onkeyup="filtrar()">
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('all', this)">Geral</button>
+        <button class="tab-btn" onclick="switchTab('nc', this)">Não Confunda</button>
+        <button class="tab-btn" onclick="switchTab('lei', this)">Legislação</button>
+        <button class="tab-btn" onclick="switchTab('tese', this)">Teses</button>
     </div>
 </div>
 
-<div class="input-panel" id="add-panel">
-    <input type="text" id="inp-titulo" placeholder="Título da Anotação">
-    <textarea id="inp-conteudo" rows="3" placeholder="Texto técnico para injetar na peça..." style="margin-top:8px;"></textarea>
-    <div style="display:flex; gap:10px; margin-top:8px;">
-        <select id="inp-cat" style="flex:1; background:#0f172a; color:white; border:1px solid #334155; border-radius:6px; padding:10px;">
-            <option value="nc">Não Confunda</option>
-            <option value="lei">Lei/Artigo</option>
-            <option value="peca">Estrutura</option>
-            <option value="tese">Tese</option>
-        </select>
-        <button class="btn-save" onclick="salvarDado()" style="flex:1; margin:0;">GRAVAR NO QG</button>
-    </div>
+<main class="main-feed" id="feed-operacional">
+    </main>
+
+<div class="add-panel" id="add-panel">
+    <h3 style="color: var(--pmdf-ouro); font-size: 14px; margin-top: 0;">NOVA ENTRADA DE DADOS</h3>
+    <input type="text" id="in-titulo" placeholder="TÍTULO" style="width:100%; margin-bottom:10px;" class="search-input">
+    <textarea id="in-conteudo" rows="4" placeholder="CONTEÚDO TÉCNICO" style="width:100%; margin-bottom:10px;" class="search-input"></textarea>
+    <select id="in-cat" class="search-input" style="width:100%; margin-bottom:10px;">
+        <option value="nc">NÃO CONFUNDA</option>
+        <option value="lei">LEGISLAÇÃO</option>
+        <option value="tese">TESE</option>
+    </select>
+    <button class="btn-tatico" style="width:100%; background: var(--pmdf-ouro); color: black;" onclick="salvar()">GRAVAR NO BANCO</button>
 </div>
 
-<div class="content-scroll" id="feed-mentoria">
-    </div>
-
-<div class="fab" onclick="toggleAddPanel()"><i class="fas fa-plus"></i></div>
+<div class="fab" onclick="document.getElementById('add-panel').classList.toggle('active')">
+    <i class="fas fa-plus"></i>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -95,95 +149,63 @@
     const db = getDatabase(app);
     const mentoriaRef = ref(db, 'mentoria_v13_data');
 
-    let currentTab = 'all';
-
-    // INTERFACE
-    window.toggleAddPanel = () => {
-        const p = document.getElementById('add-panel');
-        p.classList.toggle('active');
-    };
+    let abaAtual = 'all';
 
     window.switchTab = (tab, el) => {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        abaAtual = tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
-        carregarCards();
+        carregar();
     };
 
-    // OPERAÇÕES DE DADOS
-    window.salvarDado = () => {
-        const t = document.getElementById('inp-titulo').value;
-        const c = document.getElementById('inp-conteudo').value;
-        const cat = document.getElementById('inp-cat').value;
-
-        if(!t || !c) return alert("Preencha título e conteúdo!");
-
-        push(mentoriaRef, { titulo: t, conteudo: c, categoria: cat, data: new Date().toLocaleDateString() });
-        
-        document.getElementById('inp-titulo').value = "";
-        document.getElementById('inp-conteudo').value = "";
-        toggleAddPanel();
+    window.salvar = () => {
+        const t = document.getElementById('in-titulo').value;
+        const c = document.getElementById('in-conteudo').value;
+        const cat = document.getElementById('in-cat').value;
+        if(t && c) {
+            push(mentoriaRef, { titulo: t, conteudo: c, categoria: cat, data: new Date().toLocaleDateString() });
+            document.getElementById('in-titulo').value = "";
+            document.getElementById('in-conteudo').value = "";
+            document.getElementById('add-panel').classList.remove('active');
+        }
     };
 
-    window.carregarCards = () => {
+    function carregar() {
         onValue(mentoriaRef, (snap) => {
-            const feed = document.getElementById('feed-mentoria');
+            const feed = document.getElementById('feed-operacional');
             feed.innerHTML = "";
             const data = snap.val();
             if(!data) return;
 
             Object.keys(data).reverse().forEach(id => {
                 const item = data[id];
-                if(currentTab !== 'all' && item.categoria !== currentTab) return;
+                if(abaAtual !== 'all' && item.categoria !== abaAtual) return;
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.borderLeftColor = getCor(item.categoria);
-                card.innerHTML = `
-                    <span class="badge">${item.data}</span>
-                    <h4>${item.titulo}</h4>
-                    <p>${item.conteudo}</p>
-                    <div class="card-actions">
-                        <button class="btn-card btn-inj" onclick="injetar('${item.conteudo.replace(/'/g, "\\'")}')">INJETAR NA PEÇA</button>
-                        <button class="btn-card btn-del" onclick="apagar('${id}')"><i class="fas fa-trash"></i></button>
+                feed.innerHTML += `
+                    <div class="card-missao">
+                        <span class="card-tag">#${item.categoria}</span>
+                        <h2 class="card-title">${item.titulo}</h2>
+                        <div class="card-body">${item.conteudo}</div>
+                        <div class="action-row">
+                            <button class="btn-tatico" onclick="injetar('${item.conteudo.replace(/'/g, "\\'")}')">INJETAR NA PEÇA</button>
+                            <button class="btn-tatico btn-danger" onclick="apagar('${id}')"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
                 `;
-                feed.appendChild(card);
             });
         });
-    };
-
-    function getCor(cat) {
-        const cores = { nc: '#f472b6', lei: '#10b981', peca: '#a855f7', tese: '#fbbf24' };
-        return cores[cat] || '#fbbf24';
     }
 
-    window.injetar = (texto) => {
-        // Envia o texto para a função receberTexto do index.html (pai)
-        if(window.parent && window.parent.receberTexto) {
-            window.parent.receberTexto(texto);
-        } else {
-            alert("Conteúdo copiado (Modo Standalone): " + texto);
-        }
-    };
-
-    window.apagar = (id) => {
-        if(confirm("Deseja excluir esta inteligência do banco de dados?")) {
-            remove(ref(db, `mentoria_v13_data/${id}`));
-        }
-    };
-
-    window.filtrarCards = () => {
-        let busca = document.getElementById('main-search').value.toLowerCase();
-        document.querySelectorAll('.card').forEach(card => {
-            let txt = card.innerText.toLowerCase();
-            card.style.display = txt.includes(busca) ? "block" : "none";
+    window.injetar = (txt) => { window.parent.receberTexto(txt); };
+    window.apagar = (id) => { if(confirm("CONFIRMA EXCLUSÃO DE DADOS?")) remove(ref(db, `mentoria_v13_data/${id}`)); };
+    window.filtrar = () => {
+        let b = document.getElementById('tatico-search').value.toLowerCase();
+        document.querySelectorAll('.card-missao').forEach(c => {
+            c.style.display = c.innerText.toLowerCase().includes(b) ? "block" : "none";
         });
     };
 
-    // Inicialização
-    carregarCards();
+    carregar();
 </script>
-
 </body>
 </html>
