@@ -3,264 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JOAQUIM PMDF 2025 - CFO MASTER</title>
+    <title>SISTEMA JOAQUIM ELITE 2026</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
-            --bg-paper: #cbd5e1; --paper-color: #ffffff; 
-            --mentoria-bg: #1e3a8a; --sidebar-w: 75px;
-            --pmdf-accent: #ffd700;
+            --primary: #020617; --gold: #fbbf24; --paper: #ffffff;
+            --sidebar-w: 75px; --bg-app: #0f172a;
         }
 
-        body.dark-mode { --bg-paper: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: 'Inter', system-ui, sans-serif; 
-            background: var(--primary); 
-            height: 100vh; 
-            display: flex; flex-direction: column; overflow: hidden; color: white;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-app); height: 100vh; display: flex; overflow: hidden; }
 
-        header { 
-            background: var(--primary); 
-            height: 60px; padding: 0 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--pmdf-accent); z-index: 5000;
-        }
-
-        .logo { font-size: 1.1rem; font-weight: 900; }
-        .logo span { color: var(--pmdf-accent); }
-
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
-        
-        /* SIDEBAR COMPLETA */
+        /* SIDEBAR TÉCNICA */
         .sidebar { 
-            width: var(--sidebar-w); 
-            background: #1e293b; 
-            display: flex; flex-direction: column; align-items: center;
-            gap: 12px; padding: 15px 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
-            overflow-y: auto;
+            width: var(--sidebar-w); background: var(--primary); 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 20px 0; border-right: 2px solid var(--gold); gap: 15px;
+            z-index: 100;
         }
 
-        .btn-side { 
-            width: 52px; min-height: 52px; border: none; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; color: white; 
-            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
-            position: relative;
+        .btn-side {
+            width: 50px; height: 50px; border-radius: 12px; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; position: relative;
+            background: rgba(251, 191, 36, 0.1); color: var(--gold);
         }
-        .btn-side i { font-size: 1.2rem; }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-
+        .btn-side:hover { background: var(--gold); color: #000; }
         .btn-side::after {
-            content: attr(data-label); position: absolute; left: 80px; 
-            background: #000; color: #fff; padding: 5px 10px; border-radius: 5px;
+            content: attr(data-label); position: absolute; left: 65px;
+            background: #000; color: #fff; padding: 5px 10px; border-radius: 4px;
             font-size: 10px; white-space: nowrap; opacity: 0; pointer-events: none;
-            border: 1px solid var(--pmdf-accent); z-index: 6000;
         }
-        .btn-side:hover::after { opacity: 1; left: 85px; }
+        .btn-side:hover::after { opacity: 1; }
 
-        /* EDITOR E TOOLS */
-        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px; }
-        .sticky-tools { 
-            position: sticky; top: -20px; z-index: 1000; background: white; 
-            width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 15px;
-        }
-        .toolbar-liberdade { display: flex; background: #fff; border-top: 1px solid #eee; }
-        .btn-lib { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; color: #64748b; border-right: 1px solid #f1f5f9; }
-
-        .paper { 
-            width: 100%; max-width: 850px; background: white; 
-            min-height: 3000px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            padding: 60px; color: #000; outline: none;
-        }
-
-        /* --- PÁGINA DE MENTORIA (NOVA PÁGINA ISOLADA) --- */
-        #pagina-mentoria {
-            position: fixed; inset: 0; background: #0f172a; z-index: 20000; 
-            display: none; flex-direction: column; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        #pagina-mentoria.active { display: flex; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .mentoria-nav { height: 70px; background: var(--mentoria-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 3px solid var(--pmdf-accent); }
-        .mentoria-grid { flex: 1; padding: 40px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        /* ÁREA DA FOLHA (ENGINE) */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        .card-intel { background: #1e293b; border: 1px solid rgba(255,215,0,0.1); padding: 30px; border-radius: 16px; cursor: pointer; transition: 0.3s; }
-        .card-intel:hover { border-color: var(--pmdf-accent); background: #24344d; transform: translateY(-5px); }
-        .card-intel i { font-size: 2rem; color: var(--pmdf-accent); margin-bottom: 15px; display: block; }
-        .card-intel h3 { color: #fff; font-size: 1.1rem; margin-bottom: 8px; }
-        .card-intel p { color: #94a3b8; font-size: 0.85rem; line-height: 1.4; }
+        .top-bar { 
+            height: 60px; background: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; padding: 0 25px; justify-content: space-between;
+        }
 
-        /* MODAL RESULTADO */
-        #modal-intel-result { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 21000; display: none; align-items: center; justify-content: center; }
-        .result-body { background: white; color: #0f172a; width: 90%; max-width: 650px; border-radius: 20px; padding: 40px; }
+        .sheet-container { 
+            flex: 1; background: #cbd5e1; overflow-y: auto; 
+            padding: 40px 20px; display: flex; justify-content: center;
+        }
 
-        /* VIEWER PDF INTEGRADO */
-        #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; border-left: 0 solid var(--pmdf-accent); overflow: hidden; }
-        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--pmdf-accent); }
+        .sheet {
+            width: 100%; max-width: 850px; background: white; min-height: 1200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 80px 60px;
+            color: #1a1a1a; line-height: 1.6; font-size: 16px; outline: none;
+            position: relative; white-space: pre-wrap;
+        }
+
+        /* COMPONENTES DA MENTORIA (HUB ISOLADO) */
+        #hub-mentoria {
+            position: fixed; inset: 0; background: var(--bg-app); z-index: 5000;
+            display: none; flex-direction: column; padding: 40px;
+        }
+        .grid-mentoria { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card-estudo { background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid rgba(251,191,36,0.2); cursor: pointer; }
+
     </style>
 </head>
-<body class="dark-mode">
+<body>
 
-<header>
-    <div class="logo">JOAQUIM <span>PMDF 2025</span></div>
-    <div style="font-size: 10px; font-weight: bold; color: var(--pmdf-accent);">EDITAL 03/2025 - CFO</div>
-</header>
-
-<main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--mentoria-bg);" data-label="HUB MENTORIA PM" onclick="window.abrirPaginaMentoria()">
-            <i class="fas fa-robot"></i>
-        </button>
-        <button class="btn-side" style="background:var(--pmdf-accent); color:#000" data-label="ESTRUTURAS (PERGAMINHO)" onclick="window.abrirPergaminho()">
-            <i class="fas fa-scroll"></i>
-        </button>
-        <button class="btn-side" style="background:#f97316;" data-label="TESES EDITAL (MARTELO)" onclick="window.abrirTesesEdital()">
-            <i class="fas fa-hammer"></i>
-        </button>
-
-        <hr style="width:60%; opacity:0.1; margin:5px 0">
-
-        <button class="btn-side" style="background:#059669;" data-label="SALVAR PEÇA" onclick="window.finalizarPeca()">
-            <i class="fas fa-save"></i>
-        </button>
-        <button class="btn-side" style="background:#475569;" data-label="HISTÓRICO PM" onclick="window.abrirPasta()">
-            <i class="fas fa-folder-open"></i>
-        </button>
-
-        <hr style="width:60%; opacity:0.1; margin:5px 0">
-
-        <button class="btn-side" style="background:#3b82f6;" data-label="VER PEÇA PDF" onclick="window.verDoc('P')">
-            <i class="fas fa-file-pdf"></i>
-        </button>
-        <button class="btn-side" style="background:#eab308;" data-label="GABARITO" onclick="window.verDoc('G')">
-            <i class="fas fa-check-double"></i>
-        </button>
-        <button class="btn-side" style="background:#000; border:1px solid var(--pmdf-accent)" data-label="VADE MECUM" onclick="window.verDoc('V')">
-            <i class="fas fa-gavel"></i>
-        </button>
+        <button class="btn-side" data-label="HUB MENTORIA" onclick="toggleMentoria(true)"><i class="fas fa-university"></i></button>
+        <button class="btn-side" data-label="PERGAMINHO (ESTRUTURAS)" onclick="carregarEstrutura()"><i class="fas fa-scroll"></i></button>
+        <hr style="width:50%; opacity:0.1">
+        <button class="btn-side" style="background:#059669; color:white;" data-label="SALVAR PEÇA (DISQUETE)" onclick="salvarHistorico()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" data-label="MINHA PASTA" onclick="abrirPasta()"><i class="fas fa-folder"></i></button>
+        <hr style="width:50%; opacity:0.1">
+        <button class="btn-side" style="background:#dc2626; color:white;" data-label="EDITAL/PEÇA" onclick="alert('Abrindo PDF...')"><i class="fas fa-file-pdf"></i></button>
     </aside>
 
-    <section class="editor-container" id="editor-container">
-        <div class="sticky-tools">
-            <div id="identificador-peca" style="padding:12px; text-align:center; font-weight:900; background:#f8fafc; color:#0f172a; border-bottom:2px solid var(--pmdf-accent);">
-                FOLHA DE RESPOSTA DEFINITIVA - PMDF
-            </div>
-            <div class="toolbar-liberdade">
-                <button class="btn-lib" onclick="window.limparFolha()">LIMPAR</button>
-                <button class="btn-lib" onclick="window.print()" style="background:#22c55e; color:white;">GERAR PDF OFICIAL</button>
-            </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <div style="font-weight:900; color:white;">JOAQUIM <span style="color:var(--gold);">ELITE 2026</span></div>
+            <div style="font-size:12px; color:var(--gold);">SISTEMA DE TREINO BLINDADO - PMDF</div>
         </div>
-        <div class="paper">
-            <div id="folha-total" contenteditable="true" style="outline:none;">
-                <b>AO SENHOR COMANDANTE GERAL DA PMDF</b><br><br>
-                OBJETO: RECURSO ADMINISTRATIVO...
-            </div>
-        </div>
-    </section>
 
-    <section id="pdf-viewer">
-        <div style="background:#1e293b; padding:10px; display:flex; justify-content:space-between;">
-            <span id="pdf-title" style="font-size:12px; font-weight:bold;">DOCUMENTO</span>
-            <button onclick="window.fecharPDF()" style="background:red; color:white; border:none; padding:2px 8px; cursor:pointer;">X</button>
-        </div>
-        <iframe id="pdf-frame" style="width:100%; flex:1; border:none;"></iframe>
-    </section>
-</main>
+        <div class="sheet-container">
+            <div class="sheet" contenteditable="true" id="folha-motor">
+<b>AO SENHOR COMANDANTE GERAL DA POLÍCIA MILITAR DO DISTRITO FEDERAL</b>
 
-<div id="pagina-mentoria">
-    <div class="mentoria-nav">
-        <span style="font-weight: 900; letter-spacing: 1px;"><i class="fas fa-shield-alt"></i> HUB DE INTELIGÊNCIA PMDF 2025</span>
-        <button onclick="window.fecharPaginaMentoria()" style="background:var(--pmdf-accent); border:none; padding:10px 20px; border-radius:8px; font-weight:900; cursor:pointer;">VOLTAR AO EDITOR</button>
-    </div>
-    
-    <div class="mentoria-grid">
-        <div class="card-intel" onclick="window.carregarIntel('PENAL_MILITAR')">
-            <i class="fas fa-gavel"></i>
-            <h3>Penal Militar</h3>
-            <p>Diretrizes do Art. 9º do CPM e análise de crimes militares em tempo de paz.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('PROC_PENAL_MILITAR')">
-            <i class="fas fa-file-signature"></i>
-            <h3>Processo Penal Militar</h3>
-            <p>Inquérito Policial Militar (IPM) e ritos de Polícia Judiciária Militar.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('DISCURSIVA_CESPE')">
-            <i class="fas fa-pen-nib"></i>
-            <h3>Discursiva Cebraspe</h3>
-            <p>Padrão de resposta técnica e proibição de identificação na folha definitiva.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('TAF_SAUDE')">
-            <i class="fas fa-running"></i>
-            <h3>Saúde e TAF</h3>
-            <p>Checklist de exames (EEG, Toxicológico) e Laudo Psiquiátrico descritivo.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('ESTATUTO_PMDF')">
-            <i class="fas fa-balance-scale"></i>
-            <h3>Lei 7.289/84</h3>
-            <p>Estatuto dos Policiais Militares e prerrogativas do cargo de Oficial.</p>
+<b>REF: INQUÉRITO POLICIAL MILITAR Nº ____/2026</b>
+
+<b>OBJETO: APRESENTAÇÃO DE RELATÓRIO TÉCNICO / CUMPRIMENTO</b>
+
+[QUALIFICAÇÃO_CONSTANTE_INICIO]
+Eu, ________________________, Aluno-Oficial PM, no uso de minhas atribuições legais conferidas pelo Edital 03/2025-DGP/PMDF e pelo Código de Processo Penal Militar...
+[QUALIFICAÇÃO_CONSTANTE_FIM]
+
+<b>1. DAS PRELIMINARES</b>
+(Espaço para inserção das teses analisadas nos PDFs)
+
+<b>2. DAS TESES DE DEFESA / MÉRITO</b>
+(Desenvolvimento conforme análise técnica)
+
+<b>3. DOS PEDIDOS E CUMPRIMENTO</b>
+Ante o exposto, submeto o presente para fins de...
+
+Local e data, ____ de __________ de 2026.
+
+__________________________________________
+<b>ALUNO-OFICIAL PM - MATRICULA XXX.XXX</b>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="modal-intel-result">
-    <div class="result-body">
-        <h2 id="intel-titulo" style="color: var(--mentoria-bg); margin-bottom: 20px; border-bottom: 2px solid #eee; text-transform: uppercase;"></h2>
-        <div id="intel-texto" style="white-space: pre-wrap; margin-bottom: 30px; font-size: 15px; color:#334155; line-height:1.6; max-height:350px; overflow-y:auto;"></div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="window.injetarNaFolha()" style="flex: 2; padding: 15px; background: var(--mentoria-bg); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">INJETAR NA DISCURSIVA</button>
-            <button onclick="document.getElementById('modal-intel-result').style.display='none'" style="flex: 1; padding: 15px; background: #eee; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">FECHAR</button>
+    <div id="hub-mentoria">
+        <div style="display:flex; justify-content:space-between; margin-bottom:40px;">
+            <h1 style="color:white;">MENTORIA <span style="color:var(--gold);">INTELIGÊNCIA</span></h1>
+            <button onclick="toggleMentoria(false)" style="padding:10px 20px; cursor:pointer;">VOLTAR AO TREINO</button>
+        </div>
+        <div class="grid-mentoria">
+            <div class="card-estudo">
+                <i class="fas fa-brain" style="color:var(--gold); font-size:2rem;"></i>
+                <h3 style="color:white; margin-top:15px;">Qual é a Peça?</h3>
+                <p style="color:#94a3b8;">Diferenciação técnica baseada no Edital PMDF.</p>
+            </div>
+            <div class="card-estudo">
+                <i class="fas fa-exclamation-triangle" style="color:var(--gold); font-size:2rem;"></i>
+                <h3 style="color:white; margin-top:15px;">Não Confunda</h3>
+                <p style="color:#94a3b8;">Distinção entre IPM, Sindicância e Relatório Técnico.</p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // NAVEGAÇÃO ENTRE PÁGINAS
-    window.abrirPaginaMentoria = () => document.getElementById('pagina-mentoria').classList.add('active');
-    window.fecharPaginaMentoria = () => document.getElementById('pagina-mentoria').classList.remove('active');
+    <script>
+        // MOTOR DE HISTÓRICO (DISQUETE)
+        function salvarHistorico() {
+            const conteudo = document.getElementById('folha-motor').innerText;
+            const data = new Date().toLocaleString();
+            localStorage.setItem('PECA_SALVA_' + Date.now(), conteudo);
+            alert("O disquete salvou o PDF no histórico da mentoria com sucesso! [Data: " + data + "]");
+        }
 
-    // BANCO DE DADOS EDITAL PMDF 2025
-    const DB_PMDF = {
-        PENAL_MILITAR: "SÍNTESE CRIMES MILITARES (ART. 9º CPM):\n- Crimes praticados por militar em serviço ou em razão da função.\n- Extensão da competência pela Lei 13.491/2017.\n- Crimes contra a vida de civil: Competência do Júri (Dolo).",
-        DISCURSIVA_CESPE: "CHECKLIST DISCURSIVA CEBRASPE:\n- Resposta técnica objetiva (até 30 linhas).\n- Proibição de qualquer marca identificadora (ANULAÇÃO).\n- O rascunho é apenas para uso do candidato.",
-        TAF_SAUDE: "REQUISITOS SAÚDE (ANEXO VI):\n- EEG com laudo neurológico.\n- Toxicológico: Janela mínima de 60 dias.\n- Laudo Psiquiátrico: Deve atestar cognição, inteligência e juízo crítico.",
-        ESTATUTO_PMDF: "ESTATUTO (LEI 7.289/84):\n- Hierarquia e Disciplina como base institucional.\n- Prerrogativas do Oficial: Uso de títulos, uniformes e tratamento condigno."
-    };
+        function toggleMentoria(show) {
+            document.getElementById('hub-mentoria').style.display = show ? 'flex' : 'none';
+        }
 
-    window.carregarIntel = (chave) => {
-        document.getElementById('intel-titulo').innerText = chave.replace(/_/g, ' ');
-        document.getElementById('intel-texto').innerText = DB_PMDF[chave] || "Mapeando edital...";
-        document.getElementById('modal-intel-result').style.display = 'flex';
-    };
+        // CARREGAR ESTRUTURAS TÉCNICAS (PERGAMINHO)
+        function carregarEstrutura() {
+            alert("Carregando Esqueleto Lógico: RT -> Cumprimento Action. (Estrutura blindada)");
+        }
 
-    window.injetarNaFolha = () => {
-        const texto = document.getElementById('intel-texto').innerText;
-        const folha = document.getElementById('folha-total');
-        folha.innerHTML += "<br><br><b>[ESTUDO PMDF]:</b><br>" + texto;
-        
-        document.getElementById('modal-intel-result').style.display = 'none';
-        window.fecharPaginaMentoria();
-        folha.focus();
-    };
+        function abrirPasta() {
+            alert("Acessando repositório de peças finalizadas...");
+        }
 
-    // FUNÇÕES DE PDF E GESTÃO
-    window.verDoc = (tipo) => {
-        const frame = document.getElementById('pdf-frame');
-        document.getElementById('pdf-viewer').classList.add('active');
-        frame.src = "docs/pm_" + tipo + ".pdf"; // Ajuste o caminho conforme seu servidor
-    };
-
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar toda a folha?")) document.getElementById('folha-total').innerHTML = ""; };
-    window.finalizarPeca = () => alert("PEÇA BLINDADA! Salva no histórico da Mentoria PMDF.");
-    window.abrirPasta = () => alert("Sincronizando com Histórico PMDF...");
-    window.abrirPergaminho = () => alert("Estruturas Técnicas de Oficiais carregadas.");
-    window.abrirTesesEdital = () => alert("Martelo de Teses: Buscando Artigos do CPM e CPPM.");
-</script>
+        // BLOQUEIO DE INJEÇÃO (PARA NÃO COMUNICAR COM A FOLHA)
+        // A mentoria agora é visual, o aluno deve digitar na folha-motor.
+    </script>
 </body>
 </html>
