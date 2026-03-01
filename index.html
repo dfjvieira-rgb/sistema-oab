@@ -39,7 +39,7 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR COMPLETA COM TODOS OS BOTÕES */
+        /* SIDEBAR COMPLETA */
         .sidebar { 
             width: var(--sidebar-w); background: #001529; display: flex; 
             flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; 
@@ -54,7 +54,6 @@
         .btn-side:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
         .btn-side i { font-size: 1.2rem; }
 
-        /* Tooltips */
         .btn-side::after {
             content: attr(data-label); position: absolute; left: 60px; background: #000; color: #fff;
             padding: 6px 12px; border-radius: 6px; font-size: 10px; white-space: nowrap; 
@@ -87,16 +86,15 @@
             text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
         }
 
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.3); min-height: 1500px; padding: 40px; }
+        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.3); min-height: 100vh; }
 
         /* PDF VIEWER */
-        #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; border-left: 0 solid var(--gold); }
+        #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
         #pdf-viewer.active { width: 45%; border-left: 4px solid var(--gold); }
 
         .pdf-controls { background: #0f172a; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 11px; align-items: center; }
         iframe { width: 100%; flex: 1; border: none; }
 
-        /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; padding: 10px; }
         .modal-body { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
         .opt-btn { width: 100%; padding: 15px; margin-bottom: 8px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; font-size: 0.85rem; }
@@ -137,12 +135,10 @@
             <div class="toolbar-liberdade">
                 <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-eraser"></i> Limpar</button>
                 <button class="btn-lib" onclick="window.togglePDF()"><i class="fas fa-expand"></i> Foco PDF</button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-file-export"></i> Gerar PDF</button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.gerarPDF()"><i class="fas fa-file-export"></i> Gerar PDF</button>
             </div>
         </div>
-        <div class="paper">
-            <div id="folha-total"></div>
-        </div>
+        <div id="folha-total"></div>
     </section>
 
     <section id="pdf-viewer">
@@ -168,15 +164,83 @@
     import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // CONFIGURAÇÃO DE BLINDAGEM NO FIREBASE
-    window.db = db;
     const PATH_BASE = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
     const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_FINALIZADOS";
 
-    window.modoAtual = "REDACAO"; 
     window.pecaAtualNome = "NOVO TREINO OPERACIONAL";
 
-    // LISTA DE PDFs (Arquivos do 35 ao 39)
+    // Inicialização
+    window.onload = async () => {
+        // Chama a montagem da Engine
+        FolhaEngine.montar('folha-total');
+        await carregarRascunho();
+        setInterval(salvarAutomatico, 20000); 
+    };
+
+    // --- FUNÇÕES DE SINCRONIZAÇÃO COM A ENGINE ---
+
+    async function salvarAutomatico() { 
+        const ed = document.getElementById('editor-principal'); // ID criado pela FolhaEngine
+        if(ed) {
+            await set(ref(db, PATH_BASE), { 
+                conteudo: ed.innerText, // Salvamos o texto puro para manter a formatação mecânica
+                html: ed.innerHTML
+            }); 
+        }
+    }
+
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, PATH_BASE)); 
+        if(snap.exists()) {
+            const ed = document.getElementById('editor-principal');
+            if(ed) ed.innerText = snap.val().conteudo || "";
+        }
+    }
+
+    // --- MÉTODOS GLOBAIS ---
+
+    window.gerarPDF = () => {
+        const ed = document.getElementById('editor-principal');
+        if(!ed) return;
+        const htmlFinal = FolhaEngine.renderizarFolhaEstatica(ed.innerText, window.pecaAtualNome);
+        const win = window.open('', '_blank');
+        win.document.write(`<html><head><title>IMPRESSÃO OAB</title></head><body>${htmlFinal}</body></html>`);
+        win.document.close();
+        win.print();
+    };
+
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        if(!ed || ed.innerText.trim().length < 5) return;
+        
+        if(confirm("Deseja BLINDAR este rascunho permanentemente no Histórico?")) {
+            const id = Date.now().toString();
+            await set(ref(db, `${PATH_HISTORICO}/${id}`), {
+                nome: window.pecaAtualNome,
+                data: new Date().toLocaleString(),
+                conteudo: ed.innerText
+            });
+            alert("✅ Missão Blindada com Sucesso!");
+        }
+    };
+
+    window.limparFolha = () => { 
+        if(confirm("Limpar rascunho atual?")) {
+            const ed = document.getElementById('editor-principal');
+            if(ed) ed.innerText = ""; 
+        }
+    };
+
+    window.renomearTreino = () => {
+        const n = prompt("Qual o nome desta missão?", window.pecaAtualNome);
+        if(n) { 
+            window.pecaAtualNome = n; 
+            document.getElementById('identificador-peca').innerHTML = `${n} <i class="fas fa-pen"></i>`;
+        }
+    };
+
+    // --- INTERFACE (PDF E MODAIS) ---
+
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: "35º Exame - Prova", url: "ro35.pdf" },
         { nome: "35º Exame - Gabarito", url: "ro35-gabarito.pdf" },
@@ -190,38 +254,6 @@
         { nome: "39º Exame - Gabarito", url: "ro39-gabarito.pdf" }
     ];
 
-    window.onload = async () => {
-        FolhaEngine.montar('folha-total');
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 20000); 
-    };
-
-    // --- FUNÇÃO DO SISTEMA DE LEIS (QUESTÕES, TESES, INTELIGÊNCIAS) ---
-    window.abrirSistemaLeis = (tipo) => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        const titulos = {
-            'QUESTOES': '📝 50 QUESTÕES ESTRATÉGICAS',
-            'TESES': '⚖️ TESES PENAIS E TRABALHISTAS',
-            'INTELIGENCIAS': '💡 INTELIGÊNCIA: NÃO CONFUNDA',
-            'PECA': '🔍 QUAL É A PEÇA?'
-        };
-        
-        document.getElementById('modal-title').innerText = titulos[tipo];
-        document.getElementById('modal-back-btn').style.display = "none";
-        
-        content.innerHTML = `<p style="font-size:0.9rem; color:#666">Carregando base de dados do exame 35 ao 39...</p>`;
-        
-        // Aqui você pode injetar os conteúdos específicos de cada exame conforme estudarmos
-        setTimeout(() => {
-            content.innerHTML = `<div class="opt-btn"><span>Ver Base do Exame 39 (AOCP)</span> <i class="fas fa-chevron-right"></i></div>
-                                 <div class="opt-btn"><span>Ver Base do Exame 38</span> <i class="fas fa-chevron-right"></i></div>`;
-        }, 500);
-        
-        modal.style.display = 'flex';
-    };
-
-    // --- CENTRAL DE PDF ---
     window.abrirBibliotecaPDF = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -245,43 +277,22 @@
         viewer.classList.add('active');
     };
 
-    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active'); };
-    window.togglePDF = () => { document.getElementById('pdf-viewer').classList.toggle('active'); };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.togglePDF = () => document.getElementById('pdf-viewer').classList.toggle('active');
 
-    // --- BLINDAGEM E GAVETAS ---
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        if(!ed || ed.innerText.length < 5) return;
-        if(confirm("Deseja BLINDAR este rascunho permanentemente?")) {
-            const id = Date.now().toString();
-            await set(ref(db, `${PATH_HISTORICO}/${id}`), {
-                nome: window.pecaAtualNome,
-                data: new Date().toLocaleString(),
-                conteudo: ed.innerHTML
-            });
-            alert("✅ Blindagem concluída!");
-        }
+    window.abrirSistemaLeis = (tipo) => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        const titulos = {
+            'QUESTOES': '📝 50 QUESTÕES ESTRATÉGICAS',
+            'TESES': '⚖️ TESES PENAIS E TRABALHISTAS',
+            'INTELIGENCIAS': '💡 INTELIGÊNCIA: NÃO CONFUNDA',
+            'PECA': '🔍 QUAL É A PEÇA?'
+        };
+        document.getElementById('modal-title').innerText = titulos[tipo];
+        content.innerHTML = `<p style="font-size:0.8rem; color:gray">Aguardando injeção de dados dos PDFs 35-39...</p>`;
+        modal.style.display = 'flex';
     };
-
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed) await set(ref(db, PATH_BASE), { conteudo: ed.innerHTML }); 
-    }
-
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, PATH_BASE)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
-
-    window.renomearTreino = () => {
-        const n = prompt("Qual o nome desta missão?", window.pecaAtualNome);
-        if(n) { 
-            window.pecaAtualNome = n; 
-            document.getElementById('identificador-peca').innerHTML = `${n} <i class="fas fa-pen"></i>`;
-        }
-    };
-
-    window.limparFolha = () => { if(confirm("Limpar rascunho atual?")) document.getElementById('editor-principal').innerHTML = ""; };
 </script>
 </body>
 </html>
