@@ -30,7 +30,6 @@
         .logo { font-size: 1rem; font-weight: 900; color: white; }
         .logo span { color: var(--gold); }
 
-        /* LAYOUT SPLIT SCREEN */
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
         .sidebar { 
@@ -46,26 +45,30 @@
         }
         .btn-side:hover { background: var(--gold); color: black; }
 
-        /* AREA DE CONTEÚDO DIVIDIDA */
-        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); }
+        /* AREA DE CONTEÚDO DINÂMICA */
+        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); transition: 0.3s; }
 
-        /* LADO ESQUERDO: PDF VIEWER */
-        #pdf-sidebar { 
-            width: 0; 
-            background: #334155; border-right: 3px solid var(--gold);
-            transition: 0.3s; position: relative; display: flex; flex-direction: column;
-            overflow: hidden;
-        }
-        #pdf-sidebar.active { width: 50%; }
-
-        .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
-        #pdf-frame { width: 100%; flex: 1; border: none; background: white; }
-
-        /* LADO DIREITO: EDITOR */
+        /* LADO ESQUERDO: EDITOR */
         .editor-container { 
             flex: 1; display: flex; flex-direction: column; 
             overflow-y: auto; align-items: center; padding: 20px 10px;
+            transition: 0.3s;
         }
+        .editor-hidden { display: none !important; } /* Esconde a folha no modo PDF Full */
+
+        /* LADO DIREITO: PDF VIEWER */
+        #pdf-sidebar { 
+            width: 0; 
+            background: #334155; border-left: 0px solid var(--gold);
+            transition: 0.3s; position: relative; display: flex; flex-direction: column;
+            overflow: hidden; visibility: hidden;
+        }
+        #pdf-sidebar.active { width: 50%; visibility: visible; border-left: 3px solid var(--gold); }
+        #pdf-sidebar.full-screen { width: 100%; visibility: visible; border-left: none; }
+
+        .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
+        .pdf-controls { display: flex; gap: 15px; align-items: center; }
+        #pdf-frame { width: 100%; flex: 1; border: none; background: white; }
 
         .sticky-tools { 
             position: sticky; top: -20px; z-index: 1000; background: white; 
@@ -90,7 +93,6 @@
         /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 110000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 15px; color: #0f172a; }
-        
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-gaveta { padding: 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; font-weight: bold; }
         .item-arquivo { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
@@ -114,15 +116,7 @@
     </aside>
 
     <div class="content-wrapper">
-        <div id="pdf-sidebar">
-            <div class="pdf-header">
-                <span id="pdf-titulo">EDITAL PMDF 2023</span>
-                <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red;"></i>
-            </div>
-            <iframe id="pdf-frame" src=""></iframe>
-        </div>
-
-        <section class="editor-container">
+        <section class="editor-container" id="editor-principal">
             <div class="sticky-tools">
                 <div id="identificador-peca" onclick="window.renomearMissao()">RELATÓRIO SEM TÍTULO</div>
             </div>
@@ -132,6 +126,17 @@
                 </div>
             </div>
         </section>
+
+        <div id="pdf-sidebar">
+            <div class="pdf-header">
+                <span id="pdf-titulo">EDITAL PMDF 2023</span>
+                <div class="pdf-controls">
+                    <span id="btn-toggle-full" onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold);"><i class="fas fa-expand-arrows-alt"></i> MAX</span>
+                    <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red; font-size: 1.2rem;"></i>
+                </div>
+            </div>
+            <iframe id="pdf-frame" src=""></iframe>
+        </div>
     </div>
 </main>
 
@@ -154,7 +159,7 @@
     <div class="modal-body">
         <h2 style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--biblioteca)">BIBLIOTECA TÁTICA</h2>
         <div class="item-arquivo" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')">
-            <div><b>📜 EDITAL PMDF 2023</b><br><small>Visualizar lateralmente</small></div>
+            <div><b>📜 EDITAL PMDF 2023</b><br><small>Visualização Dinâmica</small></div>
             <i class="fas fa-file-pdf" style="color:red"></i>
         </div>
         <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; padding:12px; margin-top:20px; background:black; color:white; border-radius:8px;">FECHAR</button>
@@ -175,45 +180,62 @@
     window.missaoNome = "RELATÓRIO SEM TÍTULO";
     window.idAtual = null;
 
-    // --- SISTEMA DE ABERTURA DE PDF (LADO A LADO) ---
+    // --- SISTEMA DE PDF (SPLIT / FULL) ---
     window.abrirPDFNoLado = (arquivo, titulo) => {
         const sidebar = document.getElementById('pdf-sidebar');
         const frame = document.getElementById('pdf-frame');
-        const tit = document.getElementById('pdf-titulo');
-        
-        tit.innerText = titulo;
-        // Caminho do PDF enviado para o sistema
+        document.getElementById('pdf-titulo').innerText = titulo;
         frame.src = arquivo; 
         
         sidebar.classList.add('active');
+        sidebar.classList.remove('full-screen');
+        document.getElementById('editor-principal').classList.remove('editor-hidden');
         document.getElementById('modal-biblioteca').style.display = 'none';
+        document.getElementById('btn-toggle-full').innerHTML = '<i class="fas fa-expand-arrows-alt"></i> MAX';
+    };
+
+    window.toggleFullPDF = () => {
+        const sidebar = document.getElementById('pdf-sidebar');
+        const editor = document.getElementById('editor-principal');
+        const btn = document.getElementById('btn-toggle-full');
+
+        if(sidebar.classList.contains('full-screen')) {
+            // Volta para modo Split
+            sidebar.classList.remove('full-screen');
+            editor.classList.remove('editor-hidden');
+            btn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i> MAX';
+        } else {
+            // Vai para modo Full PDF
+            sidebar.classList.add('full-screen');
+            editor.classList.add('editor-hidden');
+            btn.innerHTML = '<i class="fas fa-columns"></i> DIVIDIR';
+        }
     };
 
     window.fecharPDF = () => {
-        document.getElementById('pdf-sidebar').classList.remove('active');
-        document.getElementById('pdf-frame').src = "";
+        const sidebar = document.getElementById('pdf-sidebar');
+        sidebar.classList.remove('active', 'full-screen');
+        document.getElementById('editor-principal').classList.remove('editor-hidden');
+        setTimeout(() => { document.getElementById('pdf-frame').src = ""; }, 300);
     };
 
     window.abrirBiblioteca = () => {
         document.getElementById('modal-biblioteca').style.display = 'flex';
     };
 
-    // --- SISTEMA DE SALVAMENTO (EXISTE ? ATUALIZA : CRIA NOVO) ---
+    // --- SALVAMENTO E GAVETAS ---
     window.finalizarPeca = async () => {
         const conteudo = document.getElementById('folha-total').innerHTML;
-        const gaveta = prompt("EM QUAL GAVETA DESEJA SALVAR?", "TREINO").toUpperCase();
+        const gaveta = prompt("SALVAR EM QUAL GAVETA?", "TREINO").toUpperCase();
         if(!gaveta) return;
 
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
         let idExistente = null;
-
         if(snap.exists()){
-            const dados = snap.val();
-            idExistente = Object.keys(dados).find(key => 
-                dados[key].nome === window.missaoNome && dados[key].gaveta === gaveta
+            idExistente = Object.keys(snap.val()).find(key => 
+                snap.val()[key].nome === window.missaoNome && snap.val()[key].gaveta === gaveta
             );
         }
-
         const idFinal = idExistente || window.idAtual || Date.now().toString();
         
         try {
@@ -224,8 +246,8 @@
                 conteudo: conteudo
             });
             window.idAtual = idFinal;
-            alert(idExistente ? "MISSÃO ATUALIZADA COM SUCESSO!" : "MISSÃO SALVA COM SUCESSO!");
-        } catch (e) { alert("Erro ao salvar."); }
+            alert(idExistente ? "ATUALIZADO!" : "SALVO!");
+        } catch (e) { alert("Erro."); }
     };
 
     window.abrirGerenciador = () => {
@@ -244,15 +266,11 @@
         document.getElementById('view-arquivos').style.display = 'block';
         document.getElementById('modal-nav').style.display = 'block';
         const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "Acessando nuvem...";
-
+        lista.innerHTML = "Carregando...";
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
         if(snap.exists()){
-            const filtrados = Object.keys(snap.val())
-                .map(k => ({ id: k, ...snap.val()[k] }))
-                .filter(i => i.gaveta === gaveta).reverse();
-
-            lista.innerHTML = filtrados.length ? "" : "Pasta Vazia.";
+            const filtrados = Object.keys(snap.val()).map(k => ({ id: k, ...snap.val()[k] })).filter(i => i.gaveta === gaveta).reverse();
+            lista.innerHTML = filtrados.length ? "" : "Vazio.";
             filtrados.forEach(doc => {
                 const item = document.createElement('div');
                 item.className = 'item-arquivo';
@@ -274,17 +292,16 @@
     };
 
     window.criarNovoTreino = () => {
-        const n = prompt("NOME DA NOVA MISSÃO:");
+        const n = prompt("NOME DA MISSÃO:");
         if(n){
-            window.missaoNome = n.toUpperCase();
-            window.idAtual = null;
+            window.missaoNome = n.toUpperCase(); window.idAtual = null;
             document.getElementById('identificador-peca').innerText = window.missaoNome;
             document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`;
         }
     };
 
     window.renomearMissao = () => {
-        const n = prompt("RENOMEAR MISSÃO:", window.missaoNome);
+        const n = prompt("NOME:", window.missaoNome);
         if(n) { window.missaoNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.missaoNome; }
     };
 </script>
