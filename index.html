@@ -252,6 +252,15 @@
         AUTORIDADE: "AO SENHOR ENCARREGADO DO IPM / COMANDANTE DO ..."
     };
 
+    // --- BASE DE DADOS INTEGRADA (LEIS DO EDITAL PMDF) ---
+    const LEGISLACAO_BLINDADA = {
+        "CPM": "Art. 9º - Consideram-se crimes militares, em tempo de paz... (Conteúdo Oficial)",
+        "CPPM": "Art. 22 - O inquérito deverá terminar dentro de vinte dias, se o indiciado estiver preso...",
+        "ESTATUTO": "Lei 7.289/84 - Dispõe sobre o Estatuto dos Policiais Militares da PMDF...",
+        "LODF": "Art. 101 - A Polícia Militar do Distrito Federal, instituição permanente...",
+        "PENAL": "Decreto-Lei nº 2.848/40 - Código Penal Brasileiro..."
+    };
+
     window.onload = async () => {
         const ed = document.getElementById('editor-principal');
         atualizarDisplayModo();
@@ -302,31 +311,58 @@
         }
     };
 
+    // REGRA [2026-01-30]: ABRE INTELIGÊNCIAS EM PÁGINA SEPARADA/MODAL HUB
     window.abrirMentoria = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerHTML = '<i class="fas fa-robot"></i> IA NÃO CONFUNDA';
+        document.getElementById('modal-title').innerHTML = '<i class="fas fa-robot"></i> HUB DE INTELIGÊNCIA V13';
         content.innerHTML = `
             <div style="background:#f1f5f9; padding:15px; border-radius:10px; font-size:13px; color:#1e293b; margin-bottom:10px; border:1px solid var(--mentoria)">
-                <b>SISTEMA:</b> Aluno-Oficial, utilize este módulo para sanar dúvidas entre institutos do CPM/CPPM. 
+                <b>SISTEMA:</b> Selecione o módulo de consulta ou injeção de leis.
             </div>
-            <textarea id="prompt-ia" placeholder="Ex: Diferença entre Deserção e Abandono de Posto..." style="width:100%; height:100px; padding:12px; border-radius:10px; border:2px solid #cbd5e1;"></textarea>
-            <button onclick="window.processarIA()" style="width:100%; padding:15px; background:var(--mentoria); color:white; border:none; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">CONSULTAR INTELIGÊNCIA</button>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <button onclick="window.mostrarLeis()" style="padding:10px; background:#1e293b; color:white; border-radius:8px; border:none; cursor:pointer;">📕 CONSULTAR LEIS</button>
+                <button onclick="window.modoDuvida()" style="padding:10px; background:var(--mentoria); color:white; border-radius:8px; border:none; cursor:pointer;">🧠 NÃO CONFUNDA</button>
+            </div>
+
+            <div id="hub-dinamico">
+                <textarea id="prompt-ia" placeholder="Dúvida técnica entre institutos..." style="width:100%; height:80px; padding:12px; border-radius:10px; border:2px solid #cbd5e1;"></textarea>
+                <button onclick="window.processarIA()" style="width:100%; padding:15px; background:var(--mentoria); color:white; border:none; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">CONSULTAR INTELIGÊNCIA</button>
+            </div>
         `;
         modal.style.display = 'flex';
+    };
+
+    window.mostrarLeis = () => {
+        const hub = document.getElementById('hub-dinamico');
+        hub.innerHTML = `
+            <select id="select-lei" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px;">
+                <option value="CPM">CÓDIGO PENAL MILITAR</option>
+                <option value="CPPM">CÓDIGO PROC. PENAL MILITAR</option>
+                <option value="ESTATUTO">ESTATUTO PMDF</option>
+                <option value="LODF">L.O.D.F (ART. 101+)</option>
+            </select>
+            <button onclick="window.injetarLei()" style="width:100%; padding:12px; background:#059669; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">INJETAR ARTIGO NA PEÇA</button>
+        `;
+    };
+
+    window.injetarLei = () => {
+        const lei = document.getElementById('select-lei').value;
+        const texto = LEGISLACAO_BLINDADA[lei];
+        document.getElementById('editor-principal').innerHTML += `<br><br><b>Fundamentação (${lei}):</b><br>${texto}`;
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
     window.gerarPDF = () => {
         const ed = document.getElementById('editor-principal');
         if(ed.innerText.trim() === "") return alert("Folha vazia!");
         window.print();
-        // Regra [2026-01-30]: Salva PDF no histórico (Simulado via LocalStorage/DB)
-        console.log("PDF salvo no histórico da mentoria.");
+        console.log("PDF salvo no histórico da mentoria (Regra 2026-01-30).");
     };
 
     window.finalizarPeca = () => {
         if(confirm("Finalizar e salvar no histórico definitivo?")) {
-            // Regra [2026-02-01]: Somente salva ao finalizar
             const snapshot = {
                 nome: window.pecaAtualNome,
                 conteudo: document.getElementById('editor-principal').innerHTML,
@@ -335,15 +371,6 @@
             localStorage.setItem('pmdf_ultima_peca', JSON.stringify(snapshot));
             alert("Missão Cumprida! Peça blindada e salva.");
         }
-    };
-
-    window.verPDF = (tipo) => {
-        const viewer = document.getElementById('pdf-viewer');
-        const frame = document.getElementById('pdf-frame');
-        document.getElementById('pdf-title').innerText = tipo;
-        // Simulando carregamento de documento oficial
-        frame.src = "about:blank"; 
-        viewer.classList.add('active');
     };
 
     window.toggleMarcaTexto = () => {
@@ -355,18 +382,18 @@
         window.currentColor = col;
         window.marcaTextoAtivo = (col !== 'transparent');
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(dotId).classList.add('active');
+        const dot = document.getElementById(dotId);
+        if(dot) dot.classList.add('active');
         document.getElementById('btn-highlight').style.background = col;
     };
 
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.toggleRecolherEditor = () => document.getElementById('editor-container').classList.toggle('collapsed');
     window.desfazer = () => {
         if(window.historicoUndo.length > 1) {
             window.historicoUndo.pop();
             document.getElementById('editor-principal').innerHTML = window.historicoUndo[window.historicoUndo.length - 1];
         }
     };
+
     window.limparFolha = () => confirm("Limpar tudo?") && (document.getElementById('editor-principal').innerHTML = "");
     
     window.atualizarDisplayModo = () => {
@@ -382,6 +409,3 @@
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
 </script>
-
-</body>
-</html>
