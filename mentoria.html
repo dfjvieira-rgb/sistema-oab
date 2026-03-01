@@ -2,46 +2,86 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>HUB MENTORIA V13 - BANCO DE DADOS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA MENTORIA V13 - OPERACIONAL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root { --primary: #020617; --gold: #fbbf24; --card: #1e293b; --nc: #f472b6; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding: 20px; padding-bottom: 100px; }
-        
-        .header-hub { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); z-index: 100; display: flex; gap: 10px; }
-        input, textarea { flex: 1; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; }
-        
-        .btn-save { background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 900; cursor: pointer; }
-
-        .feed-anotacoes { margin-top: 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
-        
-        .post-it { 
-            background: var(--card); border-left: 5px solid var(--gold); padding: 15px; border-radius: 8px; 
-            animation: fadeIn 0.3s ease; position: relative;
+        :root { 
+            --primary: #020617; --gold: #fbbf24; --card: #1e293b; 
+            --nc: #f472b6; --law: #10b981; --peca: #a855f7;
         }
-        .post-it h4 { margin: 0 0 10px 0; color: var(--gold); text-transform: uppercase; font-size: 14px; }
-        .post-it p { font-size: 13px; line-height: 1.5; color: #cbd5e1; }
-        .post-it .macete { background: rgba(251, 191, 36, 0.1); padding: 8px; border-radius: 4px; font-size: 11px; margin-top: 10px; font-weight: bold; border: 1px dashed var(--gold); }
-        
-        .actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-action { flex: 1; padding: 8px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 4px; border: none; }
-        .btn-inj { background: #059669; color: white; }
-        .btn-del { background: #ef4444; color: white; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* BUSCA E TABS */
+        .top-nav { background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); }
+        .search-container { display: flex; gap: 10px; margin-bottom: 10px; }
+        input, textarea { flex: 1; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; font-size: 14px; }
+        
+        .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; }
+        .tab { padding: 10px 15px; background: #0f172a; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; white-space: nowrap; color: #64748b; border: 1px solid transparent; }
+        .tab.active { color: var(--gold); border-color: var(--gold); background: rgba(251, 191, 36, 0.1); }
+
+        /* FORMULÁRIO DE ENTRADA */
+        .input-panel { background: #0f172a; padding: 15px; border-bottom: 1px solid #334155; display: none; }
+        .input-panel.active { display: block; }
+        .btn-save { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 6px; font-weight: 900; cursor: pointer; margin-top: 10px; }
+
+        /* FEED DE DADOS */
+        .content-scroll { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; align-content: start; }
+        
+        .card { 
+            background: var(--card); border-radius: 12px; padding: 15px; border-left: 5px solid var(--gold);
+            position: relative; animation: slideUp 0.3s ease;
+        }
+        .card h4 { margin: 0 0 10px 0; font-size: 14px; color: var(--gold); text-transform: uppercase; }
+        .card p { font-size: 13px; line-height: 1.5; color: #cbd5e1; margin-bottom: 15px; }
+        .card .badge { position: absolute; top: 10px; right: 10px; font-size: 9px; background: rgba(255,255,255,0.1); padding: 3px 6px; border-radius: 4px; }
+        
+        .card-actions { display: flex; gap: 8px; }
+        .btn-card { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer; }
+        .btn-inj { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+        .btn-del { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* FLOATING ACTION BUTTON */
+        .fab { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 200; }
     </style>
 </head>
 <body>
 
-<div class="header-hub">
-    <input type="text" id="titulo" placeholder="Título (Ex: Art. 9 CPM)">
-    <textarea id="conteudo" placeholder="Conteúdo técnico..." rows="1"></textarea>
-    <input type="text" id="macete" placeholder="Macete/Mnemônico">
-    <button class="btn-save" onclick="salvarAnotacao()">GRAVAR</button>
+<div class="top-nav">
+    <div class="search-container">
+        <input type="text" id="main-search" placeholder="🔍 Buscar em toda a inteligência..." onkeyup="filtrarCards()">
+    </div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('all', this)">TUDO</div>
+        <div class="tab" onclick="switchTab('nc', this)">NÃO CONFUNDA</div>
+        <div class="tab" onclick="switchTab('lei', this)">LEIS/ARTIGOS</div>
+        <div class="tab" onclick="switchTab('peca', this)">ESTRUTURAS</div>
+        <div class="tab" onclick="switchTab('tese', this)">TESES</div>
+    </div>
 </div>
 
-<div class="feed-anotacoes" id="lista-anotacoes">
+<div class="input-panel" id="add-panel">
+    <input type="text" id="inp-titulo" placeholder="Título da Anotação">
+    <textarea id="inp-conteudo" rows="3" placeholder="Texto técnico para injetar na peça..." style="margin-top:8px;"></textarea>
+    <div style="display:flex; gap:10px; margin-top:8px;">
+        <select id="inp-cat" style="flex:1; background:#0f172a; color:white; border:1px solid #334155; border-radius:6px; padding:10px;">
+            <option value="nc">Não Confunda</option>
+            <option value="lei">Lei/Artigo</option>
+            <option value="peca">Estrutura</option>
+            <option value="tese">Tese</option>
+        </select>
+        <button class="btn-save" onclick="salvarDado()" style="flex:1; margin:0;">GRAVAR NO QG</button>
     </div>
+</div>
+
+<div class="content-scroll" id="feed-mentoria">
+    </div>
+
+<div class="fab" onclick="toggleAddPanel()"><i class="fas fa-plus"></i></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -53,47 +93,97 @@
     };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const dbRef = ref(db, 'mentoria_v13_anotacoes');
+    const mentoriaRef = ref(db, 'mentoria_v13_data');
 
-    // SALVAR DENTRO DA MENTORIA
-    window.salvarAnotacao = () => {
-        const t = document.getElementById('titulo').value;
-        const c = document.getElementById('conteudo').value;
-        const m = document.getElementById('macete').value;
-        if(!t || !c) return alert("Preencha o título e conteúdo!");
+    let currentTab = 'all';
 
-        push(dbRef, { titulo: t, conteudo: c, macete: m });
-        
-        document.getElementById('titulo').value = "";
-        document.getElementById('conteudo').value = "";
-        document.getElementById('macete').value = "";
+    // INTERFACE
+    window.toggleAddPanel = () => {
+        const p = document.getElementById('add-panel');
+        p.classList.toggle('active');
     };
 
-    // CARREGAR E EXIBIR DENTRO DA MENTORIA
-    onValue(dbRef, (snapshot) => {
-        const lista = document.getElementById('lista-anotacoes');
-        lista.innerHTML = "";
-        const data = snapshot.val();
-        if (data) {
+    window.switchTab = (tab, el) => {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        carregarCards();
+    };
+
+    // OPERAÇÕES DE DADOS
+    window.salvarDado = () => {
+        const t = document.getElementById('inp-titulo').value;
+        const c = document.getElementById('inp-conteudo').value;
+        const cat = document.getElementById('inp-cat').value;
+
+        if(!t || !c) return alert("Preencha título e conteúdo!");
+
+        push(mentoriaRef, { titulo: t, conteudo: c, categoria: cat, data: new Date().toLocaleDateString() });
+        
+        document.getElementById('inp-titulo').value = "";
+        document.getElementById('inp-conteudo').value = "";
+        toggleAddPanel();
+    };
+
+    window.carregarCards = () => {
+        onValue(mentoriaRef, (snap) => {
+            const feed = document.getElementById('feed-mentoria');
+            feed.innerHTML = "";
+            const data = snap.val();
+            if(!data) return;
+
             Object.keys(data).reverse().forEach(id => {
                 const item = data[id];
-                lista.innerHTML += `
-                    <div class="post-it">
-                        <h4>${item.titulo}</h4>
-                        <p>${item.conteudo}</p>
-                        ${item.macete ? `<div class="macete">⚡ MACETE: ${item.macete}</div>` : ""}
-                        <div class="actions">
-                            <button class="btn-action btn-inj" onclick="injetarNaFolha('${item.conteudo.replace(/'/g, "\\'")}')">USAR NA PEÇA</button>
-                            <button class="btn-action btn-del" onclick="apagarAnotacao('${id}')">APAGAR</button>
-                        </div>
+                if(currentTab !== 'all' && item.categoria !== currentTab) return;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.borderLeftColor = getCor(item.categoria);
+                card.innerHTML = `
+                    <span class="badge">${item.data}</span>
+                    <h4>${item.titulo}</h4>
+                    <p>${item.conteudo}</p>
+                    <div class="card-actions">
+                        <button class="btn-card btn-inj" onclick="injetar('${item.conteudo.replace(/'/g, "\\'")}')">INJETAR NA PEÇA</button>
+                        <button class="btn-card btn-del" onclick="apagar('${id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
+                feed.appendChild(card);
             });
-        }
-    });
+        });
+    };
 
-    window.injetarNaFolha = (texto) => { window.parent.receberTexto(texto); };
-    window.apagarAnotacao = (id) => { if(confirm("Apagar permanentemente?")) remove(ref(db, `mentoria_v13_anotacoes/${id}`)); };
+    function getCor(cat) {
+        const cores = { nc: '#f472b6', lei: '#10b981', peca: '#a855f7', tese: '#fbbf24' };
+        return cores[cat] || '#fbbf24';
+    }
+
+    window.injetar = (texto) => {
+        // Envia o texto para a função receberTexto do index.html (pai)
+        if(window.parent && window.parent.receberTexto) {
+            window.parent.receberTexto(texto);
+        } else {
+            alert("Conteúdo copiado (Modo Standalone): " + texto);
+        }
+    };
+
+    window.apagar = (id) => {
+        if(confirm("Deseja excluir esta inteligência do banco de dados?")) {
+            remove(ref(db, `mentoria_v13_data/${id}`));
+        }
+    };
+
+    window.filtrarCards = () => {
+        let busca = document.getElementById('main-search').value.toLowerCase();
+        document.querySelectorAll('.card').forEach(card => {
+            let txt = card.innerText.toLowerCase();
+            card.style.display = txt.includes(busca) ? "block" : "none";
+        });
+    };
+
+    // Inicialização
+    carregarCards();
 </script>
+
 </body>
 </html>
