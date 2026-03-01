@@ -51,11 +51,12 @@
 
         /* LADO ESQUERDO: PDF VIEWER */
         #pdf-sidebar { 
-            width: 0; /* Começa fechado */
+            width: 0; 
             background: #334155; border-right: 3px solid var(--gold);
             transition: 0.3s; position: relative; display: flex; flex-direction: column;
+            overflow: hidden;
         }
-        #pdf-sidebar.active { width: 45%; }
+        #pdf-sidebar.active { width: 50%; }
 
         .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
         #pdf-frame { width: 100%; flex: 1; border: none; background: white; }
@@ -91,7 +92,7 @@
         .modal-body { background: white; width: 90%; max-width: 500px; padding: 20px; border-radius: 15px; color: #0f172a; }
         
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-gaveta { padding: 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; }
+        .btn-gaveta { padding: 15px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; font-weight: bold; }
         .item-arquivo { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
     </style>
 </head>
@@ -115,7 +116,7 @@
     <div class="content-wrapper">
         <div id="pdf-sidebar">
             <div class="pdf-header">
-                <span id="pdf-titulo">DOCUMENTO</span>
+                <span id="pdf-titulo">EDITAL PMDF 2023</span>
                 <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red;"></i>
             </div>
             <iframe id="pdf-frame" src=""></iframe>
@@ -151,9 +152,9 @@
 
 <div class="modal" id="modal-biblioteca">
     <div class="modal-body">
-        <h2 style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--biblioteca)">BIBLIOTECA DE PDFs</h2>
+        <h2 style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--biblioteca)">BIBLIOTECA TÁTICA</h2>
         <div class="item-arquivo" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')">
-            <div><b>📜 EDITAL PMDF 2023</b><br><small>Oficial - Abertura</small></div>
+            <div><b>📜 EDITAL PMDF 2023</b><br><small>Visualizar lateralmente</small></div>
             <i class="fas fa-file-pdf" style="color:red"></i>
         </div>
         <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; padding:12px; margin-top:20px; background:black; color:white; border-radius:8px;">FECHAR</button>
@@ -174,15 +175,15 @@
     window.missaoNome = "RELATÓRIO SEM TÍTULO";
     window.idAtual = null;
 
-    // --- SISTEMA DE PDF AO LADO (PADRÃO OAB) ---
+    // --- SISTEMA DE ABERTURA DE PDF (LADO A LADO) ---
     window.abrirPDFNoLado = (arquivo, titulo) => {
         const sidebar = document.getElementById('pdf-sidebar');
         const frame = document.getElementById('pdf-frame');
         const tit = document.getElementById('pdf-titulo');
         
         tit.innerText = titulo;
-        // No ambiente real, aqui vai a URL do PDF. Como é um arquivo enviado, simulamos a chamada:
-        frame.src = "https://www.africau.edu/images/default/sample.pdf"; // Exemplo para teste, você substituirá pela URL real do arquivo
+        // Caminho do PDF enviado para o sistema
+        frame.src = arquivo; 
         
         sidebar.classList.add('active');
         document.getElementById('modal-biblioteca').style.display = 'none';
@@ -197,10 +198,10 @@
         document.getElementById('modal-biblioteca').style.display = 'flex';
     };
 
-    // --- SISTEMA DE SALVAMENTO/ATUALIZAÇÃO ---
+    // --- SISTEMA DE SALVAMENTO (EXISTE ? ATUALIZA : CRIA NOVO) ---
     window.finalizarPeca = async () => {
         const conteudo = document.getElementById('folha-total').innerHTML;
-        const gaveta = prompt("SALVAR EM QUAL GAVETA? (TREINO, QUESTÕES, TESES, LEGISLAÇÃO)", "TREINO").toUpperCase();
+        const gaveta = prompt("EM QUAL GAVETA DESEJA SALVAR?", "TREINO").toUpperCase();
         if(!gaveta) return;
 
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
@@ -223,11 +224,10 @@
                 conteudo: conteudo
             });
             window.idAtual = idFinal;
-            alert(idExistente ? "MISSAO ATUALIZADA!" : "NOVA MISSÃO SALVA!");
+            alert(idExistente ? "MISSÃO ATUALIZADA COM SUCESSO!" : "MISSÃO SALVA COM SUCESSO!");
         } catch (e) { alert("Erro ao salvar."); }
     };
 
-    // --- GERENCIADOR DE ARQUIVOS ---
     window.abrirGerenciador = () => {
         document.getElementById('modal-gavetas').style.display = 'flex';
         window.voltarParaGavetas();
@@ -244,7 +244,7 @@
         document.getElementById('view-arquivos').style.display = 'block';
         document.getElementById('modal-nav').style.display = 'block';
         const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "Lendo base...";
+        lista.innerHTML = "Acessando nuvem...";
 
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
         if(snap.exists()){
@@ -252,7 +252,7 @@
                 .map(k => ({ id: k, ...snap.val()[k] }))
                 .filter(i => i.gaveta === gaveta).reverse();
 
-            lista.innerHTML = filtrados.length ? "" : "Vazio.";
+            lista.innerHTML = filtrados.length ? "" : "Pasta Vazia.";
             filtrados.forEach(doc => {
                 const item = document.createElement('div');
                 item.className = 'item-arquivo';
@@ -284,7 +284,7 @@
     };
 
     window.renomearMissao = () => {
-        const n = prompt("NOME DA MISSÃO:", window.missaoNome);
+        const n = prompt("RENOMEAR MISSÃO:", window.missaoNome);
         if(n) { window.missaoNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.missaoNome; }
     };
 </script>
