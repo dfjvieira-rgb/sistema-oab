@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA JOAQUIM - ANOTAÇÕES V2</title>
+    <title>SISTEMA JOAQUIM - OPERACIONAL PMDF/PMGO</title>
     <style>
         :root { 
-            --primary: #1a252f; --accent: #3498db; --bg: #f4f7f6; 
-            --orange: #f39c12; --green: #27ae60; --purple: #8e44ad; 
+            /* Cores Militares: Azul Petróleo (PMDF) e Verde Oliva (PMGO) */
+            --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
+            --orange: #d35400; --green: #2ecc71; --purple: #34495e; 
             --yellow: #f1c40f; --text: #2c3e50; --header-h: 60px; 
             --sidebar-w: 260px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
         #timer { font-family: monospace; font-size: 1.2rem; color: var(--yellow); font-weight: bold; }
         
         .nav-group { display: flex; gap: 5px; }
-        .dropbtn { color: white; padding: 8px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
-        .btn-struct { background-color: var(--accent); }
-        .btn-correc { background-color: var(--orange); }
+        .dropbtn { color: white; padding: 8px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
+        .btn-struct { background-color: var(--accent); } /* Verde PMGO */
+        .btn-correc { background-color: #c0392b; } /* Alerta */
         .btn-postit { background-color: var(--yellow); color: #333; }
-        .btn-dicas { background-color: var(--purple); }
+        .btn-dicas { background-color: #2980b9; }
 
         .dropdown { position: relative; }
         .dropdown-content { display: none; position: absolute; background: white; min-width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); right: 0; border-radius: 6px; padding: 8px; z-index: 2000; border: 1px solid #ddd; }
@@ -31,294 +32,163 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        .sidebar { width: var(--sidebar-w); background: #eaeff2; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; transition: width 0.3s; }
+        .sidebar { width: var(--sidebar-w); background: #f0f2f5; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
         .sidebar.collapsed { width: 0; overflow: hidden; border: none; }
         .sidebar-content { padding: 12px; display: flex; flex-direction: column; gap: 15px; }
         
-        h4 { font-size: 0.65rem; color: #666; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .exame-btn { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
-        .exame-btn.active { background: var(--accent); color: white; }
+        h4 { font-size: 0.7rem; color: var(--primary); text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 3px; margin-bottom: 8px; }
+        .exame-btn { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .exame-btn:hover { background: #e8f4fd; }
 
-        .mural-item { padding: 8px; border-radius: 4px; font-size: 0.75rem; margin-bottom: 8px; border-left: 5px solid; background: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
+        .work-section { width: 45%; display: flex; flex-direction: column; background: white; flex-shrink: 0; border-right: 1px solid #ccc; }
+        #area-peca { flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; background: #fff; resize: none; }
 
-        .work-section { width: 40%; display: flex; flex-direction: column; background: white; flex-shrink: 0; border-right: 1px solid #ccc; }
-        #area-peca { flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 1.6em; resize: none; }
-        #resizer { width: 10px; background: #cbd5e0; cursor: col-resize; z-index: 10; border-left: 1px solid #a0aec0; }
+        .pdf-section { flex: 1; background: #2c3e50; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; }
+        .pdf-box { background: white; border-radius: 4px; overflow: hidden; height: 100%; }
+        .pdf-header { padding: 8px 10px; color: white; font-size: 0.7rem; display: flex; justify-content: space-between; background: var(--primary); }
+        .pdf-frame { width: 100%; height: 90%; border: none; }
 
-        .pdf-section { flex: 1; background: #525659; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; }
-        .pdf-box { background: #333; border-radius: 4px; overflow: hidden; }
-        .pdf-header { padding: 6px 10px; color: white; font-size: 0.7rem; display: flex; justify-content: space-between; background: #2c3e50; }
-        .pdf-frame { width: 100%; height: 80vh; border: none; background: white; }
-
-        .btn-action { border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; font-size: 0.7rem; text-transform: uppercase; }
-        #btn-reopen { position: fixed; left: 0; top: 80px; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 0 5px 5px 0; cursor: pointer; display: none; z-index: 900; }
-
-        /* Estilos para o novo painel de gerenciamento de anotações */
-        #annotations-manager-panel { 
-            display: none; /* Inicia oculto */
-            flex: 1; 
-            background: var(--bg); 
-            flex-direction: column;
-        }
-
-        /* Estilos para as abas */
-        .tabs { display: flex; background: #ddd; }
-        .tab-button { padding: 10px 15px; border: none; cursor: pointer; font-size: 0.8rem; background: #eee; }
-        .tab-button.active { background: var(--bg); border-bottom: 2px solid var(--accent); }
-        .tab-content { padding: 15px; overflow-y: auto; flex: 1; }
-
-        /* Estilos para os itens de anotação */
-        .annotation-form textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 10px; height: 100px; resize: vertical; }
-        .annotation-list-item { padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; position: relative; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
-        .delete-annotation { position: absolute; right: 5px; top: 5px; background: none; border: none; color: red; cursor: pointer; font-size: 1rem; }
-
-        /* Estilos Específicos por Tipo */
-        .type-caderno { 
-            background: white; 
-            background-image: linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
-            background-size: 100% 1.6em;
-            line-height: 1.6em;
-        }
-        .type-postit { background: var(--yellow); }
-        .type-dicas { background: var(--green); color: white; }
-
-
-        @media (max-width: 1024px) {
-            #resizer { display: none; }
-            main { flex-direction: column; overflow-y: auto; }
-            .sidebar { position: fixed; left: -260px; top: var(--header-h); height: 100%; z-index: 3000; width: 260px; transition: transform 0.3s; }
-            .sidebar.show-mobile { transform: translateX(260px); }
-            .work-section { width: 100% !important; height: 50vh; }
-            #mobile-toggle { display: block !important; }
-        }
+        /* Anotações operacionais */
+        .type-postit { background: #fffde7; border-left: 5px solid var(--yellow); color: #444; }
+        .type-dicas { background: #e8f5e9; border-left: 5px solid var(--green); color: #1b5e20; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="header-left">
-        <button id="mobile-toggle" style="background:#34495e; color:white; border:none; padding:8px; border-radius:4px; display:none;" onclick="toggleSidebarMobile()">☰ MENU</button>
-        <div id="timer">05:00:00</div>
+        <button id="mobile-toggle" style="background:#34495e; color:white; border:none; padding:8px; border-radius:4px; display:none;">☰</button>
+        <div id="timer">ESTUDO: 00:50:00</div>
     </div>
     <div class="nav-group">
-        <div class="dropdown"><button class="dropbtn btn-struct">📑 Estruturas</button><div class="dropdown-content" id="list-db_estruturas"></div></div>
-        <div class="dropdown"><button class="dropbtn btn-correc">⚖️ Correção</button><div class="dropdown-content" id="list-db_correcoes"></div></div>
-        <!-- Botões para abrir o novo painel de gerenciamento de anotações -->
-        <button class="dropbtn btn-postit" onclick="openAnnotationsPanel('postit')">📌 Post-its</button>
-        <button class="dropbtn btn-dicas" onclick="openAnnotationsPanel('dicas')">👩‍🏫 Dicas</button>
+        <div class="dropdown"><button class="dropbtn btn-struct">⚖️ VADE MECUM</button>
+            <div class="dropdown-content">
+                <div class="menu-item" onclick="abrirPDF('CP')">Código Penal</div>
+                <div class="menu-item" onclick="abrirPDF('CPP')">Processo Penal</div>
+                <div class="menu-item" onclick="abrirPDF('LODF')">Lei Orgânica DF</div>
+                <div class="menu-item" onclick="abrirPDF('MILITAR')">Código Penal Militar</div>
+            </div>
+        </div>
+        <button class="dropbtn btn-postit" onclick="openAnnotationsPanel('postit')">📌 MNEMÔNICOS</button>
+        <button class="dropbtn btn-dicas" onclick="openAnnotationsPanel('dicas')">🚔 OPERACIONAL</button>
     </div>
 </header>
 
-<button id="btn-reopen" onclick="toggleSidebarPC()">ABRIR MENU »</button>
-
-<main id="main-container">
+<main>
     <aside class="sidebar" id="sidebar-main">
         <div class="sidebar-content">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-                <h4>📂 EXAMES OAB</h4>
-                <button onclick="toggleSidebarPC()" class="pc-only" style="border:none; background:none; cursor:pointer; color:red; font-size:0.6rem;">FECHAR</button>
-            </div>
-            <div id="lista-exames"></div>
+            <h4>🔰 CONCURSOS FOCO</h4>
+            <div class="exame-btn" onclick="selecionarFoco('PMDF')">🔵 PMDF (AOCP)</div>
+            <div class="exame-btn" onclick="selecionarFoco('PMGO')">🟢 PMGO (GOAL)</div>
             
-            <h4 style="margin-top:15px">💡 MURAL RÁPIDO</h4>
-            <div id="mural-fixacao"></div>
+            <h4 style="margin-top:15px">⚡ REVISÃO RÁPIDA</h4>
+            <div style="font-size: 0.7rem; background: #fff; padding: 10px; border-radius: 4px; border-left: 4px solid var(--orange);">
+                <strong>SOBERANIA:</strong> Autonomia + Independência<br>
+                <strong>PRISÃO:</strong> Flagrante, Preventiva, Temporária
+            </div>
 
-            <h4 style="margin-top:15px">💾 DADOS</h4>
-            <button class="btn-action" style="background:#27ae60; width:100%" onclick="fazerBackup()">EXPORTAR</button>
-            <button class="btn-action" style="background:#2980b9; width:100%; margin-top:5px" onclick="document.getElementById('input-file').click()">IMPORTAR</button>
-            <input type="file" id="input-file" style="display:none" onchange="importarBackup(this)">
+            <h4 style="margin-top:15px">📂 SIMULADOS</h4>
+            <button class="btn-action" style="background:var(--primary); width:100%; color:white; padding:8px; border:none; border-radius:4px; cursor:pointer;" onclick="fazerBackup()">EXPORTAR MEU CICLO</button>
         </div>
     </aside>
 
-    <section class="work-section" id="editor-area">
-        <div id="aviso-edicao" style="display:none; background:var(--yellow); padding:10px; text-align:center; font-weight:bold;">
-            EDITANDO: <span id="nome-item-editando"></span> 
-            <button class="btn-action" style="background:var(--green); margin-left:10px" onclick="salvarAlteracoes()">SALVAR</button>
-            <button class="btn-action" style="background:#e74c3c; margin-left:5px" onclick="cancelarEdicao()">CANCELAR</button>
+    <section class="work-section">
+        <div style="padding:10px; background:#ddd; font-size:0.7rem; font-weight:bold; display:flex; justify-content:space-between;">
+            <span>MODO: ESTUDO DISCURSIVA</span>
+            <button onclick="gerarModeloRelatorio()" style="cursor:pointer; border:none; background:var(--accent); color:white; padding:2px 5px;">MODELO OCORRÊNCIA</button>
         </div>
-        <div class="editor-header" style="padding:10px; display:flex; justify-content:space-between; align-items:center; background:#eee;">
-            <span id="label-exame" style="font-size:0.7rem; font-weight:bold;">📍 SELECIONE UM EXAME</span>
-            <button class="btn-action" style="background:var(--green)" onclick="exportarTXT()">TXT</button>
-        </div>
-        <textarea id="area-peca" placeholder="Escreva aqui..."></textarea>
+        <textarea id="area-peca" placeholder="Cole aqui o enunciado ou escreva sua redação..."></textarea>
     </section>
 
-    <div id="resizer"></div>
-
-    <!-- Painel de PDFs original, agora com ID para controle -->
     <section class="pdf-section" id="pdf-panel">
         <div class="pdf-box">
-            <div class="pdf-header">
-                <span>ENUNCIADO</span>
-                <button onclick="expandir('v-enu')" style="background:none; border:none; color:white;">🔄</button>
-            </div>
+            <div class="pdf-header"><span>QUESTÕES / EDITAL</span></div>
             <iframe id="v-enu" class="pdf-frame" src="about:blank"></iframe>
         </div>
-        <div class="pdf-box">
-            <div class="pdf-header">
-                <span>PADRÃO DE RESPOSTA</span>
-                <button onclick="expandir('v-pad')" style="background:none; border:none; color:white;">🔄</button>
-            </div>
-            <iframe id="v-pad" class="pdf-frame" src="about:blank"></iframe>
-        </div>
     </section>
 
-    <!-- NOVO: Painel de Gerenciamento de Anotações -->
-    <section id="annotations-manager-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-            <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('caderno')">Folha de Caderno</button>
-                <button class="tab-button" onclick="switchTab('postit')">Post-its</button>
-                <button class="tab-button" onclick="switchTab('dicas')">Dicas</button>
-            </div>
-            <button class="btn-action" style="background:#e74c3c;" onclick="closeAnnotationsPanel()">FECHAR</button>
+    <section id="annotations-manager-panel" style="display:none; flex:1; background: white; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #eee;">
+            <h4 id="current-type-label">MNEMÔNICOS</h4>
+            <button class="btn-action" style="background:#e74c3c; border:none; color:white; padding:5px 10px;" onclick="closeAnnotationsPanel()">FECHAR</button>
         </div>
-
-        <div class="tab-content" id="annotations-content">
-            <!-- Formulário de Nova Anotação -->
-            <div class="annotation-form">
-                <h4>NOVA ANOTAÇÃO: <span id="current-type-label" style="text-transform: capitalize;">Caderno</span></h4>
-                <textarea id="annotation-input" placeholder="Escreva sua anotação aqui..."></textarea>
-                <button onclick="saveAnnotation()">SALVAR ANOTAÇÃO</button>
-            </div>
-            
-            <h4>MINHAS ANOTAÇÕES</h4>
-            <div id="annotations-list">
-                <!-- Anotações serão renderizadas aqui -->
-            </div>
+        <div style="padding:15px; overflow-y:auto;">
+            <textarea id="annotation-input" style="width:100%; height:80px; margin-bottom:10px;" placeholder="Ex: CASEI (Competência da União)"></textarea>
+            <button style="width:100%; padding:10px; background:var(--accent); color:white; border:none;" onclick="saveAnnotation()">SALVAR NO QG</button>
+            <div id="annotations-list" style="margin-top:20px;"></div>
         </div>
     </section>
-
 </main>
 
 <script>
-    // --- Funções Mock (existentes no seu código original) ---
-    function toggleSidebarMobile() {}
-    function toggleSidebarPC() {
-        const sidebar = document.getElementById('sidebar-main');
-        const btnReopen = document.getElementById('btn-reopen');
-        sidebar.classList.toggle('collapsed');
-        if (sidebar.classList.contains('collapsed')) {
-            btnReopen.style.display = 'block';
-        } else {
-            btnReopen.style.display = 'none';
-        }
-    }
-    function fazerBackup() { alert("Backup Exportado (Mock)"); }
-    function importarBackup(input) { alert("Backup Importado (Mock)"); }
-    function salvarAlteracoes() { alert("Alterações Salvas (Mock)"); }
-    function cancelarEdicao() { alert("Edição Cancelada (Mock)"); }
-    function exportarTXT() { alert("Exportando para TXT (Mock)"); }
-    function expandir(id) { alert(`Expandindo PDF ${id} (Mock)`); }
-    
-    window.onload = () => {
-       renderAnnotations('caderno'); 
-    }
-
-    // ------------------------------------------------------------------
-    // NOVO JS: Funcionalidade de Anotações (Multi-tipo)
-    // ------------------------------------------------------------------
-
     const PDF_PANEL = document.getElementById('pdf-panel');
-    const ANNOTATIONS_MANAGER_PANEL = document.getElementById('annotations-manager-panel');
-    const ANNOTATION_INPUT = document.getElementById('annotation-input');
-    const ANNOTATIONS_LIST = document.getElementById('annotations-list');
-    const CURRENT_TYPE_LABEL = document.getElementById('current-type-label');
-    
-    // Variável de controle para o tipo de anotação atual
-    let currentAnnotationType = 'caderno'; 
+    const ANNOTATIONS_PANEL = document.getElementById('annotations-manager-panel');
+    let currentType = 'postit';
 
-    /**
-     * Abre o painel de gerenciamento de anotações e alterna para uma aba específica.
-     * @param {string} type O tipo de anotação a ser visualizado ('caderno', 'postit', 'dicas').
-     */
-    function openAnnotationsPanel(type = 'caderno') {
-        PDF_PANEL.style.display = 'none';
-        ANNOTATIONS_MANAGER_PANEL.style.display = 'flex';
-        switchTab(type);
+    function abrirPDF(tipo) {
+        const frames = {
+            'CP': 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm',
+            'CPP': 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm'
+        };
+        document.getElementById('v-enu').src = frames[tipo] || 'about:blank';
+        closeAnnotationsPanel();
     }
 
-    /**
-     * Fecha o painel de anotações e volta para os PDFs.
-     */
+    function selecionarFoco(pm) {
+        alert("Foco alterado para " + pm + ". Carregando Base de Dados...");
+        document.getElementById('timer').innerHTML = pm + ": 00:50:00";
+    }
+
+    function gerarModeloRelatorio() {
+        const modelo = "RELATÓRIO DE OCORRÊNCIA POLICIAL\n------------------------------\nDATA: __/__/__\nLOCAL: _______________________\nENVOLVIDOS: __________________\n\nDINÂMICA DOS FATOS:\n\n\n\nPROVIDÊNCIAS ADOTADAS:\n";
+        document.getElementById('area-peca').value = modelo;
+    }
+
+    // LÓGICA DE ANOTAÇÕES QUE VOCÊ CRIOU (MANTIDA)
+    function openAnnotationsPanel(type) {
+        currentType = type;
+        PDF_PANEL.style.display = 'none';
+        ANNOTATIONS_PANEL.style.display = 'flex';
+        document.getElementById('current-type-label').innerText = type.toUpperCase();
+        renderAnnotations();
+    }
+
     function closeAnnotationsPanel() {
         PDF_PANEL.style.display = 'flex';
-        ANNOTATIONS_MANAGER_PANEL.style.display = 'none';
+        ANNOTATIONS_PANEL.style.display = 'none';
     }
 
-    /**
-     * Alterna entre as abas (tipos de anotação).
-     * @param {string} type O tipo de anotação.
-     */
-    function switchTab(type) {
-        currentAnnotationType = type;
-
-        // Atualiza a visualização da aba ativa
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active'); // O botão clicado fica ativo
-
-        CURRENT_TYPE_LABEL.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-        renderAnnotations();
-    }
-
-    /**
-     * Salva uma nova anotação no LocalStorage com base no tipo atual.
-     */
     function saveAnnotation() {
-        const text = ANNOTATION_INPUT.value.trim();
-        if (text === '') return;
-
-        const STORAGE_KEY = `sistemaJoaquimAnnotations_${currentAnnotationType}`;
-        let annotations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        
-        const newAnnotation = {
-            id: Date.now(),
-            text: text,
-            date: new Date().toLocaleString('pt-BR')
-        };
-
-        annotations.push(newAnnotation);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
-        
-        ANNOTATION_INPUT.value = '';
+        const text = document.getElementById('annotation-input').value;
+        if(!text) return;
+        const key = `pm_study_${currentType}`;
+        let data = JSON.parse(localStorage.getItem(key)) || [];
+        data.push({id: Date.now(), text: text});
+        localStorage.setItem(key, JSON.stringify(data));
+        document.getElementById('annotation-input').value = "";
         renderAnnotations();
     }
 
-    /**
-     * Renderiza todas as anotações salvas na interface para o tipo atual.
-     */
     function renderAnnotations() {
-        ANNOTATIONS_LIST.innerHTML = '';
-        const STORAGE_KEY = `sistemaJoaquimAnnotations_${currentAnnotationType}`;
-        const annotations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-
-        annotations.forEach(annotation => {
-            const item = document.createElement('div');
-            // Aplica a classe de estilo visual baseada no tipo
-            item.className = `annotation-list-item type-${currentAnnotationType}`; 
-            item.innerHTML = `
-                <p>${annotation.text}</p>
-                <small>Criado em: ${annotation.date}</small>
-                <button class="delete-annotation" onclick="deleteAnnotation(${annotation.id})">✖️</button>
-            `;
-            ANNOTATIONS_LIST.appendChild(item);
+        const list = document.getElementById('annotations-list');
+        list.innerHTML = "";
+        const key = `pm_study_${currentType}`;
+        const data = JSON.parse(localStorage.getItem(key)) || [];
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.style = "padding:10px; background:#f9f9f9; border-left:4px solid var(--accent); margin-bottom:10px; font-size:0.8rem; position:relative;";
+            div.innerHTML = item.text + `<button onclick="deleteItem(${item.id})" style="position:absolute; right:5px; top:5px; border:none; color:red; cursor:pointer;">✖</button>`;
+            list.appendChild(div);
         });
     }
 
-    /**
-     * Remove uma anotação específica pelo ID e tipo.
-     * @param {number} id O ID (timestamp) da anotação a ser removida.
-     */
-    function deleteAnnotation(id) {
-        const STORAGE_KEY = `sistemaJoaquimAnnotations_${currentAnnotationType}`;
-        let annotations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        annotations = annotations.filter(annotation => annotation.id !== id);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
-        renderAnnotations(); // Re-renderiza a lista após a exclusão
+    function deleteItem(id) {
+        const key = `pm_study_${currentType}`;
+        let data = JSON.parse(localStorage.getItem(key));
+        data = data.filter(i => i.id !== id);
+        localStorage.setItem(key, JSON.stringify(data));
+        renderAnnotations();
     }
-
 </script>
 </body>
 </html>
