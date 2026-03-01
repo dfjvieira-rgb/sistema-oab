@@ -44,7 +44,7 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR COMPACTA */
+        /* SIDEBAR MASTER PM */
         .sidebar { 
             width: var(--sidebar-w); 
             background: #1e293b; 
@@ -106,7 +106,6 @@
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 10px; gap: 8px; border-right: 1px solid #f1f5f9; height: 45px; }
         .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative; }
         .color-dot.active { border-color: #000; transform: scale(1.1); }
-        .color-dot.none { background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: red; }
 
         .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; position: relative; }
 
@@ -114,14 +113,27 @@
         #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
         #pdf-viewer.full-view { width: 100% !important; flex: 1; }
 
-        .pdf-controls { background: #1e293b; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 12px; align-items: center;}
-        iframe { width: 100%; flex: 1; border: none; }
+        /* HUB DE INTELIGÊNCIAS PM 2026 */
+        #hub-mentoria-lateral {
+            position: fixed; right: -400px; top: 60px; bottom: 0; width: 380px; 
+            background: #0f172a; border-left: 3px solid var(--mentoria);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 9000;
+            display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        #hub-mentoria-lateral.active { right: 0; }
+        .hub-header { background: var(--mentoria); padding: 15px; display: flex; justify-content: space-between; font-weight: 900; align-items: center; }
+        .hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .intel-card { 
+            background: #1e293b; border: 1px solid rgba(168, 85, 247, 0.3); padding: 12px; 
+            border-radius: 8px; font-size: 11px; text-align: center; cursor: pointer;
+            transition: 0.2s; font-weight: bold; color: #e2e8f0;
+        }
+        .intel-card:hover { border-color: var(--mentoria); background: #2d3748; transform: translateY(-2px); }
+        .intel-card i { display: block; font-size: 1.5rem; margin-bottom: 8px; color: var(--mentoria); }
 
         #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
         .fab-main { width: 65px; height: 65px; border-radius: 50%; background: var(--gold); border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; color: black; }
-        .fab-sub { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; display: none; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
-        #mobile-hub.active .fab-sub { display: flex; }
-
+        
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
         .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
@@ -129,7 +141,7 @@
         @media (max-width: 768px) {
             .sidebar { display: none; }
             #mobile-hub { display: flex; }
-            #pdf-viewer.active { width: 100%; position: absolute; right: 0; top: 0; height: 100%; z-index: 8000; }
+            #hub-mentoria-lateral { width: 100%; top: 0; height: 100%; }
         }
     </style>
 </head>
@@ -137,28 +149,22 @@
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">--</span></div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">PLANO DE VOO PM 2026: <span id="ex-display">--</span></div>
 </header>
 
 <main>
     <aside class="sidebar" id="sidebar-main">
         <button class="btn-side" style="background:var(--gold); color:#000" data-label="EXAMES OAB" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
         <button class="btn-side" style="background:#facc15; color:#000" data-label="NOVO TREINO" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
-        <button class="btn-side" style="background:var(--questoes); color:#fff" data-label="QUESTÕES" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
-        <button class="btn-side" style="background:var(--teses); color:#fff" data-label="TREINO TESES" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
-        <button class="btn-side" style="background:var(--biblioteca); color:#fff" data-label="PASTA DE PDFS" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
-        <button class="btn-side" style="background:#334155;" data-label="MINHA PASTA" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
-        <button class="btn-side" style="background:#10b981;" data-label="FINALIZAR / SALVAR" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" style="background:var(--mentoria);" data-label="HUB INTELIGÊNCIAS" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" style="background:#475569;" data-label="PERGAMINHO (ESTRUTURAS)" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i></button>
+        <button class="btn-side" style="background:#3b82f6;" data-label="MARTELO (TESES)" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i></button>
         <hr style="width:70%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:var(--mentoria);" data-label="MENTORIA IA" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
-        <button class="btn-side" style="background:#475569;" data-label="PERGAMINHO" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i></button>
-        <button class="btn-side" style="background:#3b82f6;" data-label="MARTELO" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i></button>
+        <button class="btn-side" style="background:#10b981;" data-label="BLINDAR E SALVAR (DISQUETE)" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" style="background:#334155;" data-label="MINHA PASTA PM" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
         <hr style="width:70%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:#8b5cf6;" data-label="LIVRO PROCESSO" onclick="window.verPDF('LP')"><i class="fas fa-book"></i></button>
-        <button class="btn-side" style="background:#6366f1;" data-label="LIVRO MATERIAL" onclick="window.verPDF('LM')"><i class="fas fa-book-open"></i></button>
-        <hr style="width:70%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:#f97316;" data-label="PEÇA PDF" onclick="window.verPDF('P')"><i class="fas fa-file-pdf"></i></button>
-        <button class="btn-side" style="background:#eab308;" data-label="GABARITO" onclick="window.verPDF('G')"><i class="fas fa-check-double"></i></button>
+        <button class="btn-side" style="background:#f97316;" data-label="VER PEÇA PDF" onclick="window.verPDF('P')"><i class="fas fa-file-pdf"></i></button>
+        <button class="btn-side" style="background:#eab308;" data-label="VER GABARITO" onclick="window.verPDF('G')"><i class="fas fa-check-double"></i></button>
         <button class="btn-side" style="background:#000; border:1px solid var(--gold)" data-label="VADE MECUM" onclick="window.verPDF('V')"><i class="fas fa-gavel"></i></button>
     </aside>
 
@@ -166,22 +172,15 @@
         <div class="sticky-tools">
             <div id="identificador-peca" onclick="window.renomearTreino()">SCANNER ELITE... <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i></div>
             <div class="toolbar-liberdade">
-                <button class="btn-lib" style="background:#64748b; color:white" onclick="window.desfazer()"><i class="fas fa-undo"></i> Desfazer</button>
+                <button class="btn-lib" onclick="window.desfazer()"><i class="fas fa-undo"></i></button>
                 <div class="highlight-box">
-                    <button class="btn-lib" id="btn-highlight" onclick="window.toggleMarcaTexto()" style="border:none; flex:none; padding:12px 5px;">
-                        <i class="fas fa-highlighter"></i>
-                    </button>
                     <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
                     <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
                     <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
-                    <div class="color-dot" id="dot-purple" style="background:#e9d5ff;" onclick="window.setHighlightColor('#e9d5ff', 'dot-purple')"></div>
-                    <div class="color-dot none" id="dot-none" title="Remover Cor" onclick="window.setHighlightColor('transparent', 'dot-none')">
-                        <i class="fas fa-slash"></i>
-                    </div>
                 </div>
-                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i> Limpar</button>
-                <button class="btn-lib" id="btn-foco" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i></button>
+                <button class="btn-lib" id="btn-foco" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i></button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()">GERAR PDF</button>
             </div>
         </div>
         <div class="paper">
@@ -189,155 +188,108 @@
         </div>
     </section>
 
+    <aside id="hub-mentoria-lateral">
+        <div class="hub-header">
+            <span>🧠 HUB MASTER PM 2026</span>
+            <i class="fas fa-times" onclick="window.abrirMentoria()" style="cursor:pointer"></i>
+        </div>
+        <div class="hub-grid">
+            <div class="intel-card" onclick="window.intelQualPeca()"><i class="fas fa-search"></i>Qual é a Peça?</div>
+            <div class="intel-card" onclick="window.intelNaoConfunda()"><i class="fas fa-exclamation-triangle"></i>Não Confunda</div>
+            <div class="intel-card" onclick="window.intelTeses()"><i class="fas fa-gavel"></i>Teses Oficiais</div>
+            <div class="intel-card" onclick="window.intel50Questoes()"><i class="fas fa-question"></i>50 Questões</div>
+            <div class="intel-card" onclick="window.intelEstruturas()"><i class="fas fa-layer-group"></i>Estruturas</div>
+            <div class="intel-card" onclick="window.intelPreliminares()"><i class="fas fa-shield-alt"></i>Preliminares</div>
+            <div class="intel-card" onclick="window.intelRecursos()"><i class="fas fa-arrow-up"></i>Recursos</div>
+            <div class="intel-card" onclick="window.intelRemissoes()"><i class="fas fa-book"></i>Remissões Vade</div>
+        </div>
+        <div style="padding:15px; border-top:1px solid rgba(255,255,255,0.1); font-size:10px; color:var(--gold); text-align:center;">
+            STATUS: SISTEMA BLINDADO PM ATIVO
+        </div>
+    </aside>
+
     <section id="pdf-viewer">
         <div class="pdf-controls">
-            <div>
-                <button onclick="window.toggleRecolherEditor()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:10px;">
-                    <i class="fas fa-arrows-alt-h"></i> VOLTAR EDITOR
-                </button>
-                <span id="pdf-title">DOCUMENTO</span>
-            </div>
-            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
+            <button onclick="window.toggleRecolherEditor()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:4px 8px; border-radius:4px; font-size:10px;">VOLTAR EDITOR</button>
+            <span id="pdf-title">DOC PM</span>
+            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; border-radius:4px; font-weight:bold;">X</button>
         </div>
         <iframe id="pdf-frame"></iframe>
     </section>
 
     <div id="mobile-hub">
-        <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket" id="rocket-icon"></i></button>
-        <button class="fab-sub" style="background:var(--biblioteca); color:white" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
-        <button class="fab-sub" style="background:var(--teses); color:white" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
-        <button class="fab-sub" style="background:var(--questoes); color:white" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
-        <button class="fab-sub" style="background:#facc15; color:black" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
-        <button class="fab-sub" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
-        <button class="fab-sub" style="background:var(--gold); color:black" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
+        <button class="fab-main" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
     </div>
 </main>
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <div id="modal-back-btn" style="display:none; margin-bottom:10px; cursor:pointer; font-weight:bold; color:var(--gold)" onclick="window.gerenciadorPasta()">← VOLTAR</div>
         <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold;">FECHAR</button>
     </div>
 </div>
 
 <script type="module">
     import { db } from './firebase-config.js';
-    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER PM 2026 ---
     const PREFIXO = "PM2026";
     const PATH_HISTORICO = `${PREFIXO}/HISTORICO_OFICIAL`;
     const PATH_RASCUNHO = `${PREFIXO}/MASTER_RASCUNHO`;
 
     window.db = db;
     window.activeEx = localStorage.getItem(`${PREFIXO}_activeEx`) || "39";
-    window.modoAtual = localStorage.getItem(`${PREFIXO}_modoAtual`) || "TREINO"; 
-    window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "NOVO TREINO PM";
+    window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "TREINO VOO PM";
 
-    window.historicoUndo = [];
-    let debounceTimer = null;
-    window.marcaTextoAtivo = false;
-    window.currentColor = '#fef08a';
-
-    // --- CARREGAMENTO INICIAL ---
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
-        atualizarDisplayModo(); 
-        
-        setTimeout(() => {
-            const ed = document.getElementById('editor-principal');
-            if(ed) {
-                ed.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        const html = ed.innerHTML;
-                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
-                            window.historicoUndo.push(html);
-                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
-                        }
-                    }, 800);
-                });
-                ed.addEventListener('mouseup', () => {
-                    if(window.marcaTextoAtivo) {
-                        const selection = window.getSelection();
-                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
-                    }
-                });
-            }
-        }, 1000);
-
+        atualizarDisplayModo();
         await carregarRascunho();
-        setInterval(salvarAutomatico, 30000); 
+        setInterval(salvarAutomatico, 30000);
     };
 
-    // --- FUNÇÕES DE INTELIGÊNCIA (BOTÕES MENTORIA E PERGAMINHO) ---
-    
-    // Função do Botão Mentoria (Hub de 12 Inteligências)
+    // --- LÓGICA DAS INTELIGÊNCIAS (HUB MASTER) ---
     window.abrirMentoria = () => {
-        // Como você usa mobile, abrimos em um local seguro ou injetamos o hub
-        alert("Ativando Mentoria PM 2026... Aguardando conexão com o Hub.");
-        // Se tiver o arquivo separado: window.open('mentoria.html', '_blank');
+        document.getElementById('hub-mentoria-lateral').classList.toggle('active');
     };
 
-    // Função do Botão Pergaminho (Estruturas Salvas)
-    window.abrirPergaminho = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📜 PERGAMINHO: ESTRUTURAS";
-        
-        content.innerHTML = `
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DA ... VARA DO TRABALHO DE ...\\n\\nProcesso nº ...\\n\\nNOME, já qualificado... vem interpor RECURSO ORDINÁRIO...')"><span>Estrutura: Recurso Ordinário</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('...vem apresentar CONTESTAÇÃO com base no Art. 847 da CLT...')"><span>Estrutura: Contestação</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('I - PRELIMINARES\\n\\nIncompetência Absoluta...\\nIlegitimidade Passiva...')"><span>Esqueleto: Preliminares</span></div>
-        `;
-        modal.style.display = 'flex';
+    window.intelQualPeca = () => {
+        FolhaEngine.injetarTextoMultilinhas("--- INTELIGÊNCIA: QUAL A PEÇA? ---\\n1. Sentença prolatada? RECURSO ORDINÁRIO (895, I, CLT).\\n2. Execução em curso? AGRAVO DE PETIÇÃO (897, a, CLT).\\n3. Decisão Interlocutória em Tutela? MANDADO DE SEGURANÇA.");
+        window.abrirMentoria();
     };
 
-    // Escuta de mensagens da Mentoria/IA para injetar na peça
-    window.addEventListener('message', (event) => {
-        if (event.data.type === 'INJETAR_PM') {
-            FolhaEngine.injetarTextoMultilinhas(event.data.texto);
-        }
-    }, false);
+    window.intelNaoConfunda = () => {
+        FolhaEngine.injetarTextoMultilinhas("--- INTELIGÊNCIA: NÃO CONFUNDA ---\\n- Súmula 369 (Dirigente Sindical) x OJ 365 (Conselho Fiscal - sem estabilidade).\\n- Multa 467 (Verbas Rescisórias) x Multa 477 (Atraso no Pagamento).");
+        window.abrirMentoria();
+    };
 
     window.injetarTeses = () => {
         const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ MARTELO: TESES (35-39)";
-        
-        content.innerHTML = `
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Súmula 369, I, TST: Estabilidade de dirigente sindical garantida mesmo com comunicação fora do prazo, se dentro do contrato.')"><span>Ex 35: Dirigente Sindical</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva. Acabou o prazo, acabou o direito.')"><span>Ex 36: Ultratividade</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos.')"><span>Ex 37: Prescrição Execução</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade.')"><span>Ex 38: Fato do Príncipe</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade.')"><span>Ex 39: Conselho Fiscal</span></div>
+        document.getElementById('modal-title').innerText = "⚖️ MARTELO: TESES PM (35-39)";
+        document.getElementById('modal-content').innerHTML = `
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva.')"><span>Ex 36: Ultratividade</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente (2 anos de inércia).')"><span>Ex 37: Prescrição Intercorrente</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe (Paralisação por ato de autoridade).')"><span>Ex 38: Fato do Príncipe</span></div>
         `;
         modal.style.display = 'flex';
     };
 
-    // --- GESTÃO DE DADOS (DISQUETE) ---
+    // --- SISTEMA DISQUETE (BLINDADO) ---
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
-        if(!confirm(`Salvar "${window.pecaAtualNome}" no histórico PM?`)) return;
+        if(!confirm(`Deseja salvar e BLINDAR esta peça no histórico PM?`)) return;
 
-        try {
-            const idFinal = Date.now().toString();
-            const agora = new Date();
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR');
-            
-            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
-                exame: window.modoAtual, 
-                peca: `${window.pecaAtualNome} (${dataF})`, 
-                conteudo: ed.innerHTML
-            });
-            alert("✅ Peça Blindada e Salva no Histórico!");
-        } catch (e) { alert("Erro ao salvar."); }
+        const idFinal = Date.now().toString();
+        const agora = new Date().toLocaleString('pt-BR');
+        await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
+            nome: `${window.pecaAtualNome} (${agora})`,
+            conteudo: ed.innerHTML
+        });
+        alert("✅ PEÇA BLINDADA! Salva no histórico do Mentoria.");
     };
 
-    // --- NAVEGAÇÃO E UI ---
     window.verPDF = (t) => {
         const f = document.getElementById('pdf-frame');
         let url = "";
@@ -345,48 +297,39 @@
             case 'P': url = `ro${window.activeEx}.pdf`; break;
             case 'G': url = `ro${window.activeEx}-gabarito.pdf`; break;
             case 'V': url = 'vade.pdf'; break;
-            case 'LP': url = 'livro_processo.pdf'; break;
-            case 'LM': url = 'livro_material.pdf'; break;
         }
         f.src = url;
-        document.getElementById('pdf-title').innerText = `PM: ${url}`;
         document.getElementById('pdf-viewer').classList.add('active');
-        window.toggleRecolherEditor(); 
+        document.getElementById('editor-container').classList.add('collapsed');
+    };
+
+    window.fecharPDF = () => {
+        document.getElementById('pdf-viewer').classList.remove('active');
+        document.getElementById('editor-container').classList.remove('collapsed');
     };
 
     window.abrirExames = () => {
         const modal = document.getElementById('universal-modal');
-        document.getElementById('modal-title').innerText = "ESCOLHER EXAME (35-39)";
-        const content = document.getElementById('modal-content');
-        content.innerHTML = "";
+        document.getElementById('modal-title').innerText = "ESCOLHER EXAME PM";
+        let html = "";
         for(let i=39; i>=35; i--) {
-            const b = document.createElement('div'); b.className = 'opt-btn'; 
-            b.innerHTML = `<span>EXAME ${i}</span> <i class="fas fa-chevron-right"></i>`;
-            b.onclick = () => { 
-                window.activeEx = i.toString(); 
-                window.modoAtual = i.toString(); 
-                persistirERefrescar();
-                modal.style.display = 'none';
-            };
-            content.appendChild(b);
+            html += `<div class="opt-btn" onclick="window.setExame(${i})"><span>EXAME ${i}</span></div>`;
         }
+        document.getElementById('modal-content').innerHTML = html;
         modal.style.display = 'flex';
     };
 
-    function persistirERefrescar() {
-        localStorage.setItem(`${PREFIXO}_modoAtual`, window.modoAtual);
-        localStorage.setItem(`${PREFIXO}_pecaAtualNome`, window.pecaAtualNome);
+    window.setExame = (ex) => {
+        window.activeEx = ex.toString();
         localStorage.setItem(`${PREFIXO}_activeEx`, window.activeEx);
         atualizarDisplayModo();
-    }
+        document.getElementById('universal-modal').style.display = 'none';
+    };
 
     async function salvarAutomatico() { 
         const ed = document.getElementById('editor-principal'); 
         if(ed && ed.innerText.trim() !== "") {
-            await set(ref(db, PATH_RASCUNHO), { 
-                conteudo: ed.innerHTML, 
-                timestamp: Date.now() 
-            }); 
+            await set(ref(db, PATH_RASCUNHO), { conteudo: ed.innerHTML, timestamp: Date.now() }); 
         }
     }
 
@@ -396,40 +339,9 @@
     }
 
     window.atualizarDisplayModo = () => {
-        const label = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
-        document.getElementById('ex-display').innerText = `PM: ${label}`;
-        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
+        document.getElementById('ex-display').innerText = `EXAME ${window.activeEx}`;
+        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen"></i>`;
     };
-
-    window.desfazer = () => {
-        if(window.historicoUndo.length > 1) {
-            window.historicoUndo.pop();
-            document.getElementById('editor-principal').innerHTML = window.historicoUndo[window.historicoUndo.length - 1];
-        }
-    };
-
-    window.setHighlightColor = (color, dotId) => {
-        window.currentColor = color;
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(dotId).classList.add('active');
-    };
-
-    window.toggleMarcaTexto = () => {
-        window.marcaTextoAtivo = !window.marcaTextoAtivo;
-        document.getElementById('btn-highlight').style.color = window.marcaTextoAtivo ? 'var(--gold)' : '#64748b';
-    };
-
-    window.fecharPDF = () => {
-        document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
-        document.getElementById('editor-container').classList.remove('collapsed');
-    };
-
-    window.toggleRecolherEditor = () => {
-        document.getElementById('editor-container').classList.toggle('collapsed');
-        document.getElementById('pdf-viewer').classList.toggle('full-view');
-    };
-
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
 </script>
 </body>
