@@ -3,129 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MENTORIA PM 2026 - 12 INTELIGÊNCIAS</title>
+    <title>HUB MENTORIA PM 2026 - BLINDADO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --card: #1e293b;
             --nc: #f472b6; --qp: #a855f7; --tese: #3b82f6; --arsenal: #22c55e;
-            --sumula: #f97316; --artigo: #10b981; --artcpc: #0ea5e9; --pre: #ef4444;
-            --oj: #06b6d4; --tema: #facc15; --leis: #94a3b8; --aviso: #ffffff;
-            --artcc: #6366f1; 
+            --sumula: #f97316; --artigo: #10b981; --pre: #ef4444;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding-bottom: 130px; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding-bottom: 140px; }
 
+        /* HEADER ESTILO MILITAR */
         header {
-            background: var(--card); padding: 15px 20px; border-bottom: 2px solid var(--gold);
+            background: #000; padding: 15px 20px; border-bottom: 3px solid var(--gold);
             display: flex; justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 1000;
         }
-        .btn-voltar { background: white; color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; }
+        .badge-missao { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 10px; }
 
         .container { padding: 15px; max-width: 800px; margin: 0 auto; }
 
-        /* CALCULADORA DE AVISO (EXCLUSIVA PM) */
-        #calc-aviso-box { 
-            background: white; color: black; padding: 20px; border-radius: 15px; 
-            margin-bottom: 20px; display: none; text-align: center; border: 3px solid var(--gold);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        #calc-aviso-box input { background: #f1f5f9; color: black; border: 2px solid #cbd5e1; text-align: center; font-size: 1.5rem; font-weight: bold; width: 80%; margin: 10px 0; border-radius: 10px; }
-        .res-aviso { font-size: 2.2rem; font-weight: 900; color: #1e293b; margin: 5px 0; }
-        .explicacao-aviso { 
-            background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; 
-            font-size: 0.85rem; text-align: left; color: #334155; line-height: 1.4; margin-top: 10px;
-        }
-
-        .panel-input { background: #0f172a; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px dashed #334155; }
-        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; font-family: inherit; }
-
+        /* CARD DE ALTO IMPACTO (O que mais cai) */
         .post-it {
-            padding: 18px; border-radius: 15px; margin-bottom: 15px; color: #020617;
-            position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease-out;
+            padding: 18px; border-radius: 12px; margin-bottom: 15px; color: #020617;
+            position: relative; transition: 0.3s; border: 2px solid transparent;
         }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .post-it.quente { border: 2px solid var(--gold); box-shadow: 0 0 15px var(--gold); }
         
-        .post-it strong { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; text-transform: uppercase; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 10px; }
-        .post-it p { margin: 8px 0; font-size: 0.95rem; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
-        .rascunho-box { background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid rgba(0,0,0,0.3); font-size: 0.85rem; font-style: italic; font-weight: 500; }
+        .post-it strong { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; text-transform: uppercase; }
+        .post-it .mnemonico { background: rgba(0,0,0,0.8); color: var(--gold); padding: 5px; border-radius: 4px; font-family: monospace; font-size: 12px; margin-top: 5px; display: inline-block; }
 
-        .actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
-        .btn-circle { width: 38px; height: 38px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
-
+        /* NAVEGAÇÃO TÁTICA */
         .nav-tabs {
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
-            display: flex; overflow-x: auto; padding: 10px 5px;
-            border-top: 2px solid #334155; z-index: 2000;
+            position: fixed; bottom: 0; left: 0; right: 0; background: #000;
+            display: flex; overflow-x: auto; padding: 12px 5px;
+            border-top: 2px solid var(--gold); z-index: 2000;
         }
-        .nav-tabs::-webkit-scrollbar { height: 4px; }
-        .nav-tabs::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-
         .tab { 
-            color: #94a3b8; text-align: center; font-size: 9px; text-decoration: none; 
-            font-weight: 700; min-width: 85px; cursor: pointer; flex-shrink: 0;
-            display: flex; flex-direction: column; align-items: center;
+            color: #64748b; text-align: center; font-size: 9px; min-width: 80px; 
+            cursor: pointer; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
         }
-        .tab.active { color: var(--gold); }
-        .tab i { display: block; font-size: 1.1rem; margin-bottom: 4px; }
+        .tab.active { color: var(--gold); transform: scale(1.1); font-weight: 900; }
+        .tab i { font-size: 1.3rem; margin-bottom: 5px; }
 
-        #fab-injetor { position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; border: none; font-size: 1.5rem; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 1001; color: black; cursor: pointer; }
+        /* INPUTS BLINDADOS */
+        .panel-input { background: #0f172a; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; }
+
+        #fab-injetor { position: fixed; bottom: 110px; right: 20px; width: 65px; height: 65px; background: var(--gold); border-radius: 50%; border: none; font-size: 1.8rem; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 1001; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <button class="btn-voltar" onclick="window.close()"><i class="fas fa-arrow-left"></i> VOLTAR</button>
-    <h2 style="font-size: 1rem; margin:0;">PM 2026 <span style="color:var(--gold)">MENTORIA</span></h2>
+    <div onclick="window.close()"><i class="fas fa-chevron-left"></i> PM 2026</div>
+    <div class="badge-missao">MISSÃO: APROVAÇÃO</div>
 </header>
 
 <div class="container">
-    <div id="calc-aviso-box">
-        <h3 style="margin:0;"><i class="fas fa-calculator"></i> AVISO PM</h3>
-        <p style="font-size: 0.8rem; color:#475569;">Anos completos (PM):</p>
-        <input type="number" id="anos-trabalho" placeholder="0" oninput="calcularAviso()">
-        <div class="res-aviso" id="total-dias">30 Dias</div>
-        <div class="explicacao-aviso" id="desc-aviso">
-            <strong>Fundamentação:</strong><br>
-            Cálculo isolado para o projeto PM.
+    <div id="calc-aviso-box" class="panel-input" style="background:white; color:black; display:none;">
+        <h3 style="margin:0; color:#020617"><i class="fas fa-stopwatch"></i> PRAZOS E AVISO</h3>
+        <p style="font-size:11px">Calcular Proporcionalidade (Lei 12.506):</p>
+        <input type="number" id="anos-trabalho" style="background:#eee; color:#000" placeholder="Anos Completos" oninput="window.calcularPMPrazo()">
+        <div id="total-dias" style="font-size:2rem; font-weight:900; text-align:center">30 DIAS</div>
+        <button onclick="window.injetarNaPeca('AVISO')" style="width:100%; background:black; color:white; padding:10px; border-radius:8px">INJETAR FUNDAMENTAÇÃO</button>
+    </div>
+
+    <div class="panel-input">
+        <h4 style="margin:0; color:var(--gold)">NOVO CONTEÚDO TÁTICO</h4>
+        <input id="inp-t" placeholder="Título (Ex: Art. 5º, LXI CF)">
+        <textarea id="inp-c" rows="2" placeholder="Tese ou Artigo (O que escrever na prova)"></textarea>
+        <input id="inp-g" placeholder="Mnemônico ou Gatilho (Ex: SO-CI-DI-VA-PLU)">
+        <div style="display:flex; gap:10px">
+             <select id="sel-cat" style="flex:1">
+                <option value="qp">Qual a Peça?</option>
+                <option value="nc">Não Confunda</option>
+                <option value="tese" selected>Tese de Mérito</option>
+                <option value="pre">Preliminar</option>
+                <option value="arsenal">50 Questões</option>
+             </select>
+             <button id="btn-salvar" style="background:var(--gold); border:none; padding:10px 20px; border-radius:8px; font-weight:900">SALVAR</button>
         </div>
     </div>
 
-    <div id="panel-editor" class="panel-input">
-        <h4 id="editor-title" style="margin-top:0; color:var(--gold);">Gravar Memória PM</h4>
-        <input id="inp-t" placeholder="Título (Ex: Art. 144 CF)">
-        <textarea id="inp-c" rows="3" placeholder="Tese ou Artigo PM..."></textarea>
-        <textarea id="inp-r" rows="2" style="background:#0f172a; border-color:var(--gold)" placeholder="Dica de Ouro PM..."></textarea>
-        <button id="btn-salvar" class="btn-voltar" style="width:100%; background:var(--gold); margin-top:10px; font-weight: 900;">GRAVAR NO BANCO PM</button>
-    </div>
-
-    <div id="sec-inteligencia">
-        <h3 id="intel-head" style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-brain"></i> SELECIONE CATEGORIA PM
-        </h3>
-        <div id="feed-v13"></div>
-    </div>
+    <div id="feed-v13"></div>
 </div>
 
 <nav class="nav-tabs">
-    <a class="tab active" onclick="showTab('qp')"><i class="fas fa-search"></i>PEÇA PM</a>
-    <a class="tab" onclick="showTab('nc')"><i class="fas fa-brain"></i>N.C PM</a>
-    <a class="tab" onclick="showTab('pre')"><i class="fas fa-exclamation-triangle"></i>PRELIMINAR</a>
-    <a class="tab" onclick="showTab('tese')"><i class="fas fa-gavel"></i>TESES</a>
-    <a class="tab" onclick="showTab('aviso')"><i class="fas fa-calendar-day"></i>AVISO PM</a>
-    <a class="tab" onclick="showTab('tema')"><i class="fas fa-lightbulb"></i>TEMAS</a>
-    <a class="tab" onclick="showTab('sumula')"><i class="fas fa-balance-scale"></i>SÚMULAS</a>
-    <a class="tab" onclick="showTab('oj')"><i class="fas fa-shield-halved"></i>OJ's</a>
-    <a class="tab" onclick="showTab('artigo')"><i class="fas fa-book"></i>ART. CLT</a>
-    <a class="tab" onclick="showTab('artcpc')"><i class="fas fa-file-invoice"></i>ART. CPC</a>
-    <a class="tab" onclick="showTab('artcc')"><i class="fas fa-scale-balanced"></i>ART. CC</a>
-    <a class="tab" onclick="showTab('leis')"><i class="fas fa-scroll"></i>LEIS</a>
-    <a class="tab" onclick="showTab('arsenal')"><i class="fas fa-bolt"></i>50Q PM</a>
+    <div class="tab active" onclick="window.showTab('qp')"><i class="fas fa-crosshairs"></i>PEÇA</div>
+    <div class="tab" onclick="window.showTab('nc')"><i class="fas fa-bolt"></i>N.C</div>
+    <div class="tab" onclick="window.showTab('pre')"><i class="fas fa-shield-alt"></i>PRELIMINAR</div>
+    <div class="tab" onclick="window.showTab('tese')"><i class="fas fa-gavel"></i>TESES</div>
+    <div class="tab" onclick="window.showTab('aviso')"><i class="fas fa-calendar-alt"></i>PRAZOS</div>
+    <div class="tab" onclick="window.showTab('arsenal')"><i class="fas fa-list-ol"></i>50Q</div>
 </nav>
 
-<button id="fab-injetor" onclick="injetorMestrePM()" title="Carga PM"><i class="fas fa-rocket"></i></button>
+<button id="fab-injetor" onclick="window.cargaAutomaticaPM()"><i class="fas fa-rocket"></i></button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -139,109 +113,98 @@
     };
     const app = initializeApp(config);
     const db = getDatabase(app);
-
-    // --- NAMESPACE PM 2026 ---
-    const DB_PATH = "PM2026_V13_MASTER";
-    const LS_PREFIX = "PM2026_";
+    const DB_PATH = "PM2026_TACTICAL_V1";
 
     let currentTab = 'qp';
-    let editId = null;
     let cache = {};
 
-    const iconMap = {
-        qp: 'fa-search', nc: 'fa-brain', pre: 'fa-exclamation-triangle', tese: 'fa-gavel',
-        aviso: 'fa-calendar-day', tema: 'fa-lightbulb', sumula: 'fa-balance-scale',
-        oj: 'fa-shield-halved', artigo: 'fa-book', artcpc: 'fa-file-invoice', artcc: 'fa-scale-balanced', leis: 'fa-scroll', arsenal: 'fa-bolt'
-    };
-
-    window.calcularAviso = () => {
-        const anos = parseInt(document.getElementById('anos-trabalho').value) || 0;
-        let bonus = anos * 3;
-        if (bonus > 60) bonus = 60;
-        const total = 30 + bonus;
-        document.getElementById('total-dias').innerText = total + " Dias";
-        document.getElementById('desc-aviso').innerHTML = `<strong>Base PM (Lei 12.506/11):</strong><br>• 30 dias base + ${bonus} proporcionais.`;
-    };
-
+    // --- LÓGICA DE INTERFACE ---
     window.showTab = (tab) => {
         currentTab = tab;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         const activeTab = document.querySelector(`.tab[onclick*='${tab}']`);
         if(activeTab) activeTab.classList.add('active');
         
-        const titulos = { 
-            qp: 'Qual a Peça? (PM)', nc: 'Não Confunda (PM)', pre: 'Preliminares PM', tese: 'Teses PM',
-            aviso: 'Cálculo Aviso PM', tema: 'Temas PM', sumula: 'Súmulas PM', oj: 'OJ\'s PM',
-            artigo: 'Artigos CLT PM', artcpc: 'Artigos CPC PM', artcc: 'Artigos Cód. Civil PM', leis: 'Leis PM', arsenal: '50 Questões PM'
-        };
-        
-        const header = document.getElementById('intel-head');
-        header.innerHTML = `<i class="fas ${iconMap[tab]}"></i> ${titulos[tab].toUpperCase()}`;
-        header.style.color = `var(--${tab})`;
-        
-        document.getElementById('btn-salvar').style.background = `var(--${tab})`;
         document.getElementById('calc-aviso-box').style.display = (tab === 'aviso') ? 'block' : 'none';
-        
         render();
     };
 
+    window.calcularPMPrazo = () => {
+        const anos = parseInt(document.getElementById('anos-trabalho').value) || 0;
+        const total = 30 + (Math.min(anos, 20) * 3);
+        document.getElementById('total-dias').innerText = total + " DIAS";
+    };
+
+    // --- CRUD ---
     document.getElementById('btn-salvar').onclick = () => {
         const t = document.getElementById('inp-t').value;
         const c = document.getElementById('inp-c').value;
-        const r = document.getElementById('inp-r').value;
-        if(!t || !c) return alert("Preencha título e conteúdo PM.");
-        const dados = { t, c, r: r || "", cat: currentTab, ts: serverTimestamp() };
-        if(editId) { set(ref(db, `${DB_PATH}/${editId}`), dados); editId = null; }
-        else { push(ref(db, DB_PATH), dados); }
-        document.getElementById('inp-t').value = ""; document.getElementById('inp-c').value = ""; document.getElementById('inp-r').value = "";
+        const g = document.getElementById('inp-g').value;
+        const cat = document.getElementById('sel-cat').value;
+        
+        if(!t || !c) return alert("Preencha o essencial para a missão!");
+        
+        push(ref(db, DB_PATH), { t, c, g, cat, ts: serverTimestamp() });
+        
+        ["inp-t", "inp-c", "inp-g"].forEach(id => document.getElementById(id).value = "");
     };
 
-    onValue(ref(db, DB_PATH), (snap) => { cache = snap.val() || {}; render(); });
+    onValue(ref(db, DB_PATH), (snap) => {
+        cache = snap.val() || {};
+        render();
+    });
 
     function render() {
         const f = document.getElementById('feed-v13');
         f.innerHTML = "";
-        const cores = { 
-            qp:'var(--qp)', nc:'var(--nc)', pre:'var(--pre)', tese:'var(--tese)', 
-            aviso:'var(--aviso)', tema:'var(--tema)', sumula:'var(--sumula)', 
-            oj:'var(--oj)', artigo:'var(--artigo)', artcpc:'var(--artcpc)', artcc:'var(--artcc)', leis:'var(--leis)', arsenal:'var(--arsenal)' 
-        };
+        const cores = { qp:'#a855f7', nc:'#f472b6', pre:'#ef4444', tese:'#3b82f6', arsenal:'#22c55e', aviso:'#ffffff' };
+        
         Object.keys(cache).reverse().forEach(id => {
             const it = cache[id];
             if(it.cat === currentTab) {
+                const isQuente = it.t.toLowerCase().includes("cf") || it.t.toLowerCase().includes("sumula");
                 f.innerHTML += `
-                    <div class="post-it" style="background:${cores[it.cat]}">
-                        <strong><i class="fas ${iconMap[it.cat]}"></i> ${it.t}</strong>
-                        <p>${it.c}</p>
-                        ${it.r ? `<div class="rascunho-box"><strong>Dica PM:</strong><br>${it.r}</div>` : ""}
-                        <div class="actions">
-                            <button class="btn-circle" style="background:rgba(255,255,255,0.4); color:black" onclick="editar('${id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-circle" style="background:rgba(0,0,0,0.2)" onclick="apagar('${id}')"><i class="fas fa-times"></i></button>
+                    <div class="post-it ${isQuente ? 'quente' : ''}" style="background:${cores[it.cat]}">
+                        <strong>${it.t}</strong>
+                        <p style="margin:8px 0; font-size:14px">${it.c}</p>
+                        ${it.g ? `<div class="mnemonico">🧠 GATILHO: ${it.g}</div>` : ""}
+                        <div style="display:flex; gap:10px; margin-top:10px">
+                            <button onclick="window.injetarNaPeca('${id}')" style="background:#000; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:10px">INJETAR F.F.P</button>
+                            <button onclick="window.apagar('${id}')" style="background:rgba(0,0,0,0.1); border:none; margin-left:auto"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>`;
             }
         });
     }
 
-    window.apagar = (id) => { if(confirm("Deletar da PM?")) remove(ref(db, `${DB_PATH}/${id}`)); };
-    window.editar = (id) => {
-        const it = cache[id]; editId = id;
-        document.getElementById('inp-t').value = it.t;
-        document.getElementById('inp-c').value = it.c;
-        document.getElementById('inp-r').value = it.r || "";
-        window.scrollTo({top:0, behavior:'smooth'});
+    // --- FUNÇÕES DE IMPACTO ---
+    window.injetarNaPeca = (id) => {
+        let texto = "";
+        if(id === 'AVISO') {
+            const dias = document.getElementById('total-dias').innerText;
+            texto = `TESE: DO AVISO PRÉVIO\nO reclamante laborou por mais de um ano, fazendo jus ao aviso prévio proporcional de ${dias}, conforme Art. 1º, parágrafo único da Lei 12.506/11. Requer-se o pagamento.`;
+        } else {
+            const it = cache[id];
+            texto = `TESE: ${it.t.toUpperCase()}\nFATO: ...\nFUNDAMENTO: ${it.c}. Nos termos do artigo ...\nPEDIDO: Diante do exposto, requer a condenação da reclamada ao pagamento de ...`;
+        }
+        
+        window.opener.postMessage({ type: 'INJETAR_PM', texto: texto }, '*');
+        alert("Enviado para o Plano de Voo!");
     };
 
-    window.injetorMestrePM = () => {
-        const q = [
-            { t: "Art. 144 CF", c: "A segurança pública, dever do Estado, direito e responsabilidade de todos.", r: "Base para provas militares.", cat: "leis" },
-            { t: "Tese PM 01", c: "Legalidade estrita nos atos disciplinares militares.", r: "Foco em Direito Administrativo Militar.", cat: "tese" }
+    window.apagar = (id) => { if(confirm("Eliminar este registro?")) remove(ref(db, `${DB_PATH}/${id}`)); };
+
+    window.cargaAutomaticaPM = () => {
+        const base = [
+            { t: "Art. 144 CF/88", c: "A segurança pública é dever do Estado, direito e responsabilidade de todos.", g: "SEG-PUB-EST", cat: "qp" },
+            { t: "Súmula 369 TST", c: "O dirigente sindical goza de estabilidade desde o registro da candidatura até um ano após o mandato.", g: "SIND-ESTAB", cat: "tese" },
+            { t: "Incompetência Absoluta", c: "A Justiça do Trabalho é incompetente para processar e julgar causas de regime estatutário.", g: "ADPF 339", cat: "pre" }
         ];
-        q.forEach(i => push(ref(db, DB_PATH), { ...i, ts: serverTimestamp() }));
-        showTab('tese');
+        base.forEach(b => push(ref(db, DB_PATH), { ...b, ts: serverTimestamp() }));
+        window.showTab('tese');
     };
 
-    window.onload = () => showTab('qp');
+    window.onload = () => window.showTab('qp');
 </script>
 </body>
 </html>
