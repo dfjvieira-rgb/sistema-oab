@@ -3,232 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA JOAQUIM - QG OPERACIONAL PMDF/PMGO</title>
+    <title>SISTEMA OPERACIONAL JOAQUIM V3</title>
     <style>
         :root { 
-            --primary: #1a252f; --accent: #1e5c2d; --bg: #f4f7f6; 
-            --orange: #d35400; --green: #27ae60; --purple: #8e44ad; 
+            --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
             --yellow: #f1c40f; --text: #2c3e50; --header-h: 60px; 
-            --sidebar-w: 260px;
+            --sidebar-w: 280px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { background-color: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
-        #timer { font-family: monospace; font-size: 1.2rem; color: var(--yellow); font-weight: bold; }
+        header { background: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
+        #timer { font-family: monospace; font-size: 1.1rem; color: var(--yellow); }
         
-        .nav-group { display: flex; gap: 5px; }
-        .dropbtn { color: white; padding: 8px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
-        .btn-struct { background-color: var(--accent); }
-        .btn-correc { background-color: var(--orange); }
-        .btn-postit { background-color: var(--yellow); color: #333; }
-        .btn-dicas { background-color: var(--purple); }
+        .nav-group { display: flex; gap: 8px; }
+        .btn-top { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+        .btn-top:hover { background: var(--accent); }
 
-        .dropdown { position: relative; }
-        .dropdown-content { display: none; position: absolute; background: white; min-width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); right: 0; border-radius: 6px; padding: 8px; z-index: 2000; border: 1px solid #ddd; }
-        .dropdown:hover .dropdown-content { display: block; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.8rem; color: #333; cursor: pointer; }
-
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        main { display: flex; flex: 1; overflow: hidden; }
         
-        .sidebar { width: var(--sidebar-w); background: #eaeff2; border-right: 1px solid #ccc; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; transition: width 0.3s; }
-        .sidebar.collapsed { width: 0; overflow: hidden; border: none; }
-        .sidebar-content { padding: 12px; display: flex; flex-direction: column; gap: 15px; }
+        /* Sidebar melhorada */
+        .sidebar { width: var(--sidebar-w); background: #e9ecef; border-right: 2px solid #dee2e6; display: flex; flex-direction: column; padding: 15px; gap: 10px; overflow-y: auto; }
+        h4 { font-size: 0.75rem; color: var(--primary); text-transform: uppercase; border-left: 4px solid var(--yellow); padding-left: 8px; margin-bottom: 5px; }
         
-        h4 { font-size: 0.65rem; color: #666; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .exame-btn { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 4px; cursor: pointer; text-align: left; font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
-        .exame-btn.active { background: var(--accent); color: white; }
+        .item-link { background: white; padding: 12px; border-radius: 6px; border: 1px solid #ced4da; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; display: flex; flex-direction: column; gap: 4px; }
+        .item-link:hover { border-color: var(--primary); background: #f8f9fa; transform: translateX(5px); }
+        .item-link span { font-size: 0.65rem; color: #6c757d; font-weight: 400; }
 
-        .work-section { width: 45%; display: flex; flex-direction: column; background: white; flex-shrink: 0; border-right: 1px solid #ccc; }
-        #area-peca { flex: 1; padding: 25px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; background-image: linear-gradient(#f1f1f1 1px, transparent 1px); background-size: 100% 1.6em; resize: none; }
-        #resizer { width: 10px; background: #cbd5e0; cursor: col-resize; z-index: 10; border-left: 1px solid #a0aec0; }
+        /* Área de Trabalho */
+        .editor-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 2px solid #dee2e6; }
+        #area-peca { flex: 1; padding: 20px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; resize: none; }
+        
+        /* Visualizador de PDF */
+        .pdf-section { width: 45%; background: #525659; display: flex; flex-direction: column; }
+        .pdf-toolbar { background: #333; color: white; padding: 8px; font-size: 0.7rem; display: flex; justify-content: space-between; }
+        #pdf-frame { width: 100%; height: 100%; border: none; background: white; }
 
-        .pdf-section { flex: 1; background: #525659; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; }
-        .pdf-box { background: #333; border-radius: 4px; overflow: hidden; height: 100%; }
-        .pdf-header { padding: 6px 10px; color: white; font-size: 0.7rem; display: flex; justify-content: space-between; background: #2c3e50; }
-        .pdf-frame { width: 100%; height: 90vh; border: none; background: white; }
-
-        #annotations-manager-panel { display: none; flex: 1; background: var(--bg); flex-direction: column; }
-        .tabs { display: flex; background: #ddd; }
-        .tab-button { padding: 10px 15px; border: none; cursor: pointer; font-size: 0.8rem; background: #eee; }
-        .tab-button.active { background: var(--bg); border-bottom: 2px solid var(--accent); }
-        .tab-content { padding: 15px; overflow-y: auto; flex: 1; }
-
-        .annotation-list-item { padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; position: relative; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
-        .type-postit { background: var(--yellow); }
-        .type-dicas { background: var(--green); color: white; }
+        /* Painel de Anotações */
+        #annotation-panel { display: none; width: 45%; background: white; flex-direction: column; border-left: 2px solid var(--primary); }
+        .ann-header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; }
+        .ann-list { flex: 1; padding: 15px; overflow-y: auto; }
+        .card-note { background: #fffde7; padding: 10px; border-radius: 4px; margin-bottom: 10px; border-left: 5px solid var(--yellow); font-size: 0.85rem; position: relative; }
 
         @media (max-width: 1024px) {
-            #resizer { display: none; }
-            main { flex-direction: column; }
-            .work-section { width: 100% !important; height: 50vh; }
+            .pdf-section { display: none; }
+            .sidebar { width: 80px; }
+            .sidebar span, .sidebar h4 { display: none; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-left">
-        <button id="mobile-toggle" style="background:#34495e; color:white; border:none; padding:8px; border-radius:4px; display:none;" onclick="toggleSidebarMobile()">☰ MENU</button>
-        <div id="timer">OPERAÇÃO: 00:50:00</div>
-    </div>
+    <div><strong>PM-ESTUDO V3</strong></div>
+    <div id="timer">SESSÃO: 00:50:00</div>
     <div class="nav-group">
-        <div class="dropdown">
-            <button class="dropbtn btn-struct">⚖️ VADE POLICIAL</button>
-            <div class="dropdown-content">
-                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm')">Código Penal</div>
-                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm')">Processo Penal</div>
-                <div class="menu-item" onclick="carregarPDF('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm')">Constituição Federal</div>
-            </div>
-        </div>
-        <button class="dropbtn btn-postit" onclick="openAnnotationsPanel('postit')">📌 Post-its</button>
-        <button class="dropbtn btn-dicas" onclick="openAnnotationsPanel('dicas')">🚔 Dicas PM</button>
+        <button class="btn-top" onclick="toggleAnn('postit')">📌 MNEMÔNICOS</button>
+        <button class="btn-top" onclick="toggleAnn('dicas')">🚔 DICAS</button>
+        <button class="btn-top" style="background:var(--green)" onclick="salvarOffline()">💾 SALVAR AGORA</button>
     </div>
 </header>
 
-<main id="main-container">
-    <aside class="sidebar" id="sidebar-main">
-        <div class="sidebar-content">
-            <h4>📂 PROVAS ANTERIORES</h4>
-            <div id="lista-provas">
-                <div class="exame-btn" onclick="carregarPDF('https://bit.ly/prova-pmdf-2023', 'PMDF 2023')">👮 PMDF 2023 (AOCP)</div>
-                <div class="exame-btn" onclick="carregarPDF('https://bit.ly/prova-pmgo-2022', 'PMGO 2022')">👮 PMGO 2022 (GOAL)</div>
-            </div>
-            
-            <h4 style="margin-top:15px">💾 DADOS</h4>
-            <button class="btn-action" style="background:#27ae60; width:100%; color:white; padding:8px; border:none; cursor:pointer;" onclick="fazerBackup()">EXPORTAR TXT</button>
-            <button class="btn-action" style="background:#2980b9; width:100%; margin-top:5px; color:white; padding:8px; border:none; cursor:pointer;" onclick="document.getElementById('input-file').click()">IMPORTAR</button>
-            <input type="file" id="input-file" style="display:none" onchange="importarBackup(this)">
+<main>
+    <aside class="sidebar">
+        <h4>📚 MATERIAIS OFICIAIS</h4>
+        <div class="item-link" onclick="abrirDoc('https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf', 'PROVA PMDF 2023')">
+            PROVA PMDF 2023
+            <span>Banca Instituto AOCP (Soldado)</span>
         </div>
+        <div class="item-link" onclick="abrirDoc('https://cdn.fs.pci-concursos.com.br/provas/26938977/2f7c6e0a8118/prova-soldado-da-policia-militar-pm-go-2022-instituto-aocp.pdf', 'PROVA PMGO 2022')">
+            PROVA PMGO 2022
+            <span>Banca Instituto AOCP (Soldado)</span>
+        </div>
+        <div class="item-link" onclick="abrirDoc('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm', 'CÓDIGO PENAL')">
+            CÓDIGO PENAL (VADE)
+            <span>Sempre Atualizado - Planalto</span>
+        </div>
+
+        <h4 style="margin-top:20px">📝 TREINO DISCURSIVA</h4>
+        <div class="item-link" onclick="injetarTexto('REDACAO')">ESTRUTURA DE REDAÇÃO AOCP <span>Clique para carregar no editor</span></div>
+        <div class="item-link" onclick="injetarTexto('RELATORIO')">MODELO OCORRÊNCIA PM <span>Para prova de escrivão/cadete</span></div>
     </aside>
 
-    <section class="work-section" id="editor-area">
-        <div class="editor-header" style="padding:10px; display:flex; justify-content:space-between; align-items:center; background:#eee;">
-            <span id="label-exame" style="font-size:0.7rem; font-weight:bold;">📍 FOCO: PMDF / PMGO</span>
-            <button style="background:var(--accent); color:white; border:none; padding:4px 8px; cursor:pointer;" onclick="gerarRelatorio()">MODELO RELATÓRIO</button>
+    <section class="editor-section">
+        <div style="background:#dee2e6; padding:5px 15px; font-size:0.65rem; font-weight:bold; color:#495057;">
+            EDITOR: <span id="current-doc">RASCUNHO LIVRE</span>
         </div>
-        <textarea id="area-peca" placeholder="Comece seu treino aqui..."></textarea>
+        <textarea id="area-peca" placeholder="O que você escrever aqui será salvo automaticamente no Firebase..."></textarea>
     </section>
 
-    <div id="resizer"></div>
-
-    <section class="pdf-section" id="pdf-panel">
-        <div class="pdf-box">
-            <div class="pdf-header">
-                <span id="pdf-title">LEITURA TÉCNICA</span>
-                <button onclick="expandir()" style="background:none; border:none; color:white;">🔄</button>
-            </div>
-            <iframe id="v-enu" class="pdf-frame" src="about:blank"></iframe>
+    <section class="pdf-section" id="pdf-view">
+        <div class="pdf-toolbar">
+            <span id="pdf-name">NENHUM DOCUMENTO SELECIONADO</span>
+            <button onclick="window.open(document.getElementById('pdf-frame').src)" style="background:none; border:none; color:white; cursor:pointer;">↗️ ABRIR EM NOVA ABA</button>
         </div>
+        <iframe id="pdf-frame" src="about:blank"></iframe>
     </section>
 
-    <section id="annotations-manager-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-            <div class="tabs">
-                <button class="tab-button active" onclick="switchTab('postit')">Post-its</button>
-                <button class="tab-button" onclick="switchTab('dicas')">Dicas</button>
-            </div>
-            <button class="btn-action" style="background:#e74c3c; color:white; border:none; padding:5px 10px;" onclick="closeAnnotationsPanel()">FECHAR</button>
+    <section id="annotation-panel">
+        <div class="ann-header">
+            <h3 id="ann-title">ANOTAÇÕES</h3>
+            <button onclick="closeAnn()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;">✖</button>
         </div>
-        <div class="tab-content">
-            <textarea id="annotation-input" style="width:100%; height:100px; padding:10px;" placeholder="Nova anotação..."></textarea>
-            <button style="width:100%; padding:10px; background:var(--primary); color:white; border:none; margin-top:10px;" onclick="saveAnnotation()">SALVAR NO QG</button>
-            <div id="annotations-list" style="margin-top:20px;"></div>
+        <div style="padding:15px; border-bottom:1px solid #ddd;">
+            <textarea id="ann-input" style="width:100%; height:60px; padding:8px;" placeholder="Digite seu mnemônico ou dica..."></textarea>
+            <button onclick="addNote()" style="width:100%; margin-top:8px; padding:10px; background:var(--accent); color:white; border:none; border-radius:4px; cursor:pointer;">SALVAR NO QG</button>
         </div>
+        <div class="ann-list" id="ann-list-content"></div>
     </section>
 </main>
 
 <script type="module">
+    // --- LÓGICA DE FUNCIONAMENTO REAL ---
     import { db } from './firebase-config.js';
     import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const PROJETO_ID = "SISTEMA_JOAQUIM_PM";
-    let currentAnnotationType = 'postit';
+    const PROJETO_ID = "JOAQUIM_OPERACIONAL_2026";
+    let tipoAtual = 'postit';
 
-    // --- CARREGAMENTO INICIAL ---
-    window.onload = async () => {
-        const snap = await get(ref(db, `${PROJETO_ID}/RASCUNHO`));
-        if(snap.exists()) document.getElementById('area-peca').value = snap.val().texto;
-        setInterval(salvarAutomatico, 30000);
-        renderAnnotations();
+    // 1. Abrir Documentos no Iframe (Melhorado)
+    window.abrirDoc = (url, nome) => {
+        const frame = document.getElementById('pdf-frame');
+        const pdfView = document.getElementById('pdf-view');
+        const annPanel = document.getElementById('annotation-panel');
+        
+        // Esconde anotações se estiverem abertas
+        annPanel.style.display = 'none';
+        pdfView.style.display = 'flex';
+        
+        frame.src = url;
+        document.getElementById('pdf-name').innerText = nome;
+        document.getElementById('current-doc').innerText = nome;
     };
 
-    // --- FUNÇÕES DE PDF E PROVAS ---
-    window.carregarPDF = (url, nome = "VADE MECUM") => {
-        document.getElementById('v-enu').src = url;
-        document.getElementById('pdf-title').innerText = nome;
-        closeAnnotationsPanel();
+    // 2. Injetar Conteúdo Real no Editor
+    window.injetarTexto = (tipo) => {
+        const area = document.getElementById('area-peca');
+        const templates = {
+            'REDACAO': `ESTRUTURA REDAÇÃO (INSTITUTO AOCP)\n1. INTRODUÇÃO: Apresentar o tema + tese (2 períodos).\n2. DESENVOLVIMENTO 1: Argumento técnico (Ex: Princípio da Dignidade Humana).\n3. DESENVOLVIMENTO 2: Conexão com a atividade policial.\n4. CONCLUSÃO: Proposta de solução ou síntese.\n\n[COMECE AQUI SEU TEXTO]`,
+            'RELATORIO': `--- RELATÓRIO DE OCORRÊNCIA POLICIAL ---\nUNIDADE: ____ BPM / ____ CIA\nDATA/HORA: ${new Date().toLocaleString()}\n\n1. HISTÓRICO:\n\n2. PROVIDÊNCIAS:\n\n3. RESULTADO:\n`
+        };
+        if(confirm("Isso irá substituir o texto atual. Continuar?")) {
+            area.value = templates[tipo];
+            salvarOffline();
+        }
     };
 
-    // --- SISTEMA DE ANOTAÇÕES ---
-    window.openAnnotationsPanel = (type) => {
-        currentAnnotationType = type;
-        document.getElementById('pdf-panel').style.display = 'none';
-        document.getElementById('annotations-manager-panel').style.display = 'flex';
-        renderAnnotations();
+    // 3. Sistema de Anotações Funcional
+    window.toggleAnn = (tipo) => {
+        tipoAtual = tipo;
+        document.getElementById('pdf-view').style.display = 'none';
+        document.getElementById('annotation-panel').style.display = 'flex';
+        document.getElementById('ann-title').innerText = tipo === 'postit' ? '📌 MNEMÔNICOS' : '🚔 DICAS OPERACIONAIS';
+        renderNotes();
     };
 
-    window.closeAnnotationsPanel = () => {
-        document.getElementById('pdf-panel').style.display = 'flex';
-        document.getElementById('annotations-manager-panel').style.display = 'none';
+    window.closeAnn = () => {
+        document.getElementById('annotation-panel').style.display = 'none';
+        document.getElementById('pdf-view').style.display = 'flex';
     };
 
-    window.switchTab = (type) => {
-        currentAnnotationType = type;
-        renderAnnotations();
+    window.addNote = () => {
+        const input = document.getElementById('ann-input');
+        if(!input.value) return;
+        const key = `anot_${tipoAtual}`;
+        let notes = JSON.parse(localStorage.getItem(key)) || [];
+        notes.push({ id: Date.now(), text: input.value });
+        localStorage.setItem(key, JSON.stringify(notes));
+        input.value = "";
+        renderNotes();
     };
 
-    window.saveAnnotation = () => {
-        const text = document.getElementById('annotation-input').value;
-        if(!text) return;
-        const key = `pm_anot_${currentAnnotationType}`;
-        let data = JSON.parse(localStorage.getItem(key)) || [];
-        data.push({id: Date.now(), text: text, date: new Date().toLocaleString()});
-        localStorage.setItem(key, JSON.stringify(data));
-        document.getElementById('annotation-input').value = "";
-        renderAnnotations();
+    window.renderNotes = () => {
+        const list = document.getElementById('ann-list-content');
+        const notes = JSON.parse(localStorage.getItem(`anot_${tipoAtual}`)) || [];
+        list.innerHTML = notes.map(n => `
+            <div class="card-note">
+                ${n.text}
+                <button onclick="delNote(${n.id})" style="position:absolute; right:5px; top:5px; border:none; background:none; color:red; cursor:pointer;">✖</button>
+            </div>
+        `).join('');
     };
 
-    window.renderAnnotations = () => {
-        const list = document.getElementById('annotations-list');
-        list.innerHTML = "";
-        const key = `pm_anot_${currentAnnotationType}`;
-        const data = JSON.parse(localStorage.getItem(key)) || [];
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = `annotation-list-item type-${currentAnnotationType}`;
-            div.innerHTML = `<p>${item.text}</p><small>${item.date}</small>
-                             <button onclick="deleteAnot(${item.id})" style="position:absolute; right:5px; top:5px; border:none; background:none; color:red; cursor:pointer;">✖</button>`;
-            list.appendChild(div);
-        });
+    window.delNote = (id) => {
+        let notes = JSON.parse(localStorage.getItem(`anot_${tipoAtual}`));
+        notes = notes.filter(n => n.id !== id);
+        localStorage.setItem(`anot_${tipoAtual}`, JSON.stringify(notes));
+        renderNotes();
     };
 
-    window.deleteAnot = (id) => {
-        const key = `pm_anot_${currentAnnotationType}`;
-        let data = JSON.parse(localStorage.getItem(key));
-        data = data.filter(i => i.id !== id);
-        localStorage.setItem(key, JSON.stringify(data));
-        renderAnnotations();
-    };
-
-    // --- BACKUP E SALVAMENTO ---
-    async function salvarAutomatico() {
+    // 4. Salvamento Firebase (Blindado)
+    async function salvarOffline() {
         const txt = document.getElementById('area-peca').value;
-        set(ref(db, `${PROJETO_ID}/RASCUNHO`), { texto: txt });
+        await set(ref(db, `${PROJETO_ID}/RASCUNHO`), { texto: txt, doc: document.getElementById('current-doc').innerText });
     }
 
-    window.fazerBackup = () => {
-        const conteudo = document.getElementById('area-peca').value;
-        const blob = new Blob([conteudo], {type: 'text/plain'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = "meu_estudo_pm.txt";
-        link.click();
-    };
-
-    window.gerarRelatorio = () => {
-        const modelo = "--- RELATÓRIO POLICIAL MILITAR ---\nOCORRÊNCIA: \nDATA: \nLOCAL: \n\nRELATO DOS FATOS:\n\n\n\nPROVIDÊNCIAS ADOTADAS:\n";
-        document.getElementById('area-peca').value = modelo;
+    window.onload = async () => {
+        const snap = await get(ref(db, `${PROJETO_ID}/RASCUNHO`));
+        if(snap.exists()){
+            document.getElementById('area-peca').value = snap.val().texto;
+            document.getElementById('current-doc').innerText = snap.val().doc;
+        }
+        setInterval(salvarOffline, 20000); // Salva a cada 20s
     };
 </script>
 </body>
