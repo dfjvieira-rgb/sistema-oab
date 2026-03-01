@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MASTER OAB - ELITE PMDF</title>
+    <title>MASTER OAB | PMDF ELITE</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --mentoria: #a855f7; --sidebar-w: 70px;
-            --perigo: #ef4444; --success: #10b981; --biblioteca: #475569;
+            --perigo: #ef4444; --success: #10b981; --biblioteca: #3b82f6;
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -39,10 +39,10 @@
         #pdf-sidebar.active { width: 50%; visibility: visible; border-left: 3px solid var(--gold); }
         #pdf-sidebar.full-screen { width: 100%; visibility: visible; border-left: none; }
 
-        .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+        .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: bold; }
         #pdf-frame { width: 100%; flex: 1; border: none; background: white; }
 
-        /* FOLHA DE RESPOSTA */
+        /* FOLHA */
         .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 800px; border-radius: 0 0 12px 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 15px; }
         #identificador-peca { padding: 10px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--gold); cursor: pointer; text-transform: uppercase; font-size: 13px; }
         .paper { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-height: 1200px; padding: 50px; color: #1e293b; line-height: 1.8; }
@@ -50,31 +50,31 @@
 
         /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 15px; color: #0f172a; }
+        .modal-body { background: white; width: 95%; max-width: 550px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
         
-        /* LISTA CLICÁVEL DE SALVAMENTO */
-        .lista-selecao { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-        .opcao-gaveta { 
-            padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; 
-            font-weight: 800; display: flex; align-items: center; gap: 15px; 
-            cursor: pointer; transition: 0.2s; color: #1e293b;
-        }
-        .opcao-gaveta:hover { border-color: var(--success); background: #f0fdf4; color: var(--success); }
-        .opcao-gaveta i { width: 20px; text-align: center; font-size: 1.2rem; }
+        /* GRID DE GAVETAS */
+        .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-gaveta { padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
+        .btn-gaveta:hover { border-color: var(--gold); background: #fff; }
 
-        /* TOAST NOTIFICATION */
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        /* BIBLIOTECA - LISTA DE LEIS */
+        .item-lei { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .item-lei:hover { background: #f8fafc; }
+        .tag-lei { font-size: 10px; background: #1e293b; color: var(--gold); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
 
-        .item-biblioteca { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        /* TOAST */
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; }
+        
+        .item-arquivo { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
     </style>
 </head>
 <body class="dark-mode">
 
-<div id="toast">✅ MISSÃO SALVA COM SUCESSO!</div>
+<div id="toast">✅ SALVO COM SUCESSO!</div>
 
 <header>
     <div class="logo">MASTER OAB <span>| PMDF ELITE</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">SISTEMA INTEGRADO</div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">SISTEMA DE GESTÃO TÁTICA</div>
 </header>
 
 <main>
@@ -94,14 +94,14 @@
             </div>
             <div class="paper">
                 <div id="folha-total" contenteditable="true" spellcheck="false">
-                    <b>INICIAR MISSÃO PMDF...</b><br><br>
+                    <b>INICIAR PRODUÇÃO...</b><br><br>
                 </div>
             </div>
         </section>
 
         <div id="pdf-sidebar">
             <div class="pdf-header">
-                <span id="pdf-titulo">DOCUMENTO</span>
+                <span id="pdf-titulo">LEGISLAÇÃO</span>
                 <div style="display:flex; gap:15px">
                     <span onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold);"><i class="fas fa-expand"></i> MAX</span>
                     <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red;"></i>
@@ -114,32 +114,53 @@
 
 <div class="modal" id="modal-salvar-lista">
     <div class="modal-body">
-        <h2 style="font-size:18px; text-align:center; border-bottom:2px solid var(--success); padding-bottom:10px;">SELECIONE O DESTINO</h2>
-        <div class="lista-selecao">
-            <div class="opcao-gaveta" onclick="window.executarSalvamento('TREINOS')">
-                <i class="fas fa-edit"></i> GAVETA DE TREINOS
-            </div>
-            <div class="opcao-gaveta" onclick="window.executarSalvamento('QUESTOES')">
-                <i class="fas fa-question-circle"></i> GAVETA DE QUESTÕES
-            </div>
-            <div class="opcao-gaveta" onclick="window.executarSalvamento('TESES')">
-                <i class="fas fa-gavel"></i> GAVETA DE TESES
-            </div>
-            <div class="opcao-gaveta" onclick="window.executarSalvamento('LEGISLACAO')">
-                <i class="fas fa-scroll"></i> GAVETA DE LEGISLAÇÃO
-            </div>
+        <h2 style="font-size:18px; text-align:center; border-bottom:2px solid var(--success); padding-bottom:10px;">SALVAR EM:</h2>
+        <div class="grid-gavetas">
+            <div class="btn-gaveta" onclick="window.executarSalvamento('TREINOS')">TREINOS</div>
+            <div class="btn-gaveta" onclick="window.executarSalvamento('QUESTOES')">QUESTÕES</div>
+            <div class="btn-gaveta" onclick="window.executarSalvamento('TESES')">TESES</div>
+            <div class="btn-gaveta" onclick="window.executarSalvamento('LEGISLACAO')">LEGISLAÇÃO</div>
         </div>
-        <button onclick="document.getElementById('modal-salvar-lista').style.display='none'" style="width:100%; margin-top:20px; padding:12px; border:none; border-radius:8px; background:#f1f5f9; font-weight:bold; cursor:pointer;">CANCELAR</button>
+        <button onclick="document.getElementById('modal-salvar-lista').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:#eee; border-radius:8px; cursor:pointer;">FECHAR</button>
+    </div>
+</div>
+
+<div class="modal" id="modal-gerenciador">
+    <div class="modal-body">
+        <div id="nav-gerenciador" style="display:none; cursor:pointer; color:var(--gold-dark); margin-bottom:10px;" onclick="window.voltarGavetasGerenciador()">← VOLTAR</div>
+        <h2 style="font-size:18px; border-bottom:2px solid var(--gold); padding-bottom:5px;">MEUS ARQUIVOS</h2>
+        <div id="view-gavetas-ger" class="grid-gavetas">
+            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('TREINOS')">TREINOS</div>
+            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('QUESTOES')">QUESTÕES</div>
+            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('TESES')">TESES</div>
+            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('LEGISLACAO')">LEGISLAÇÃO</div>
+        </div>
+        <div id="view-arquivos-ger" style="display:none;"><div id="lista-arquivos"></div></div>
+        <button onclick="document.getElementById('modal-gerenciador').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:black; color:white; border-radius:8px; cursor:pointer;">FECHAR</button>
     </div>
 </div>
 
 <div class="modal" id="modal-biblioteca">
     <div class="modal-body">
-        <h2 style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--biblioteca)">BIBLIOTECA PMDF</h2>
-        <div class="item-biblioteca" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', 'CPP')">
-            <div><b>CPP - PROC. PENAL</b></div><i class="fas fa-gavel"></i>
+        <h2 style="font-size:18px; border-bottom:2px solid var(--biblioteca); padding-bottom:5px; margin-bottom:15px;">BIBLIOTECA CRIMINAL</h2>
+        <div style="max-height: 450px; overflow-y: auto;">
+            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', 'CPP')">
+                <div><span class="tag-lei">CPP</span> <b>Código de Processo Penal</b></div><i class="fas fa-file-alt"></i>
+            </div>
+            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l7960.htm', 'PRISÃO TEMPORÁRIA')">
+                <div><span class="tag-lei">L7960</span> <b>Lei de Prisão Temporária</b></div><i class="fas fa-file-alt"></i>
+            </div>
+            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l9099.htm', 'JECRIM')">
+                <div><span class="tag-lei">L9099</span> <b>Lei dos Juizados (TCO)</b></div><i class="fas fa-file-alt"></i>
+            </div>
+            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm', 'MARIA DA PENHA')">
+                <div><span class="tag-lei">L11340</span> <b>Lei Maria da Penha</b></div><i class="fas fa-file-alt"></i>
+            </div>
+            <div class="item-lei" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12850.htm', 'ORCRIM')">
+                <div><span class="tag-lei">L12850</span> <b>Org. Criminosas</b></div><i class="fas fa-file-alt"></i>
+            </div>
         </div>
-        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; padding:12px; margin-top:20px; background:black; color:white; border-radius:8px;">FECHAR</button>
+        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:black; color:white; border-radius:8px; cursor:pointer;">FECHAR</button>
     </div>
 </div>
 
@@ -163,15 +184,13 @@
     window.idAtual = null;
     window.missaoNome = "MISSÃO SEM TÍTULO";
 
-    // --- FUNÇÕES DE INTERFACE ---
+    // --- SALVAMENTO ---
     window.abrirMenuSalvar = () => document.getElementById('modal-salvar-lista').style.display = 'flex';
     
     window.executarSalvamento = async (gaveta) => {
         const conteudo = document.getElementById('folha-total').innerHTML;
         const id = window.idAtual || Date.now().toString();
-        
         document.getElementById('modal-salvar-lista').style.display = 'none';
-
         try {
             await set(ref(db, `producao_v13/HISTORICO_PMDF/${id}`), {
                 nome: window.missaoNome,
@@ -180,31 +199,55 @@
                 conteudo: conteudo
             });
             window.idAtual = id;
-            
-            // Feedback Tático (Toast)
-            const toast = document.getElementById('toast');
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
-            
-        } catch (e) { alert("Falha na comunicação com o Master OAB."); }
+            const t = document.getElementById('toast'); t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2500);
+        } catch(e) { alert("Erro ao salvar."); }
     };
 
+    // --- GERENCIADOR ---
+    window.abrirGerenciador = () => { document.getElementById('modal-gerenciador').style.display = 'flex'; window.voltarGavetasGerenciador(); };
+    window.voltarGavetasGerenciador = () => { document.getElementById('view-gavetas-ger').style.display = 'grid'; document.getElementById('view-arquivos-ger').style.display = 'none'; document.getElementById('nav-gerenciador').style.display = 'none'; };
+    
+    window.abrirPastaGerenciador = async (gaveta) => {
+        document.getElementById('view-gavetas-ger').style.display = 'none';
+        document.getElementById('view-arquivos-ger').style.display = 'block';
+        document.getElementById('nav-gerenciador').style.display = 'block';
+        const lista = document.getElementById('lista-arquivos');
+        lista.innerHTML = "Carregando...";
+        const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
+        if(snap.exists()){
+            const docs = Object.keys(snap.val()).map(k => ({id:k, ...snap.val()[k]})).filter(i => i.gaveta === gaveta).reverse();
+            lista.innerHTML = docs.length ? "" : "Gaveta vazia.";
+            docs.forEach(doc => {
+                const item = document.createElement('div');
+                item.className = 'item-arquivo';
+                item.onclick = () => {
+                    document.getElementById('folha-total').innerHTML = doc.conteudo;
+                    window.missaoNome = doc.nome; window.idAtual = doc.id;
+                    document.getElementById('identificador-peca').innerText = doc.nome;
+                    document.getElementById('modal-gerenciador').style.display = 'none';
+                };
+                item.innerHTML = `<div><b>${doc.nome}</b><br><small>${doc.data}</small></div>`;
+                lista.appendChild(item);
+            });
+        }
+    };
+
+    // --- BIBLIOTECA E PDF ---
+    window.abrirBiblioteca = () => document.getElementById('modal-biblioteca').style.display = 'flex';
     window.abrirPDFNoLado = (url, titulo) => {
         document.getElementById('pdf-frame').src = url;
         document.getElementById('pdf-titulo').innerText = titulo;
         document.getElementById('pdf-sidebar').classList.add('active');
         document.getElementById('modal-biblioteca').style.display = 'none';
     };
-
     window.fecharPDF = () => document.getElementById('pdf-sidebar').classList.remove('active', 'full-screen');
     window.toggleFullPDF = () => document.getElementById('pdf-sidebar').classList.toggle('full-screen');
-    window.abrirBiblioteca = () => document.getElementById('modal-biblioteca').style.display = 'flex';
 
     window.criarNovoTreino = () => {
-        const n = prompt("NOME DO NOVO TREINO:");
+        const n = prompt("NOME DA MISSÃO:");
         if(n) {
-            window.missaoNome = n.toUpperCase();
-            window.idAtual = null;
+            window.missaoNome = n.toUpperCase(); window.idAtual = null;
             document.getElementById('identificador-peca').innerText = window.missaoNome;
             document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`;
         }
