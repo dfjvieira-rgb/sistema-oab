@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SISTEMA PMDF 2025 - CFO ELITE</title>
+    <title>JOAQUIM PMDF 2025 - FULL EDITION</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --paper-color: #ffffff; 
-            --mentoria-bg: #1e3a8a; --sidebar-w: 70px;
+            --mentoria-bg: #1e3a8a; --sidebar-w: 75px;
             --pmdf-accent: #ffd700;
         }
 
@@ -21,19 +21,14 @@
             font-family: 'Inter', system-ui, sans-serif; 
             background: var(--primary); 
             height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            color: white;
+            display: flex; flex-direction: column; overflow: hidden; color: white;
         }
 
-        /* HEADER FIXO */
         header { 
             background: var(--primary); 
             height: 60px; padding: 0 20px; 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--pmdf-accent); 
-            z-index: 5000;
+            border-bottom: 2px solid var(--pmdf-accent); z-index: 5000;
         }
 
         .logo { font-size: 1.1rem; font-weight: 900; }
@@ -41,203 +36,190 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR ORIGINAL */
+        /* SIDEBAR COMPLETA COM PASTAS E BOTÕES */
         .sidebar { 
             width: var(--sidebar-w); 
             background: #1e293b; 
             display: flex; flex-direction: column; align-items: center;
-            gap: 15px; padding: 20px 0; 
+            gap: 12px; padding: 15px 0; 
             border-right: 1px solid rgba(255,255,255,0.1); 
+            overflow-y: auto;
         }
 
         .btn-side { 
-            width: 50px; height: 50px; border: none; border-radius: 12px; 
+            width: 52px; height: 52px; border: none; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; color: white; 
             cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
             position: relative;
         }
-        .btn-side:hover { background: rgba(255,255,255,0.15); }
-        .btn-side i { font-size: 1.2rem; color: var(--pmdf-accent); }
+        .btn-side i { font-size: 1.2rem; }
+        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
 
-        /* EDITOR CONTAINER */
-        .editor-container { 
-            flex: 1; display: flex; flex-direction: column; 
-            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px;
+        /* TOOLTIP DAS SIDEBARS */
+        .btn-side::after {
+            content: attr(data-label); position: absolute; left: 80px; 
+            background: #000; color: #fff; padding: 5px 10px; border-radius: 5px;
+            font-size: 10px; white-space: nowrap; opacity: 0; pointer-events: none;
+            border: 1px solid var(--pmdf-accent); z-index: 6000;
         }
+        .btn-side:hover::after { opacity: 1; left: 85px; }
+
+        /* EDITOR E TOOLS */
+        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px; }
+        .sticky-tools { 
+            position: sticky; top: -20px; z-index: 1000; background: white; 
+            width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 15px;
+        }
+        .toolbar-liberdade { display: flex; background: #fff; border-top: 1px solid #eee; }
+        .btn-lib { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; color: #64748b; border-right: 1px solid #f1f5f9; }
 
         .paper { 
             width: 100%; max-width: 850px; background: white; 
-            min-height: 1500px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            padding: 60px; color: #000; font-size: 16px; line-height: 1.8;
-            outline: none;
+            min-height: 2000px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            padding: 60px; color: #000; outline: none;
         }
 
-        /* --- PÁGINA DE MENTORIA (MODO NOVA PÁGINA - ORIGINAL) --- */
+        /* PÁGINA DE MENTORIA (MODO ORIGINAL - TELA CHEIA) */
         #pagina-mentoria {
-            position: fixed; inset: 0; 
-            background: #0f172a; 
-            z-index: 10000; 
-            display: none; 
-            flex-direction: column;
-            animation: slideInPage 0.3s ease-out;
+            position: fixed; inset: 0; background: #0f172a; z-index: 10000; 
+            display: none; flex-direction: column; animation: slideUp 0.3s ease-out;
         }
         #pagina-mentoria.active { display: flex; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        @keyframes slideInPage {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .mentoria-nav { 
-            height: 70px; background: var(--mentoria-bg); 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 30px; border-bottom: 3px solid var(--pmdf-accent);
-        }
-
-        .mentoria-grid {
-            flex: 1; padding: 40px; overflow-y: auto;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px; max-width: 1200px; margin: 0 auto; width: 100%;
-        }
-
-        .card-intel {
-            background: #1e293b; border: 1px solid rgba(255,215,0,0.1);
-            padding: 30px; border-radius: 16px; text-align: left;
-            cursor: pointer; transition: 0.3s;
-        }
+        .mentoria-nav { height: 70px; background: var(--mentoria-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 3px solid var(--pmdf-accent); }
+        .mentoria-grid { flex: 1; padding: 40px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        
+        .card-intel { background: #1e293b; border: 1px solid rgba(255,215,0,0.1); padding: 30px; border-radius: 16px; cursor: pointer; transition: 0.3s; }
         .card-intel:hover { border-color: var(--pmdf-accent); background: #24344d; transform: translateY(-5px); }
         .card-intel i { font-size: 2rem; color: var(--pmdf-accent); margin-bottom: 15px; display: block; }
-        .card-intel h3 { color: #fff; margin-bottom: 10px; font-size: 1.1rem; }
-        .card-intel p { color: #94a3b8; font-size: 0.85rem; line-height: 1.5; }
 
-        /* MODAL DE RESPOSTA */
-        #modal-intel-result {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            z-index: 11000; display: none; align-items: center; justify-content: center;
-        }
-        .result-body {
-            background: white; color: #0f172a; width: 90%; max-width: 650px;
-            border-radius: 20px; padding: 40px;
-        }
+        /* MODAL RESULTADO */
+        #modal-intel-result { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 11000; display: none; align-items: center; justify-content: center; }
+        .result-body { background: white; color: #0f172a; width: 90%; max-width: 650px; border-radius: 20px; padding: 40px; }
 
     </style>
 </head>
 <body class="dark-mode">
 
 <header>
-    <div class="logo">PMDF <span>CFO 2025</span></div>
-    <div id="status-pm" style="font-size: 10px; font-weight: bold; color: var(--pmdf-accent);">PROJETO ORIGINAL - EDITAL 03/2025</div>
+    <div class="logo">JOAQUIM <span>PMDF 2025</span></div>
+    <div style="font-size: 10px; font-weight: bold; color: var(--pmdf-accent);">PROJETO BLINDADO ATIVO</div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--mentoria-bg);" onclick="window.abrirPaginaMentoria()" title="Abrir Mentoria">
+        <button class="btn-side" style="background:var(--mentoria-bg);" data-label="HUB MENTORIA" onclick="window.abrirPaginaMentoria()">
             <i class="fas fa-robot"></i>
         </button>
-        <button class="btn-side" onclick="window.abrirPergaminho()" title="Estruturas">
+        <button class="btn-side" style="background:var(--gold); color:#000" data-label="PERGAMINHO (ESTRUTURAS)" onclick="window.abrirPergaminho()">
             <i class="fas fa-scroll"></i>
         </button>
-        <button class="btn-side" style="background:#059669;" onclick="window.salvarDisquete()" title="Blindar Peça">
+        <button class="btn-side" style="background:#f97316;" data-label="MARTELO (TESES EDITAL)" onclick="window.abrirTesesEdital()">
+            <i class="fas fa-hammer"></i>
+        </button>
+
+        <hr style="width:60%; opacity:0.1; margin:5px 0">
+
+        <button class="btn-side" style="background:#059669;" data-label="SALVAR (DISQUETE)" onclick="window.salvarPeca()">
             <i class="fas fa-save"></i>
+        </button>
+        <button class="btn-side" style="background:#475569;" data-label="MINHA PASTA PMDF" onclick="window.abrirPasta()">
+            <i class="fas fa-folder-open"></i>
+        </button>
+
+        <hr style="width:60%; opacity:0.1; margin:5px 0">
+
+        <button class="btn-side" style="background:#3b82f6;" data-label="VER PEÇA PDF" onclick="window.verDoc('P')">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+        <button class="btn-side" style="background:#eab308;" data-label="VER GABARITO" onclick="window.verDoc('G')">
+            <i class="fas fa-check-double"></i>
+        </button>
+        <button class="btn-side" style="background:#000; border:1px solid var(--pmdf-accent)" data-label="VADE MECUM" onclick="window.verDoc('V')">
+            <i class="fas fa-gavel"></i>
         </button>
     </aside>
 
     <section class="editor-container">
-        <div class="paper" id="editor-principal" contenteditable="true">
-            <b>AO SENHOR COMANDANTE GERAL DA POLÍCIA MILITAR DO DISTRITO FEDERAL (Ou Autoridade Competente)</b><br><br>
-            OBJETO: RECURSO ADMINISTRATIVO / DEFESA PRÉVIA<br><br>
-            [Digite seu texto definitivo aqui conforme o padrão Cebraspe...]
+        <div class="sticky-tools">
+            <div style="padding:12px; text-align:center; font-weight:900; background:#f8fafc; color:#0f172a; border-bottom:2px solid var(--pmdf-accent);">
+                FOLHA DE RESPOSTA DEFINITIVA - PMDF
+            </div>
+            <div class="toolbar-liberdade">
+                <button class="btn-lib" onclick="window.limpar()">LIMPAR TUDO</button>
+                <button class="btn-lib" onclick="window.print()" style="background:#22c55e; color:white;">GERAR PDF OFICIAL</button>
+            </div>
         </div>
+        <div class="paper" id="editor-principal" contenteditable="true">
+            </div>
     </section>
 </main>
 
 <div id="pagina-mentoria">
     <div class="mentoria-nav">
-        <span style="font-weight: 900; letter-spacing: 1px;"><i class="fas fa-shield-alt"></i> HUB DE INTELIGÊNCIAS PMDF</span>
-        <button onclick="window.fecharPaginaMentoria()" style="background:var(--pmdf-accent); border:none; padding:10px 20px; border-radius:8px; font-weight:900; cursor:pointer;">FECHAR E VOLTAR</button>
+        <span style="font-weight: 900; letter-spacing: 1px;"><i class="fas fa-shield-alt"></i> MENTORIA PMDF 2025</span>
+        <button onclick="window.fecharPaginaMentoria()" style="background:var(--pmdf-accent); border:none; padding:10px 20px; border-radius:8px; font-weight:900; cursor:pointer;">VOLTAR AO EDITOR</button>
     </div>
     
     <div class="mentoria-grid">
         <div class="card-intel" onclick="window.carregarIntel('DIREITO_PENAL_MILITAR')">
             <i class="fas fa-gavel"></i>
-            <h3>Direito Penal Militar</h3>
-            <p>Análise de Crimes Militares (Art. 9º CPM), Penas e Extinção de Punibilidade conforme o Edital.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('IPM_PROC')">
-            <i class="fas fa-file-signature"></i>
-            <h3>IPM e Polícia Judiciária</h3>
-            <p>Procedimentos de Inquérito Policial Militar e Sindicâncias sob a ótica do Oficial.</p>
+            <h3>Penal Militar</h3>
+            <p>Teses do Art. 9º CPM e Crimes em Tempo de Paz.</p>
         </div>
         <div class="card-intel" onclick="window.carregarIntel('DISCURSIVA_CESPE')">
-            <i class="fas fa-pen-fancy"></i>
-            <h3>Discursiva Cebraspe</h3>
-            <p>Padrão de resposta, critérios de correção e proibição de identificação do candidato.</p>
-        </div>
-        <div class="card-intel" onclick="window.carregarIntel('ESTATUTO_PMDF')">
-            <i class="fas fa-balance-scale"></i>
-            <h3>Lei 7.289/84</h3>
-            <p>Estatuto dos Policiais Militares e Legislação Correlata exigida no concurso.</p>
+            <i class="fas fa-pen-nib"></i>
+            <h3>Padrão Cebraspe</h3>
+            <p>Critérios de 30 linhas e proibição de identificação.</p>
         </div>
         <div class="card-intel" onclick="window.carregarIntel('TAF_SAUDE')">
-            <i class="fas fa-heartbeat"></i>
+            <i class="fas fa-running"></i>
             <h3>Saúde e TAF</h3>
-            <p>Checklist de exames, atestados e o detalhamento do Laudo Psiquiátrico (Anexo VI).</p>
+            <p>Checklist de Exames Psiquiátricos e Neurológicos.</p>
         </div>
     </div>
 </div>
 
 <div id="modal-intel-result">
     <div class="result-body">
-        <h2 id="intel-titulo" style="color: var(--mentoria-bg); margin-bottom: 20px; border-bottom: 2px solid #eee; text-transform: uppercase; font-size: 1.2rem;"></h2>
-        <div id="intel-texto" style="white-space: pre-wrap; margin-bottom: 30px; font-size: 15px; line-height: 1.6; max-height: 350px; overflow-y: auto; color: #333;"></div>
+        <h2 id="intel-titulo" style="color: var(--mentoria-bg); margin-bottom: 20px; border-bottom: 2px solid #eee;"></h2>
+        <div id="intel-texto" style="white-space: pre-wrap; margin-bottom: 30px; font-size: 15px; color:#333;"></div>
         <div style="display: flex; gap: 10px;">
-            <button onclick="window.injetarNaPeca()" style="flex: 2; padding: 15px; background: var(--mentoria-bg); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">INJETAR NA DISCURSIVA</button>
-            <button onclick="document.getElementById('modal-intel-result').style.display='none'" style="flex: 1; padding: 15px; background: #eee; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">CANCELAR</button>
+            <button onclick="window.injetar()" style="flex: 1; padding: 15px; background: var(--mentoria-bg); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">INJETAR NA PEÇA</button>
+            <button onclick="document.getElementById('modal-intel-result').style.display='none'" style="flex: 1; padding: 15px; background: #eee; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">FECHAR</button>
         </div>
     </div>
 </div>
 
 <script>
     // NAVEGAÇÃO
-    window.abrirPaginaMentoria = () => {
-        document.getElementById('pagina-mentoria').classList.add('active');
+    window.abrirPaginaMentoria = () => document.getElementById('pagina-mentoria').classList.add('active');
+    window.fecharPaginaMentoria = () => document.getElementById('pagina-mentoria').classList.remove('active');
+
+    // SISTEMA DE DOCUMENTOS
+    window.verDoc = (t) => alert("Abrindo visualizador de PDF para: " + t);
+    window.abrirPasta = () => alert("Sincronizando com Histórico PMDF...");
+    window.salvarPeca = () => alert("Peça Blindada com Sucesso!");
+    
+    // INTELIGÊNCIA
+    const DATA_PM = {
+        DIREITO_PENAL_MILITAR: "Análise Edital: Atenção ao Art. 9º do CPM. Crimes militares por extensão e crimes propriamente militares...",
+        TAF_SAUDE: "Anexo VI: O laudo psiquiátrico deve ser descritivo e abranger humor, cognição e inteligência."
     };
 
-    window.fecharPaginaMentoria = () => {
-        document.getElementById('pagina-mentoria').classList.remove('active');
-    };
-
-    // INTELIGÊNCIAS MAPEADAS DO EDITAL 03/2025
-    const DATA_PMDF = {
-        DIREITO_PENAL_MILITAR: "SÍNTESE EDITAL PMDF:\n- Aplicação da lei penal militar.\n- Crime: Dolo, Culpa, Erro de Direito.\n- Crimes contra a autoridade ou disciplina militar.\n- Crimes contra o serviço e dever militar.\n- Extinção da punibilidade (Art. 123 CPM).",
-        DISCURSIVA_CESPE: "PADRÃO CEBRASPE:\n- Texto dissertativo (até 30 linhas).\n- Proibição de rubricas/marcas identificadoras.\n- Avaliação: Domínio do tema + Legibilidade + Respeito às margens.\n- O rascunho não é considerado para nota.",
-        TAF_SAUDE: "DIRETRIZES DE SAÚDE:\n- Atestado médico deve constar: 'Apto para realizar o TAF'.\n- Exame de Sanidade Mental (Psiquiátrico) deve conter: Cognição, Inteligência, Tirocínio e Juízo Crítico.\n- Toxicológico: Janela de 60 dias mínima.",
-        IPM_PROC: "POLÍCIA JUDICIÁRIA MILITAR:\n- Competência para o cargo de Oficial.\n- Atos do Inquérito Policial Militar.\n- Sindicância Administrativa conforme Lei 6.450/77."
-    };
-
-    window.carregarIntel = (chave) => {
-        const titulo = chave.replace(/_/g, ' ');
-        document.getElementById('intel-titulo').innerText = titulo;
-        document.getElementById('intel-texto').innerText = DATA_PMDF[chave] || "Conteúdo em mapeamento técnico...";
+    window.carregarIntel = (c) => {
+        document.getElementById('intel-titulo').innerText = c.replace(/_/g, ' ');
+        document.getElementById('intel-texto').innerText = DATA_PM[c] || "Conteúdo em análise...";
         document.getElementById('modal-intel-result').style.display = 'flex';
     };
 
-    window.injetarNaPeca = () => {
-        const texto = document.getElementById('intel-texto').innerText;
-        const editor = document.getElementById('editor-principal');
-        editor.innerHTML += "<br><br><b>[INJEÇÃO MENTORIA]:</b><br>" + texto;
-        
+    window.injetar = () => {
+        const t = document.getElementById('intel-texto').innerText;
+        document.getElementById('editor-principal').innerText += "\n\n" + t;
         document.getElementById('modal-intel-result').style.display = 'none';
         window.fecharPaginaMentoria();
-        editor.focus();
-    };
-
-    window.salvarDisquete = () => {
-        alert("SISTEMA BLINDADO: Peça salva no histórico oficial PMDF 2025.");
-    };
-
-    window.abrirPergaminho = () => {
-        alert("Carregando esqueletos de peças militares...");
     };
 </script>
 </body>
