@@ -76,7 +76,7 @@
         #folha-total { outline: none; min-height: 1400px; font-family: 'Courier New', monospace; font-size: 18px; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
+        .modal-body { background: white; width: 95%; max-width: 600px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
         
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .btn-gaveta { padding: 20px; border-radius: 15px; border: 2px solid #f1f5f9; background: #fff; cursor: pointer; text-align: center; transition: 0.2s; }
@@ -86,6 +86,10 @@
 
         .item-arquivo { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .item-arquivo:hover { background: #f8fafc; }
+
+        /* PDF Viewer Styling */
+        #pdf-viewer-container { width: 100%; height: 500px; border: 1px solid #ccc; margin-top: 15px; display: none; }
+        #pdf-frame { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body class="dark-mode">
@@ -100,8 +104,9 @@
         <button class="btn-side" style="background:#facc15; color:#000" onclick="window.criarNovoTreino()" title="Novo"><i class="fas fa-plus-circle"></i></button>
         <button class="btn-side" style="background:var(--success);" onclick="window.finalizarPeca()" title="Salvar/Atualizar"><i class="fas fa-save"></i></button>
         <button class="btn-side" style="background:#334155;" onclick="window.abrirGerenciador()" title="Pastas"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" style="background:var(--biblioteca);" onclick="window.abrirBiblioteca()" title="Biblioteca de Editais e Apostilas"><i class="fas fa-book-reader"></i></button>
         <hr style="width:70%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()" title="Mentoria IA"><i class="fas fa-robot"></i></button>
         <button class="btn-side" style="background:#000; border:1px solid var(--gold)" onclick="window.abrirVade()"><i class="fas fa-gavel"></i></button>
     </aside>
 
@@ -144,9 +149,33 @@
     </div>
 </div>
 
+<div class="modal" id="modal-biblioteca">
+    <div class="modal-body">
+        <h2 style="margin-bottom:20px; border-bottom:2px solid var(--biblioteca); padding-bottom:10px; color:var(--biblioteca)">BIBLIOTECA TÁTICA</h2>
+        
+        <div id="lista-pdfs">
+            <div class="item-arquivo" onclick="window.verPDF('edital-abertura-04-2023.pdf')">
+                <div><b>📜 EDITAL PMDF 2023</b><br><small>Oficial - Abertura</small></div>
+                <i class="fas fa-file-pdf" style="color:red"></i>
+            </div>
+            <div class="item-arquivo" style="opacity:0.5">
+                <div><b>📘 MINHAS APOSTILAS</b><br><small>Upload via sistema em breve...</small></div>
+                <i class="fas fa-plus-circle"></i>
+            </div>
+        </div>
+
+        <div id="pdf-viewer-container">
+            <iframe id="pdf-frame"></iframe>
+            <button onclick="document.getElementById('pdf-viewer-container').style.display='none'" style="width:100%; padding:10px; background:var(--perigo); color:white; border:none; margin-top:5px;">FECHAR LEITURA</button>
+        </div>
+
+        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:20px; font-weight:bold; cursor:pointer; border:none;">SAIR DA BIBLIOTECA</button>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
@@ -157,12 +186,27 @@
 
     window.missaoNome = "RELATÓRIO SEM TÍTULO";
     window.modoAtual = "TREINO";
-    window.idAtual = null; // Controla se é um arquivo novo ou edição
+    window.idAtual = null;
 
+    // --- FUNÇÕES DE PDF/BIBLIOTECA ---
+    window.abrirBiblioteca = () => {
+        document.getElementById('modal-biblioteca').style.display = 'flex';
+    };
+
+    window.verPDF = (nome) => {
+        const viewer = document.getElementById('pdf-viewer-container');
+        const frame = document.getElementById('pdf-frame');
+        // Aqui simulamos a abertura do arquivo local ou via URL se necessário
+        alert("Abrindo: " + nome + "\n(O PDF será renderizado no frame abaixo)");
+        viewer.style.display = 'block';
+        // frame.src = "caminho_para_o_arquivo/" + nome;
+    };
+
+    // --- RESTANTE DAS FUNÇÕES ORIGINAIS ---
     window.criarNovoTreino = () => {
         const nome = prompt("NOME DO NOVO TREINO:", "MISSÃO " + new Date().toLocaleDateString());
         if(nome) {
-            window.idAtual = null; // Reseta ID para criar novo
+            window.idAtual = null;
             window.missaoNome = nome.toUpperCase();
             document.getElementById('identificador-peca').innerText = window.missaoNome;
             document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`;
@@ -179,7 +223,6 @@
 
         if(snap.exists()){
             const dados = snap.val();
-            // Busca se já existe um arquivo com esse mesmo nome na mesma gaveta
             idExistente = Object.keys(dados).find(key => 
                 dados[key].nome === window.missaoNome && dados[key].gaveta === gaveta
             );
@@ -196,7 +239,7 @@
                 conteudo: conteudo
             });
             window.idAtual = idFinal;
-            alert(idExistente ? "✅ ARQUIVO ATUALIZADO!" : "✅ NOVO ARQUIVO SALVO!");
+            alert(idExistente ? "✅ ATUALIZADO!" : "✅ SALVO!");
         } catch (e) { alert("Erro ao salvar."); }
     };
 
@@ -244,7 +287,7 @@
         document.getElementById('folha-total').innerHTML = doc.conteudo;
         window.missaoNome = doc.nome;
         window.modoAtual = doc.gaveta;
-        window.idAtual = id; // Marca que agora estamos editando este ID
+        window.idAtual = id;
         document.getElementById('identificador-peca').innerText = doc.nome;
         document.getElementById('ex-display').innerText = doc.gaveta;
         document.getElementById('modal-gavetas').style.display = 'none';
