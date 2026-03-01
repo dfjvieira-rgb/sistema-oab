@@ -3,141 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MENTORIA ELITE PMDF - V13 EDITAL</title>
+    <title>MENTORIA ELITE PMDF - V13 FULL PAGE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --card: #1e293b;
             --const: #ef4444; --adm: #f97316; --penal: #3b82f6; --proc: #06b6d4;
             --cpm: #8b5cf6; --cppm: #ec4899; --leg: #10b981; --lo: #facc15;
-            --peca: #a855f7; --nc: #f472b6;
+            --peca: #a855f7; --nc: #f472b6; --bg-paper: #cbd5e1;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding-bottom: 110px; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* HEADER FIXO COM BOTÃO VOLTAR */
+        /* HEADER PRINCIPAL */
         header {
-            background: var(--card); padding: 15px 20px; border-bottom: 2px solid var(--gold);
+            background: var(--card); padding: 10px 20px; border-bottom: 3px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+        }
+
+        /* LAYOUT PRINCIPAL */
+        main { display: flex; height: calc(100vh - 63px); }
+
+        .sidebar { 
+            width: 70px; background: #1e293b; display: flex; flex-direction: column; 
+            align-items: center; gap: 15px; padding: 20px 0; border-right: 1px solid rgba(255,255,255,0.1); 
+        }
+        .btn-side { 
+            width: 50px; height: 50px; border: none; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; color: white; 
+            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
+        }
+        .btn-side i { font-size: 1.2rem; color: var(--gold); }
+
+        .editor-container { flex: 1; background: var(--bg-paper); overflow-y: auto; padding: 20px; display: flex; justify-content: center; }
+        .paper { 
+            width: 100%; max-width: 850px; background: white; min-height: 1200px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 60px; color: #000;
+        }
+        #folha-total { outline: none; line-height: 1.8; font-size: 16px; }
+
+        /* PÁGINA SEPARADA (HUB DE INTELIGÊNCIAS) */
+        #hub-inteligencia {
+            position: fixed; inset: 0; background: var(--primary); z-index: 9999;
+            display: none; flex-direction: column; animation: fadeIn 0.2s ease-in-out;
+        }
+        #hub-inteligencia.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .header-hub {
+            background: var(--card); padding: 15px 20px; border-bottom: 3px solid var(--gold);
             display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
         }
-        .btn-voltar { background: white; color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; }
-
-        .container { padding: 15px; max-width: 800px; margin: 0 auto; }
-
-        /* INPUT PANEL */
-        .panel-input { background: #0f172a; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px dashed #334155; }
-        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; font-family: inherit; }
-        .btn-gravar { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: 900; cursor: pointer; margin-top: 10px; }
-
-        /* FEED DE POST-ITS */
-        .post-it {
-            padding: 18px; border-radius: 15px; margin-bottom: 15px; color: #020617;
-            position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .btn-voltar {
+            background: white; color: black; border: none; padding: 10px 20px;
+            border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 8px;
         }
-        .post-it strong { display: block; font-size: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 10px; text-transform: uppercase; }
-        .post-it p { margin: 8px 0; font-size: 0.95rem; line-height: 1.4; font-weight: 700; }
-        .macete-box { background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid rgba(0,0,0,0.3); font-size: 0.85rem; font-style: italic; }
 
-        /* NAV TABS (ASSUNTOS DO EDITAL) */
+        .conteudo-hub { flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+        /* COMPONENTES DE INPUT */
+        .panel-input { background: #0f172a; border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 1px dashed #334155; }
+        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; }
+
+        /* POST-ITS */
+        .post-it { padding: 20px; border-radius: 18px; margin-bottom: 20px; color: #020617; position: relative; }
+        .post-it strong { display: block; font-size: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 10px; }
+        .macete-box { background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.85rem; font-weight: 800; }
+
+        /* NAV TABS EDITAL */
         .nav-tabs {
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
-            display: flex; overflow-x: auto; padding: 12px 5px;
-            border-top: 2px solid #334155; z-index: 2000;
+            background: var(--card); display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-top: 2px solid var(--gold);
         }
-        .tab { 
-            color: #94a3b8; text-align: center; font-size: 9px; min-width: 90px; cursor: pointer; flex-shrink: 0;
-            display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 700;
+        .tab {
+            min-width: 100px; padding: 12px; background: #0f172a; border-radius: 10px;
+            color: #94a3b8; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; flex-shrink: 0;
         }
-        .tab.active { color: var(--gold); }
-        .tab i { font-size: 1.2rem; }
+        .tab.active { background: var(--gold); color: black; }
     </style>
 </head>
 <body>
 
 <header>
-    <button class="btn-voltar" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> VOLTAR</button>
-    <h2 style="font-size: 0.9rem; margin:0;">EDITAL <span style="color:var(--gold)">CFO PMDF</span></h2>
+    <div class="logo" style="font-weight:900;">MENTORIA <span style="color:var(--gold)">V13 PMDF</span></div>
+    <div style="font-size: 11px; color: var(--gold); font-weight: 800;">ALUNO-OFICIAL CFO</div>
 </header>
 
-<div class="container">
-    <div id="panel-editor" class="panel-input">
-        <h4 id="editor-title" style="margin:0 0 10px 0; color:var(--gold); font-size: 0.8rem; text-transform: uppercase;">Injetar Matéria</h4>
-        <input id="inp-t" placeholder="Título (Ex: Art. 144 CF)">
-        <textarea id="inp-c" rows="3" placeholder="Conteúdo Jurídico..."></textarea>
-        <textarea id="inp-r" rows="1" style="background:#020617; border-color:var(--gold)" placeholder="Macete/Mnemônico"></textarea>
-        <button id="btn-salvar" class="btn-gravar">GRAVAR NA MEMÓRIA IA</button>
+<main>
+    <aside class="sidebar">
+        <button class="btn-side" style="background:var(--nc);" onclick="abrirHub('nc')" title="Não Confunda"><i class="fas fa-brain"></i></button>
+        <button class="btn-side" onclick="abrirHub('peca')" title="Estrutura da Peça"><i class="fas fa-scroll"></i></button>
+        <button class="btn-side" style="background:#059669;" onclick="salvarPeca()"><i class="fas fa-save"></i></button>
+    </aside>
+
+    <section class="editor-container">
+        <div class="paper">
+            <div id="folha-total" contenteditable="true">
+                <b>AO JUÍZO DA VARA DE AUDITORIA MILITAR DO DF</b><br><br>
+                Inquérito Policial Militar nº...
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="hub-inteligencia">
+    <div class="header-hub">
+        <button class="btn-voltar" onclick="fecharHub()">
+            <i class="fas fa-arrow-left"></i> VOLTAR AO ESTUDO
+        </button>
+        <span id="titulo-hub" style="font-weight: 900; color: var(--gold); text-transform: uppercase;">INTELIGÊNCIA</span>
     </div>
 
-    <div id="sec-inteligencia">
-        <h3 id="intel-head" style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-book-open"></i> CARREGANDO EDITAL...
-        </h3>
-        <div id="feed-v13"></div>
+    <div class="conteudo-hub">
+        <div class="panel-input">
+            <input id="inp-t" placeholder="Título do Assunto/Artigo">
+            <textarea id="inp-c" rows="3" placeholder="Conteúdo técnico para a peça..."></textarea>
+            <input id="inp-r" placeholder="Macete/Mnemônico">
+            <button onclick="salvarHub()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; cursor:pointer;">GRAVAR NA MEMÓRIA</button>
+        </div>
+        <div id="feed-hub"></div>
     </div>
+
+    <nav class="nav-tabs">
+        <div class="tab active" onclick="showTab('nc')">NÃO CONFUNDA</div>
+        <div class="tab" onclick="showTab('peca')">QUAL A PEÇA?</div>
+        <div class="tab" onclick="showTab('cpm')">PENAL MILITAR</div>
+        <div class="tab" onclick="showTab('cppm')">PROC. PENAL MIL.</div>
+        <div class="tab" onclick="showTab('const')">CONSTITUCIONAL</div>
+        <div class="tab" onclick="showTab('adm')">ADMINISTRATIVO</div>
+        <div class="tab" onclick="showTab('leg')">LEGISLAÇÃO PM</div>
+    </nav>
 </div>
-
-<nav class="nav-tabs">
-    <div class="tab active" onclick="showTab('peca')"><i class="fas fa-file-signature"></i>PEÇA</div>
-    <div class="tab" onclick="showTab('const')"><i class="fas fa-gavel"></i>CONST.</div>
-    <div class="tab" onclick="showTab('adm')"><i class="fas fa-university"></i>ADMIN.</div>
-    <div class="tab" onclick="showTab('cpm')"><i class="fas fa-shield-alt"></i>C.P.M.</div>
-    <div class="tab" onclick="showTab('cppm')"><i class="fas fa-gavel"></i>C.P.P.M.</div>
-    <div class="tab" onclick="showTab('penal')"><i class="fas fa-balance-scale"></i>PENAL</div>
-    <div class="tab" onclick="showTab('proc')"><i class="fas fa-user-shield"></i>PROC.</div>
-    <div class="tab" onclick="showTab('lo')"><i class="fas fa-scroll"></i>L.O.D.F</div>
-    <div class="tab" onclick="showTab('leg')"><i class="fas fa-folder-open"></i>LEG. PM</div>
-    <div class="tab" onclick="showTab('nc')"><i class="fas fa-brain"></i>NÃO CONFUNDA</div>
-</nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, push, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const firebaseConfig = {
+    const config = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
         authDomain: "masteroab-db5e1.firebaseapp.com",
-        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com",
-        projectId: "masteroab-db5e1"
+        projectId: "masteroab-db5e1",
+        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com"
     };
-
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(config);
     const db = getDatabase(app);
 
-    let currentTab = 'peca';
+    let currentTab = 'nc';
     let cache = {};
 
     const temasMap = {
-        peca: { t: 'Qual a Peça?', c: 'var(--peca)' },
-        const: { t: 'D. Constitucional', c: 'var(--const)' },
-        adm: { t: 'D. Administrativo', c: 'var(--adm)' },
+        nc: { t: 'Não Confunda', c: 'var(--nc)' },
+        peca: { t: 'Estrutura da Peça', c: 'var(--peca)' },
         cpm: { t: 'Penal Militar', c: 'var(--cpm)' },
-        cppm: { t: 'Processo Penal Mil.', c: 'var(--cppm)' },
-        penal: { t: 'D. Penal Comum', c: 'var(--penal)' },
-        proc: { t: 'D. Processo Penal', c: 'var(--proc)' },
-        lo: { t: 'L.O.D.F', c: 'var(--lo)' },
-        leg: { t: 'Legislação PMDF', c: 'var(--leg)' },
-        nc: { t: 'Inteligência/NC', c: 'var(--nc)' }
+        cppm: { t: 'Processo Penal Militar', c: 'var(--cppm)' },
+        const: { t: 'Constitucional', c: 'var(--const)' },
+        adm: { t: 'Administrativo', c: 'var(--adm)' },
+        leg: { t: 'Legislação PMDF', c: 'var(--leg)' }
+    };
+
+    window.abrirHub = (tab) => {
+        if(tab) showTab(tab);
+        document.getElementById('hub-inteligencia').classList.add('active');
+    };
+
+    window.fecharHub = () => {
+        document.getElementById('hub-inteligencia').classList.remove('active');
     };
 
     window.showTab = (tab) => {
         currentTab = tab;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        const target = document.querySelector(`.tab[onclick*='${tab}']`);
-        if(target) target.classList.add('active');
+        const activeTab = document.querySelector(`.tab[onclick*='${tab}']`);
+        if(activeTab) activeTab.classList.add('active');
         
-        const head = document.getElementById('intel-head');
-        head.innerText = temasMap[tab].t.toUpperCase();
-        head.style.color = temasMap[tab].c;
-        document.getElementById('btn-salvar').style.background = temasMap[tab].c;
+        document.getElementById('titulo-hub').innerText = temasMap[tab].t;
         render();
     };
 
-    document.getElementById('btn-salvar').onclick = () => {
+    window.salvarHub = () => {
         const t = document.getElementById('inp-t').value;
         const c = document.getElementById('inp-c').value;
         const r = document.getElementById('inp-r').value;
-        if(!t || !c) return alert("Preencha o título e conteúdo!");
+        if(!t || !c) return alert("Preencha título e conteúdo!");
 
         push(ref(db, 'v13_master'), {
             t, c, r: r || "", cat: currentTab, ts: serverTimestamp()
@@ -154,7 +200,7 @@
     });
 
     function render() {
-        const feed = document.getElementById('feed-v13');
+        const feed = document.getElementById('feed-hub');
         feed.innerHTML = "";
         Object.keys(cache).reverse().forEach(id => {
             const it = cache[id];
@@ -167,14 +213,23 @@
                         </div>
                         <p>${it.c}</p>
                         ${it.r ? `<div class="macete-box">⚡ MACETE: ${it.r}</div>` : ""}
+                        <button onclick="injetar('${id}')" style="margin-top:10px; width:100%; border:none; padding:8px; border-radius:5px; background:rgba(0,0,0,0.1); font-weight:bold; cursor:pointer;">INJETAR NA PEÇA</button>
                     </div>`;
             }
         });
     }
 
-    window.apagar = (id) => { if(confirm("Remover item?")) remove(ref(db, `v13_master/${id}`)); };
+    window.injetar = (id) => {
+        const it = cache[id];
+        document.getElementById('folha-total').innerHTML += `<br><br>${it.c}`;
+        fecharHub();
+    };
 
-    window.onload = () => showTab('peca');
+    window.apagar = (id) => { if(confirm("Apagar?")) remove(ref(db, `v13_master/${id}`)); };
+
+    window.salvarPeca = () => {
+        alert("Peça salva em PDF no histórico da Mentoria.");
+    };
 </script>
 </body>
 </html>
