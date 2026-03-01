@@ -44,7 +44,7 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR COMPACTA - APENAS ÍCONES */
+        /* SIDEBAR COMPACTA */
         .sidebar { 
             width: var(--sidebar-w); 
             background: #1e293b; 
@@ -67,7 +67,6 @@
         .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
         .btn-side i { font-size: 1.1rem; color: var(--gold); }
 
-        /* Legenda ao passar o mouse */
         .btn-side::after {
             content: attr(data-label);
             position: absolute; left: 60px; background: #000; color: #fff;
@@ -131,13 +130,6 @@
             .sidebar { display: none; }
             #mobile-hub { display: flex; }
             #pdf-viewer.active { width: 100%; position: absolute; right: 0; top: 0; height: 100%; z-index: 8000; }
-        }
-
-        @media print {
-            body, main, .editor-container { overflow: visible !important; height: auto !important; display: block !important; background: white !important; }
-            .sidebar, header, .sticky-tools, #mobile-hub, #pdf-viewer, .modal { display: none !important; }
-            .paper { box-shadow: none !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
-            .editor-container { padding: 0 !important; }
         }
     </style>
 </head>
@@ -235,15 +227,12 @@
     import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER (ESTRUTURA PM 2026) ---
-    // O uso do prefixo "PM2026_" garante que não haja colisão com o projeto OAB
+    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER PM 2026 ---
     const PREFIXO = "PM2026";
     const PATH_HISTORICO = `${PREFIXO}/HISTORICO_OFICIAL`;
     const PATH_RASCUNHO = `${PREFIXO}/MASTER_RASCUNHO`;
 
     window.db = db;
-    
-    // Recuperação de estado isolada via LocalStorage com prefixo único
     window.activeEx = localStorage.getItem(`${PREFIXO}_activeEx`) || "39";
     window.modoAtual = localStorage.getItem(`${PREFIXO}_modoAtual`) || "TREINO"; 
     window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "NOVO TREINO PM";
@@ -253,17 +242,8 @@
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
 
-    // --- BIBLIOTECA DE APOIO ESPECÍFICA ---
-    window.LISTA_PDF_BIBLIOTECA = [
-        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
-        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
-        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO.pdf" },
-        { nome: "TESES OAB 2ª FASE", url: "TESES_OAB.pdf" },
-        { nome: "100 ARTIGOS PARA GRIFAR", url: "100_ARTIGOS.PDF" }
-    ];
-
+    // --- CARREGAMENTO INICIAL ---
     window.onload = async () => {
-        // Inicializa a FolhaEngine (Garante as 150 linhas padrão FGV)
         FolhaEngine.montar('folha-total');
         atualizarDisplayModo(); 
         
@@ -293,7 +273,36 @@
         setInterval(salvarAutomatico, 30000); 
     };
 
-    // --- INTELIGÊNCIA DOS EXAMES ANALISADOS (35-39) ---
+    // --- FUNÇÕES DE INTELIGÊNCIA (BOTÕES MENTORIA E PERGAMINHO) ---
+    
+    // Função do Botão Mentoria (Hub de 12 Inteligências)
+    window.abrirMentoria = () => {
+        // Como você usa mobile, abrimos em um local seguro ou injetamos o hub
+        alert("Ativando Mentoria PM 2026... Aguardando conexão com o Hub.");
+        // Se tiver o arquivo separado: window.open('mentoria.html', '_blank');
+    };
+
+    // Função do Botão Pergaminho (Estruturas Salvas)
+    window.abrirPergaminho = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📜 PERGAMINHO: ESTRUTURAS";
+        
+        content.innerHTML = `
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DA ... VARA DO TRABALHO DE ...\\n\\nProcesso nº ...\\n\\nNOME, já qualificado... vem interpor RECURSO ORDINÁRIO...')"><span>Estrutura: Recurso Ordinário</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('...vem apresentar CONTESTAÇÃO com base no Art. 847 da CLT...')"><span>Estrutura: Contestação</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('I - PRELIMINARES\\n\\nIncompetência Absoluta...\\nIlegitimidade Passiva...')"><span>Esqueleto: Preliminares</span></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    // Escuta de mensagens da Mentoria/IA para injetar na peça
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'INJETAR_PM') {
+            FolhaEngine.injetarTextoMultilinhas(event.data.texto);
+        }
+    }, false);
+
     window.injetarTeses = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -302,37 +311,33 @@
         content.innerHTML = `
             <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Súmula 369, I, TST: Estabilidade de dirigente sindical garantida mesmo com comunicação fora do prazo, se dentro do contrato.')"><span>Ex 35: Dirigente Sindical</span></div>
             <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva. Acabou o prazo, acabou o direito.')"><span>Ex 36: Ultratividade</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos (Exame 37 acusou erro em 1 ano).')"><span>Ex 37: Prescrição Execução</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade municipal/estadual.')"><span>Ex 38: Fato do Príncipe</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade (Exame 39).')"><span>Ex 39: Conselho Fiscal</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos.')"><span>Ex 37: Prescrição Execução</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade.')"><span>Ex 38: Fato do Príncipe</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade.')"><span>Ex 39: Conselho Fiscal</span></div>
         `;
         modal.style.display = 'flex';
     };
 
-    // --- GESTÃO DE GAVETAS (FIREBASE ISOLADO PM) ---
+    // --- GESTÃO DE DADOS (DISQUETE) ---
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
-        const tipo = window.modoAtual; 
-        const nomeAlvo = window.pecaAtualNome;
-
-        if(!confirm(`[PLANO PM] Salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
+        if(!confirm(`Salvar "${window.pecaAtualNome}" no histórico PM?`)) return;
 
         try {
             const idFinal = Date.now().toString();
             const agora = new Date();
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR');
             
             await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
-                exame: tipo, 
-                peca: `${nomeAlvo} (${dataF})`, 
-                conteudo: ed.innerHTML,
-                origem: "PM_REDACOES"
+                exame: window.modoAtual, 
+                peca: `${window.pecaAtualNome} (${dataF})`, 
+                conteudo: ed.innerHTML
             });
-            alert("✅ Guardado no Plano de Voo PM!");
-        } catch (e) { alert("Erro ao salvar no Firebase PM."); }
+            alert("✅ Peça Blindada e Salva no Histórico!");
+        } catch (e) { alert("Erro ao salvar."); }
     };
 
-    // --- NAVEGAÇÃO E PDFs ---
+    // --- NAVEGAÇÃO E UI ---
     window.verPDF = (t) => {
         const f = document.getElementById('pdf-frame');
         let url = "";
@@ -344,7 +349,7 @@
             case 'LM': url = 'livro_material.pdf'; break;
         }
         f.src = url;
-        document.getElementById('pdf-title').innerText = `PM APOIO: ${url}`;
+        document.getElementById('pdf-title').innerText = `PM: ${url}`;
         document.getElementById('pdf-viewer').classList.add('active');
         window.toggleRecolherEditor(); 
     };
@@ -356,11 +361,10 @@
         content.innerHTML = "";
         for(let i=39; i>=35; i--) {
             const b = document.createElement('div'); b.className = 'opt-btn'; 
-            b.innerHTML = `<span>EXAME ${i} ${i==39?'(ÚLTIMO)':''}</span> <i class="fas fa-chevron-right"></i>`;
+            b.innerHTML = `<span>EXAME ${i}</span> <i class="fas fa-chevron-right"></i>`;
             b.onclick = () => { 
                 window.activeEx = i.toString(); 
                 window.modoAtual = i.toString(); 
-                window.pecaAtualNome = "PEÇA OFICIAL PM"; 
                 persistirERefrescar();
                 modal.style.display = 'none';
             };
@@ -369,7 +373,6 @@
         modal.style.display = 'flex';
     };
 
-    // --- PERSISTÊNCIA E BACKUP ---
     function persistirERefrescar() {
         localStorage.setItem(`${PREFIXO}_modoAtual`, window.modoAtual);
         localStorage.setItem(`${PREFIXO}_pecaAtualNome`, window.pecaAtualNome);
@@ -382,8 +385,7 @@
         if(ed && ed.innerText.trim() !== "") {
             await set(ref(db, PATH_RASCUNHO), { 
                 conteudo: ed.innerHTML, 
-                timestamp: Date.now(),
-                contexto: "PM_WORK" 
+                timestamp: Date.now() 
             }); 
         }
     }
@@ -393,24 +395,28 @@
         if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
     }
 
-    // --- UI TOOLS ---
-    window.desfazer = () => {
-        if(window.historicoUndo.length > 1) {
-            window.historicoUndo.pop();
-            const estadoAnterior = window.historicoUndo[window.historicoUndo.length - 1];
-            document.getElementById('editor-principal').innerHTML = estadoAnterior;
-        }
-    };
-
-    window.renomearTreino = () => {
-        const n = prompt("Nome do Documento PM:", window.pecaAtualNome);
-        if (n) { window.pecaAtualNome = n; persistirERefrescar(); }
-    };
-
     window.atualizarDisplayModo = () => {
         const label = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
         document.getElementById('ex-display').innerText = `PM: ${label}`;
         document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
+    };
+
+    window.desfazer = () => {
+        if(window.historicoUndo.length > 1) {
+            window.historicoUndo.pop();
+            document.getElementById('editor-principal').innerHTML = window.historicoUndo[window.historicoUndo.length - 1];
+        }
+    };
+
+    window.setHighlightColor = (color, dotId) => {
+        window.currentColor = color;
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById(dotId).classList.add('active');
+    };
+
+    window.toggleMarcaTexto = () => {
+        window.marcaTextoAtivo = !window.marcaTextoAtivo;
+        document.getElementById('btn-highlight').style.color = window.marcaTextoAtivo ? 'var(--gold)' : '#64748b';
     };
 
     window.fecharPDF = () => {
@@ -426,3 +432,5 @@
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
 </script>
+</body>
+</html>
