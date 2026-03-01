@@ -87,10 +87,10 @@
         .modal-body { background: white; width: 95%; max-width: 600px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
         
         .item-biblioteca { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .tag-lei { font-size: 9px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569; font-weight: bold; }
         
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-gaveta { padding: 15px; border-radius: 10px; border-top: 2px solid var(--gold); background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; }
+        .btn-gaveta { padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; color: var(--primary); transition: 0.2s; }
+        .btn-gaveta:hover { border-color: var(--gold); background: #fff; }
         .item-arquivo { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
     </style>
 </head>
@@ -114,7 +114,7 @@
     <div class="content-wrapper">
         <section class="editor-container" id="editor-principal">
             <div class="sticky-tools">
-                <div id="identificador-peca" onclick="window.renomearMissao()">MISSÃO PMDF SEM TÍTULO</div>
+                <div id="identificador-peca" onclick="window.renomearMissao()">MISSÃO SEM TÍTULO</div>
             </div>
             <div class="paper">
                 <div id="folha-total" contenteditable="true" spellcheck="false">
@@ -127,7 +127,7 @@
             <div class="pdf-header">
                 <span id="pdf-titulo">DOCUMENTO</span>
                 <div class="pdf-controls">
-                    <span id="btn-toggle-full" onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold); font-size: 10px;"><i class="fas fa-expand-arrows-alt"></i> MAX (TELA CHEIA)</span>
+                    <span id="btn-toggle-full" onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold); font-size: 10px;"><i class="fas fa-expand-arrows-alt"></i> MAX</span>
                     <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red; font-size: 1rem;"></i>
                 </div>
             </div>
@@ -139,11 +139,12 @@
 <div class="modal" id="modal-gavetas">
     <div class="modal-body">
         <div id="modal-nav" style="display:none; cursor:pointer; color:var(--gold-dark); margin-bottom:10px;" onclick="window.voltarParaGavetas()">← VOLTAR</div>
-        <h2 id="modal-title" style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--gold)">MEUS ARQUIVOS PMDF</h2>
+        <h2 id="modal-title" style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--gold)">MEUS ARQUIVOS</h2>
         <div id="view-gavetas" class="grid-gavetas">
-            <div class="btn-gaveta" onclick="window.abrirGaveta('TREINO_PMDF')">TREINOS</div>
-            <div class="btn-gaveta" onclick="window.abrirGaveta('QUESTOES_PMDF')">QUESTÕES</div>
-            <div class="btn-gaveta" onclick="window.abrirGaveta('LEGIS_PMDF')">LEGISLAÇÃO</div>
+            <div class="btn-gaveta" onclick="window.abrirGaveta('TREINOS')"><i class="fas fa-edit"></i><br>TREINOS</div>
+            <div class="btn-gaveta" onclick="window.abrirGaveta('QUESTOES')"><i class="fas fa-question-circle"></i><br>QUESTÕES</div>
+            <div class="btn-gaveta" onclick="window.abrirGaveta('TESES')"><i class="fas fa-gavel"></i><br>TESES</div>
+            <div class="btn-gaveta" onclick="window.abrirGaveta('LEGISLACAO')"><i class="fas fa-scroll"></i><br>LEGISLAÇÃO</div>
         </div>
         <div id="view-arquivos" style="display:none;"><div id="lista-arquivos"></div></div>
         <button onclick="document.getElementById('modal-gavetas').style.display='none'" style="width:100%; padding:12px; margin-top:20px; background:black; color:white; border-radius:8px;">FECHAR</button>
@@ -153,26 +154,18 @@
 <div class="modal" id="modal-biblioteca">
     <div class="modal-body">
         <h2 style="font-size:18px; margin-bottom:15px; border-bottom:2px solid var(--biblioteca)">BIBLIOTECA PMDF</h2>
-        <div style="max-height: 400px; overflow-y: auto;">
-            <div class="item-biblioteca" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')">
-                <div><b>📜 EDITAL PMDF 2023</b></div><i class="fas fa-file-pdf" style="color:red"></i>
-            </div>
-            <div class="item-biblioteca" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF')">
-                <div><span class="tag-lei">L7289</span> <b>ESTATUTO PMDF</b></div><i class="fas fa-shield-alt"></i>
-            </div>
-            <div class="item-biblioteca" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l6450.htm', 'ORG. BÁSICA')">
-                <div><span class="tag-lei">L6450</span> <b>ORG. BÁSICA PMDF</b></div><i class="fas fa-gavel"></i>
-            </div>
+        <div class="item-biblioteca" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')">
+            <div><b>📜 EDITAL PMDF 2023</b></div><i class="fas fa-file-pdf" style="color:red"></i>
         </div>
         <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; padding:12px; margin-top:20px; background:black; color:white; border-radius:8px;">FECHAR</button>
     </div>
 </div>
 
 <script type="module">
-    // INTEGRADO COM O SEU FIREBASE CONFIG ENVIADO
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // CONFIGURAÇÃO DO SEU FIREBASE MASTER OAB
     const firebaseConfig = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
         authDomain: "masteroab-db5e1.firebaseapp.com",
@@ -186,10 +179,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.missaoNome = "MISSÃO PMDF SEM TÍTULO";
+    window.missaoNome = "MISSÃO SEM TÍTULO";
     window.idAtual = null;
 
-    // --- CONTROLE DE PDF ---
+    // --- SISTEMA DE PDF ---
     window.abrirPDFNoLado = (url, titulo) => {
         const sidebar = document.getElementById('pdf-sidebar');
         document.getElementById('pdf-titulo').innerText = titulo;
@@ -212,16 +205,16 @@
         document.getElementById('editor-principal').classList.remove('editor-hidden');
     };
 
-    // --- SALVAMENTO BLINDADO NO MASTER OAB (PASTA PMDF) ---
+    // --- SISTEMA DE SALVAMENTO REVERTIDO (PADRÃO APROVADO) ---
     window.finalizarPeca = async () => {
         const conteudo = document.getElementById('folha-total').innerHTML;
-        const gaveta = prompt("EM QUAL GAVETA PMDF DESEJA SALVAR?", "TREINO_PMDF").toUpperCase();
+        const gaveta = prompt("ESCOLHA A GAVETA: TREINOS, QUESTOES, TESES ou LEGISLACAO", "TREINOS").toUpperCase().replace("Õ","O").replace("Ç","C");
         if(!gaveta) return;
 
         const idFinal = window.idAtual || Date.now().toString();
         
         try {
-            // SALVA EM producao_v13/HISTORICO_PMDF PARA NÃO AFETAR O PROJETO OAB
+            // Salvando na pasta HISTORICO_PMDF dentro do seu banco Master OAB
             await set(ref(db, `producao_v13/HISTORICO_PMDF/${idFinal}`), {
                 nome: window.missaoNome,
                 data: new Date().toLocaleString('pt-BR'),
@@ -229,7 +222,7 @@
                 conteudo: conteudo
             });
             window.idAtual = idFinal;
-            alert("✅ SALVO COM SUCESSO NO MASTER OAB (ÁREA PMDF)!");
+            alert("✅ SALVO COM SUCESSO NAS GAVETAS PMDF!");
         } catch (e) { alert("Erro ao salvar no Firebase."); }
     };
 
@@ -245,7 +238,7 @@
         document.getElementById('view-arquivos').style.display = 'block';
         document.getElementById('modal-nav').style.display = 'block';
         const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "Sincronizando banco Master OAB...";
+        lista.innerHTML = "Sincronizando gavetas...";
         
         const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
         if(snap.exists()){
@@ -266,11 +259,11 @@
                 item.innerHTML = `<div><b>${doc.nome}</b><br><small>${doc.data}</small></div>`;
                 lista.appendChild(item);
             });
-        } else { lista.innerHTML = "Nenhum arquivo encontrado."; }
+        } else { lista.innerHTML = "Gaveta vazia."; }
     };
 
     window.criarNovoTreino = () => {
-        const n = prompt("NOME DA NOVA MISSÃO PMDF:");
+        const n = prompt("NOME DA MISSÃO:");
         if(n){
             window.missaoNome = n.toUpperCase(); window.idAtual = null;
             document.getElementById('identificador-peca').innerText = window.missaoNome;
@@ -279,7 +272,7 @@
     };
 
     window.renomearMissao = () => {
-        const n = prompt("RENOMEAR MISSÃO:", window.missaoNome);
+        const n = prompt("RENOMEAR:", window.missaoNome);
         if(n) { window.missaoNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.missaoNome; }
     };
 
