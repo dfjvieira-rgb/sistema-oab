@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA JOAQUIM - QG OPERACIONAL</title>
+    <title>SISTEMA JOAQUIM - OPERACIONAL V5</title>
     <style>
         :root { 
             --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
@@ -32,20 +32,18 @@
         .editor-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 2px solid #dee2e6; }
         #area-peca { flex: 1; padding: 20px; border: none; font-family: 'Courier New', monospace; font-size: 16px; line-height: 1.6; outline: none; resize: none; }
         
-        /* Painel PDF (Onde os arquivos abrem) */
+        /* Painel PDF */
         .pdf-section { width: 45%; background: #525659; display: flex; flex-direction: column; position: relative; }
         .pdf-placeholder { color: white; text-align: center; margin-top: 50px; padding: 20px; font-size: 0.9rem; }
         #pdf-frame { width: 100%; height: 100%; border: none; background: white; display: none; }
 
-        .btn-abrir-fora { background: var(--yellow); color: #000; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px; }
-
-        #annotation-panel { display: none; width: 45%; background: white; flex-direction: column; border-left: 2px solid var(--primary); }
+        .btn-abrir-fora { background: var(--yellow); color: #000; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 15px; width: 80%; }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>SISTEMA JOAQUIM V4</strong></div>
+    <div><strong>SISTEMA JOAQUIM V5</strong></div>
     <div class="nav-group">
         <button class="btn-top" onclick="toggleAnn('postit')">📌 MNEMÔNICOS</button>
         <button class="btn-top" onclick="toggleAnn('dicas')">🚔 DICAS</button>
@@ -54,92 +52,74 @@
 
 <main>
     <aside class="sidebar">
-        <h4>📂 PROVAS (PDF)</h4>
-        <div class="item-link" onclick="abrirDoc('https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf', 'PROVA PMDF 2023')">
-            PROVA PMDF 2023
-            <span>Soldado - Inst. AOCP</span>
+        <h4>📂 PÁGINA DE PROVAS (OFICIAL)</h4>
+        <div class="item-link" onclick="abrirNoSistema('https://www.institutoaocp.org.br/concurso.jsp?id=516', 'CENTRAL PMDF 2023')">
+            PÁGINA PMDF 2023
+            <span>Busque "Caderno de Questões"</span>
         </div>
-        <div class="item-link" onclick="abrirDoc('https://www.institutoaocp.org.br/concursos/arquivos/PMGO_SOLDADO_CADERNO_PROVA.pdf', 'PROVA PMGO 2022')">
-            PROVA PMGO 2022
-            <span>Soldado - Inst. AOCP</span>
+        <div class="item-link" onclick="abrirNoSistema('https://www.institutoaocp.org.br/concurso.jsp?id=433', 'CENTRAL PMGO 2022')">
+            PÁGINA PMGO 2022
+            <span>Busque "Caderno de Questões"</span>
         </div>
 
-        <h4 style="margin-top:20px">⚖️ LEGISLAÇÃO (WEB)</h4>
-        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm')">
+        <h4 style="margin-top:20px">⚖️ LEGISLAÇÃO (PLANALTO)</h4>
+        <div class="item-link" onclick="window.open('https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm', '_blank')">
             CÓDIGO PENAL
-            <span>Planalto (Abre em nova aba)</span>
+            <span>Atualizado 2026</span>
         </div>
-        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm')">
+        <div class="item-link" onclick="window.open('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', '_blank')">
             PROCESSO PENAL
-            <span>Planalto (Abre em nova aba)</span>
-        </div>
-        <div class="item-link" onclick="abrirLinkExterno('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm')">
-            CONSTITUIÇÃO FEDERAL
-            <span>Planalto (Abre em nova aba)</span>
+            <span>Atualizado 2026</span>
         </div>
 
-        <h4 style="margin-top:20px">📝 TEMPLATES</h4>
+        <h4 style="margin-top:20px">📝 TREINO RÁPIDO</h4>
         <div class="item-link" onclick="injetarTexto('REDACAO')">ESTRUTURA REDAÇÃO AOCP</div>
+        <div class="item-link" onclick="injetarTexto('MNEMO')">MNEMÔNICOS PENAL (EXEMPLO)</div>
     </aside>
 
     <section class="editor-section">
         <div style="background:#eee; padding:5px 15px; font-size:0.65rem; font-weight:bold;">EDITOR OPERACIONAL</div>
-        <textarea id="area-peca" placeholder="Escreva sua redação ou resumo aqui..."></textarea>
+        <textarea id="area-peca" placeholder="Escreva aqui..."></textarea>
     </section>
 
     <section class="pdf-section" id="pdf-view">
         <div id="placeholder" class="pdf-placeholder">
-            <p>Selecione uma prova na barra lateral.</p>
-            <p style="font-size:0.7rem; color:#ccc; margin-top:10px;">Nota: Se o documento não carregar devido à segurança do site da banca, utilize o botão que aparecerá abaixo.</p>
+            <p>Selecione uma Central de Provas ao lado.</p>
+            <div id="btn-container"></div>
         </div>
         <iframe id="pdf-frame"></iframe>
-    </section>
-
-    <section id="annotation-panel">
-        <div style="padding:15px; background:var(--primary); color:white;">ANOTAÇÕES <button onclick="closeAnn()" style="float:right">✖</button></div>
-        <div id="ann-list-content" style="padding:15px;"></div>
     </section>
 </main>
 
 <script>
-    // --- FUNÇÕES DE NAVEGAÇÃO ---
-
-    function abrirDoc(url, nome) {
+    function abrirNoSistema(url, nome) {
         const frame = document.getElementById('pdf-frame');
         const placeholder = document.getElementById('placeholder');
+        const btnContainer = document.getElementById('btn-container');
         
-        // Tentamos carregar no frame
-        frame.style.display = 'block';
-        placeholder.innerHTML = `
-            <p>Carregando: ${nome}</p>
-            <button class="btn-abrir-fora" onclick="window.open('${url}', '_blank')">ABRIR PDF EM TELA CHEIA</button>
-        `;
+        // Exibe o frame e prepara o botão de segurança
+        frame.style.display = "block";
         frame.src = url;
-    }
-
-    function abrirLinkExterno(url) {
-        // Leis do Planalto não abrem em iframe por segurança do Governo.
-        // Forçamos a abertura em uma nova aba para garantir que você leia.
-        window.open(url, '_blank');
+        
+        placeholder.innerHTML = `
+            <p style="margin-bottom:10px;">Acessando: <strong>${nome}</strong></p>
+            <p style="font-size:0.75rem;">Se a página da banca bloquear a visão interna:</p>
+            <button class="btn-abrir-fora" onclick="window.open('${url}', '_blank')">ABRIR SITE DA BANCA (NOVA ABA)</button>
+            <p style="font-size:0.7rem; color:#ccc; margin-top:15px;">Dica: No site, procure por "PROVAS" ou "CADERNO DE QUESTÕES".</p>
+        `;
     }
 
     function injetarTexto(tipo) {
         const area = document.getElementById('area-peca');
         if(tipo === 'REDACAO') {
-            area.value = "TEMA: [Insira o Tema]\n\n1. INTRODUÇÃO (Apresentação + Tese)\n\n2. DESENVOLVIMENTO 1 (Argumento Jurídico)\n\n3. DESENVOLVIMENTO 2 (Aplicação na Segurança Pública)\n\n4. CONCLUSÃO (Síntese + Fechamento)";
+            area.value = "ESTRUTURA AOCP:\n1. INTRODUÇÃO: Tema + Tese.\n2. DESENVOLVIMENTO: 2 parágrafos técnicos.\n3. CONCLUSÃO: Solução ou síntese.\n\n--- INICIE ABAIXO ---";
+        } else if(tipo === 'MNEMO') {
+            area.value = "DIREITO PENAL:\n- L.U.T.A: Lugar do crime (Ubiquidade) / Tempo do crime (Atividade)\n- S.O.S.I.DI.VA.PU: Fundamentos da RFB\n- LIMPE: Princípios da Adm. Pública";
         }
     }
 
-    // --- FUNÇÕES DE ANOTAÇÕES ---
-    function toggleAnn(tipo) {
-        document.getElementById('pdf-view').style.display = 'none';
-        document.getElementById('annotation-panel').style.display = 'flex';
-        // Lógica de renderização simplificada aqui...
-    }
-    function closeAnn() {
-        document.getElementById('annotation-panel').style.display = 'none';
-        document.getElementById('pdf-view').style.display = 'flex';
-    }
+    // Lógica Firebase (conforme suas instruções de persistência)
+    // Insira seu código de importação do Firebase aqui se desejar salvar online
 </script>
 </body>
 </html>
