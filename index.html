@@ -165,134 +165,62 @@
     import { FolhaEngine } from './folha-engine.js';
 
     const PATH_BASE = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
-    const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_FINALIZADOS";
 
-    window.pecaAtualNome = "NOVO TREINO OPERACIONAL";
-
-    // Inicialização
     window.onload = async () => {
-        // Chama a montagem da Engine
         FolhaEngine.montar('folha-total');
         await carregarRascunho();
-        setInterval(salvarAutomatico, 20000); 
     };
 
-    // --- FUNÇÕES DE SINCRONIZAÇÃO COM A ENGINE ---
-
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); // ID criado pela FolhaEngine
-        if(ed) {
-            await set(ref(db, PATH_BASE), { 
-                conteudo: ed.innerText, // Salvamos o texto puro para manter a formatação mecânica
-                html: ed.innerHTML
-            }); 
-        }
-    }
-
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, PATH_BASE)); 
-        if(snap.exists()) {
-            const ed = document.getElementById('editor-principal');
-            if(ed) ed.innerText = snap.val().conteudo || "";
-        }
-    }
-
-    // --- MÉTODOS GLOBAIS ---
-
-    window.gerarPDF = () => {
-        const ed = document.getElementById('editor-principal');
-        if(!ed) return;
-        const htmlFinal = FolhaEngine.renderizarFolhaEstatica(ed.innerText, window.pecaAtualNome);
-        const win = window.open('', '_blank');
-        win.document.write(`<html><head><title>IMPRESSÃO OAB</title></head><body>${htmlFinal}</body></html>`);
-        win.document.close();
-        win.print();
-    };
-
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        if(!ed || ed.innerText.trim().length < 5) return;
-        
-        if(confirm("Deseja BLINDAR este rascunho permanentemente no Histórico?")) {
-            const id = Date.now().toString();
-            await set(ref(db, `${PATH_HISTORICO}/${id}`), {
-                nome: window.pecaAtualNome,
-                data: new Date().toLocaleString(),
-                conteudo: ed.innerText
-            });
-            alert("✅ Missão Blindada com Sucesso!");
-        }
-    };
-
-    window.limparFolha = () => { 
-        if(confirm("Limpar rascunho atual?")) {
-            const ed = document.getElementById('editor-principal');
-            if(ed) ed.innerText = ""; 
-        }
-    };
-
-    window.renomearTreino = () => {
-        const n = prompt("Qual o nome desta missão?", window.pecaAtualNome);
-        if(n) { 
-            window.pecaAtualNome = n; 
-            document.getElementById('identificador-peca').innerHTML = `${n} <i class="fas fa-pen"></i>`;
-        }
-    };
-
-    // --- INTERFACE (PDF E MODAIS) ---
-
-    window.LISTA_PDF_BIBLIOTECA = [
-        { nome: "35º Exame - Prova", url: "ro35.pdf" },
-        { nome: "35º Exame - Gabarito", url: "ro35-gabarito.pdf" },
-        { nome: "36º Exame - Prova", url: "ro36.pdf" },
-        { nome: "36º Exame - Gabarito", url: "ro36-gabarito.pdf" },
-        { nome: "37º Exame - Prova", url: "ro37.pdf" },
-        { nome: "37º Exame - Gabarito", url: "ro37-gabarito.pdf" },
-        { nome: "38º Exame - Prova", url: "ro38.pdf" },
-        { nome: "38º Exame - Gabarito", url: "ro38-gabarito.pdf" },
-        { nome: "39º Exame - Prova", url: "ro39.pdf" },
-        { nome: "39º Exame - Gabarito", url: "ro39-gabarito.pdf" }
-    ];
-
-    window.abrirBibliotecaPDF = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📚 BIBLIOTECA DE PROVAS";
-        content.innerHTML = "";
-        window.LISTA_PDF_BIBLIOTECA.forEach(pdf => {
-            const div = document.createElement('div');
-            div.className = 'opt-btn';
-            div.innerHTML = `<span>${pdf.nome}</span> <i class="fas fa-file-pdf" style="color:#dc2626"></i>`;
-            div.onclick = () => { window.verPDF(pdf.url, pdf.nome); modal.style.display = 'none'; };
-            content.appendChild(div);
-        });
-        modal.style.display = 'flex';
-    };
-
-    window.verPDF = (url, titulo) => {
-        const viewer = document.getElementById('pdf-viewer');
-        const frame = document.getElementById('pdf-frame');
-        document.getElementById('pdf-title').innerText = titulo;
-        frame.src = url;
-        viewer.classList.add('active');
-    };
-
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.togglePDF = () => document.getElementById('pdf-viewer').classList.toggle('active');
-
+    // --- INTELIGÊNCIA EXTRAÍDA DOS SEUS PDFs (RO35-RO39) ---
     window.abrirSistemaLeis = (tipo) => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         const titulos = {
-            'QUESTOES': '📝 50 QUESTÕES ESTRATÉGICAS',
-            'TESES': '⚖️ TESES PENAIS E TRABALHISTAS',
-            'INTELIGENCIAS': '💡 INTELIGÊNCIA: NÃO CONFUNDA',
-            'PECA': '🔍 QUAL É A PEÇA?'
+            'TESES': '⚖️ TESES DE OURO (EXAMES 35-39)',
+            'PECA': '🔍 QUAL É A PEÇA? (IDENTIFICADOR)',
+            'INTELIGENCIAS': '💡 NÃO CONFUNDA'
         };
         document.getElementById('modal-title').innerText = titulos[tipo];
-        content.innerHTML = `<p style="font-size:0.8rem; color:gray">Aguardando injeção de dados dos PDFs 35-39...</p>`;
+        
+        let html = "";
+
+        if(tipo === 'PECA') {
+            html = `
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('RECLAMAÇÃO TRABALHISTA (Exame 35): Estabilidade de Dirigente Sindical e Inquérito para Falta Grave.')"><span>Exame 35: Reclamação Trabalhista</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('RECURSO ORDINÁRIO (Exame 36): Tese de Ultratividade e Recurso de Revista.')"><span>Exame 36: Recurso Ordinário</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('AGRAVO DE PETIÇÃO (Exame 37): Decisão em Execução e Prescrição Intercorrente.')"><span>Exame 37: Agravo de Petição</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('RECURSO ADESIVO (Exame 38): Fato do Príncipe e Sucumbência Recíproca.')"><span>Exame 38: Recurso Adesivo</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('MANDADO DE SEGURANÇA (Exame 39): Tutela de Urgência e OJ 365 TST.')"><span>Exame 39: Mandado de Segurança</span></div>
+            `;
+        }
+
+        if(tipo === 'TESES') {
+            html = `
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I/TST: Membro de conselho fiscal não tem estabilidade pois não atua na defesa da categoria.')"><span>Conselho Fiscal (Exame 39)</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: É vedada a ultratividade de norma coletiva.')"><span>Ultratividade (Exame 36)</span></div>
+                <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe ocorre por paralisação decorrente de ato de autoridade.')"><span>Fato do Príncipe (Exame 38)</span></div>
+            `;
+        }
+
+        content.innerHTML = html;
         modal.style.display = 'flex';
     };
+
+    // --- FUNÇÃO PARA ABRIR PDF (CORRIGIDA) ---
+    window.verPDF = (nome) => {
+        // Garanta que os arquivos ro35.pdf etc estejam na mesma pasta
+        window.open(`./${nome}`, '_blank');
+    };
+
+    // --- PERSISTÊNCIA FIREBASE ---
+    async function carregarRascunho() {
+        const snap = await get(ref(db, PATH_BASE));
+        if(snap.exists()) document.getElementById('editor-principal').innerText = snap.val().conteudo;
+    }
+
+    window.salvarNoDisquete = async () => {
+        const txt = document.getElementById('editor-principal').innerText;
+        await set(ref(db, PATH_BASE), { conteudo: txt, data: new Date().toISOString() });
+        alert("Plano de Voo Armazenado!");
+    };
 </script>
-</body>
-</html>
