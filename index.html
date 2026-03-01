@@ -10,66 +10,45 @@
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --paper-color: #ffffff; 
-            --mentoria: #a855f7; --sidebar-w: 70px; --perigo: #ef4444;
-            --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
+            --mentoria: #a855f7; --sidebar-w: 70px;
             --success: #10b981;
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
             font-family: 'Inter', system-ui, sans-serif; 
             background: var(--primary); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            color: white;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white;
         }
 
         header { 
-            background: var(--primary); 
-            height: 60px; 
-            padding: 0 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 2px solid var(--gold); 
-            z-index: 5000;
+            background: var(--primary); height: 60px; padding: 0 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--gold); z-index: 5000;
         }
-
-        .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; }
-        .logo span { color: var(--gold); }
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR */
+        /* SIDEBAR TÁTICA */
         .sidebar { 
-            width: var(--sidebar-w); 
-            background: #1e293b; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            gap: 10px; 
-            padding: 15px 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
-            overflow-y: auto; 
+            width: var(--sidebar-w); background: #1e293b; 
+            display: flex; flex-direction: column; align-items: center;
+            gap: 15px; padding: 20px 0; border-right: 1px solid rgba(255,255,255,0.1); 
         }
 
         .btn-side { 
-            width: 50px; min-height: 50px; border: none; border-radius: 10px; 
+            width: 50px; height: 50px; border: none; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; color: white; 
             cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
-            position: relative;
         }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        .btn-side i { font-size: 1.1rem; color: var(--gold); }
+        .btn-side:hover { background: var(--gold); color: black; transform: scale(1.1); }
 
-        /* EDITOR */
+        /* EDITOR E FOLHA */
         .editor-container { 
             flex: 1; display: flex; flex-direction: column; 
-            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
+            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px;
         }
 
         .sticky-tools { 
@@ -79,114 +58,87 @@
         }
 
         #identificador-peca { 
-            padding: 12px; background: #f8fafc; text-align: center; 
+            padding: 15px; background: #f8fafc; text-align: center; 
             font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold);
-            cursor: pointer;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
         }
         
         .paper { 
             width: 100%; max-width: 850px; background: white; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 1500px; padding: 60px;
-            color: #1e293b; line-height: 1.8;
+            color: #1e293b; line-height: 2.2rem;
+            background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 100% 2.2rem;
         }
 
-        #folha-total { outline: none; min-height: 1400px; font-family: 'Courier New', monospace; font-size: 18px; }
+        #folha-total { outline: none; min-height: 1400px; font-family: 'Courier New', monospace; font-size: 18px; text-align: justify; }
 
-        /* GAVETAS MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
+        /* MODAL DE GAVETAS DINÂMICAS */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 110000; align-items: center; justify-content: center; }
+        .modal-body { background: white; width: 95%; max-width: 550px; padding: 30px; border-radius: 24px; color: #0f172a; max-height: 80vh; overflow-y: auto; }
         
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .btn-gaveta { 
-            padding: 20px; border-radius: 15px; border: 2px solid #f1f5f9; 
+            padding: 25px; border-radius: 18px; border: 2px solid #f1f5f9; 
             background: #fff; cursor: pointer; text-align: center; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center;
         }
         .btn-gaveta:hover { border-color: var(--gold); background: #fffcf0; }
-        .btn-gaveta i { font-size: 2rem; margin-bottom: 10px; display: block; }
-        .btn-gaveta span { font-weight: 900; font-size: 0.8rem; color: #1e293b; }
+        .btn-gaveta i { font-size: 2rem; margin-bottom: 10px; color: var(--primary); }
+        .btn-gaveta span { font-weight: 900; font-size: 0.8rem; color: #334155; }
 
         .item-arquivo {
             padding: 15px; border-bottom: 1px solid #eee; display: flex; 
             justify-content: space-between; align-items: center; cursor: pointer;
         }
-        .item-arquivo:hover { background: #f8fafc; }
-        .item-arquivo .info { display: flex; flex-direction: column; }
-        .item-arquivo .data { font-size: 10px; color: #94a3b8; }
-
-        #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
-        .fab-main { width: 65px; height: 65px; border-radius: 50%; background: var(--gold); border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; color: black; }
+        .item-arquivo:hover { background: #f8fafc; border-left: 4px solid var(--gold); }
     </style>
 </head>
 <body class="dark-mode">
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE PMDF</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">TREINO</span></div>
+    <div id="status-missao" style="color:var(--gold); font-size:11px; font-weight:900;">MISSÃO: <span id="modo-label">LIVRE</span></div>
 </header>
 
 <main>
-    <aside class="sidebar" id="sidebar-main">
-        <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
-        <button class="btn-side" style="background:var(--questoes);" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
-        <button class="btn-side" style="background:var(--success);" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
-        <button class="btn-side" style="background:#334155;" onclick="window.abrirGerenciador()"><i class="fas fa-folder-open"></i></button>
-        <hr style="width:70%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
-        <button class="btn-side" style="background:#000; border:1px solid var(--gold)" onclick="window.abrirVade()"><i class="fas fa-gavel"></i></button>
+    <aside class="sidebar">
+        <button class="btn-side" onclick="window.novaMissao()" title="Nova Missão"><i class="fas fa-file-signature"></i></button>
+        <button class="btn-side" style="background:var(--success); color:white" onclick="window.salvarMissao()" title="Salvar Missão"><i class="fas fa-floppy-disk"></i></button>
+        <button class="btn-side" style="background:#334155; color:white" onclick="window.abrirGerenciador()" title="Abrir Pastas"><i class="fas fa-folder-tree"></i></button>
+        <hr style="width:60%; opacity:0.1;">
+        <button class="btn-side" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" onclick="window.print()"><i class="fas fa-print"></i></button>
     </aside>
 
     <section class="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomearMissao()">RELATÓRIO SEM TÍTULO <i class="fas fa-pen" style="font-size:10px; opacity:0.5; margin-left:10px;"></i></div>
+            <div id="identificador-peca" onclick="window.novaMissao()">CLIQUE PARA DEFINIR O NOME DA MISSÃO</div>
         </div>
         <div class="paper">
             <div id="folha-total" contenteditable="true" spellcheck="false">
-                <b>ESTUDO PMDF - 2026</b><br><br>
-                Comece a redigir aqui sua missão...
+                <b>RELATÓRIO DE MISSÃO - PMDF 2026</b><br>
+                ---------------------------------------------------<br><br>
             </div>
         </div>
     </section>
-
-    <div id="mobile-hub">
-        <button class="fab-main" onclick="window.abrirGerenciador()"><i class="fas fa-folder-open"></i></button>
-    </div>
 </main>
 
 <div class="modal" id="modal-gavetas">
     <div class="modal-body">
-        <div id="modal-nav" style="display:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--gold)" onclick="window.voltarParaGavetas()">← VOLTAR PARA GAVETAS</div>
-        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold); padding-bottom:10px;">MINHA PASTA</h2>
+        <div id="nav-gavetas" style="display:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--gold-dark)" onclick="window.showPastas()">← VOLTAR PARA TODAS AS PASTAS</div>
+        <h2 id="modal-title" style="margin-bottom:20px; font-weight:900;">MEUS ARQUIVOS</h2>
         
-        <div id="view-gavetas" class="grid-gavetas">
-            <div class="btn-gaveta" onclick="window.abrirGaveta('TREINO', '#facc15')">
-                <i class="fas fa-edit" style="color:#facc15"></i>
-                <span>TREINOS</span>
-            </div>
-            <div class="btn-gaveta" onclick="window.abrirGaveta('QUESTÕES', '#3b82f6')">
-                <i class="fas fa-question-circle" style="color:#3b82f6"></i>
-                <span>QUESTÕES</span>
-            </div>
-            <div class="btn-gaveta" onclick="window.abrirGaveta('TESES', '#f97316')">
-                <i class="fas fa-gavel" style="color:#f97316"></i>
-                <span>TESES</span>
-            </div>
-            <div class="btn-gaveta" onclick="window.abrirGaveta('LEGISLAÇÃO', '#10b981')">
-                <i class="fas fa-book" style="color:#10b981"></i>
-                <span>LEGISLAÇÃO</span>
-            </div>
-        </div>
+        <div id="grid-pastas" class="grid-gavetas"></div>
+        <div id="lista-arquivos" style="display:none;"></div>
 
-        <div id="view-arquivos" style="display:none;">
-            <div id="lista-arquivos"></div>
-        </div>
-
-        <button onclick="document.getElementById('modal-gavetas').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:20px; font-weight:bold; cursor:pointer; border:none;">FECHAR</button>
+        <button onclick="document.getElementById('modal-gavetas').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:12px; margin-top:25px; font-weight:bold; cursor:pointer; border:none;">FECHAR</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
@@ -195,119 +147,109 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.missaoNome = "RELATÓRIO SEM TÍTULO";
-    window.modoAtual = "TREINO";
+    window.nomeArquivo = "SEM TÍTULO";
+    window.pastaAtual = "TREINO";
 
-    // --- SALVAR (O DISQUETE/SALVAR) ---
-    window.finalizarPeca = async () => {
+    // --- LIBERDADE PARA CRIAR NOVO TREINO/MISSÃO ---
+    window.novaMissao = () => {
+        const nome = prompt("QUAL O NOME DESTE NOVO TREINO/MISSÃO?", window.nomeArquivo);
+        if(nome) {
+            window.nomeArquivo = nome.toUpperCase();
+            document.getElementById('identificador-peca').innerText = window.nomeArquivo;
+            document.getElementById('modo-label').innerText = window.nomeArquivo;
+        }
+    };
+
+    // --- SALVAMENTO EM QUALQUER LUGAR ---
+    window.salvarMissao = async () => {
         const conteudo = document.getElementById('folha-total').innerHTML;
-        const gaveta = prompt("EM QUAL GAVETA SALVAR? (TREINO, QUESTÕES, TESES, LEGISLAÇÃO)", window.modoAtual).toUpperCase();
+        const pasta = prompt("EM QUAL PASTA/ASSUNTO DESEJA SALVAR?\n(Ex: REDAÇÃO, CPPM, LEI ORGÂNICA, SINDICÂNCIA)", window.pastaAtual);
         
-        if(!gaveta) return;
+        if(!pasta) return;
+        window.pastaAtual = pasta.toUpperCase().trim();
 
         const id = Date.now().toString();
         const dataStr = new Date().toLocaleString('pt-BR');
 
         try {
             await set(ref(db, `producao_v13/HISTORICO_PMDF/${id}`), {
-                nome: `${window.missaoNome}`,
+                nome: window.nomeArquivo,
                 data: dataStr,
-                gaveta: gaveta,
+                gaveta: window.pastaAtual,
                 conteudo: conteudo
             });
-            alert("✅ MISSÃO SALVA COM SUCESSO!");
-        } catch (e) { alert("Erro ao salvar na nuvem."); }
+            alert(`✅ SALVO COM SUCESSO!\nARQUIVO: ${window.nomeArquivo}\nPASTA: ${window.pastaAtual}`);
+        } catch (e) { alert("Erro de conexão."); }
     };
 
-    // --- GERENCIADOR DE GAVETAS ---
-    window.abrirGerenciador = () => {
+    // --- GERENCIADOR DINÂMICO ---
+    window.abrirGerenciador = async () => {
         document.getElementById('modal-gavetas').style.display = 'flex';
-        window.voltarParaGavetas();
+        window.showPastas();
     };
 
-    window.voltarParaGavetas = () => {
-        document.getElementById('modal-title').innerText = "MINHA PASTA";
-        document.getElementById('view-gavetas').style.display = 'grid';
-        document.getElementById('view-arquivos').style.display = 'none';
-        document.getElementById('modal-nav').style.display = 'none';
-    };
-
-    window.abrirGaveta = async (gaveta, cor) => {
-        document.getElementById('modal-title').innerHTML = `<span style="color:${cor}">${gaveta}</span>`;
-        document.getElementById('view-gavetas').style.display = 'none';
-        document.getElementById('view-arquivos').style.display = 'block';
-        document.getElementById('modal-nav').style.display = 'block';
-        
+    window.showPastas = async () => {
+        const grid = document.getElementById('grid-pastas');
+        const nav = document.getElementById('nav-gavetas');
         const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "Acessando arquivos...";
+        
+        grid.style.display = 'grid';
+        lista.style.display = 'none';
+        nav.style.display = 'none';
+        document.getElementById('modal-title').innerText = "MINHAS PASTAS";
+        grid.innerHTML = "Escaneando...";
 
-        try {
-            const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
-            if(snap.exists()){
-                const dados = snap.val();
-                const filtrados = Object.keys(dados)
-                    .map(k => ({ id: k, ...dados[k] }))
-                    .filter(i => i.gaveta === gaveta)
-                    .reverse();
-
-                if(filtrados.length === 0){
-                    lista.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum arquivo nesta gaveta.</p>";
-                    return;
-                }
-
-                lista.innerHTML = "";
-                filtrados.forEach(doc => {
-                    const item = document.createElement('div');
-                    item.className = 'item-arquivo';
-                    item.onclick = () => window.carregarDocumento(doc.id);
-                    item.innerHTML = `
-                        <div class="info">
-                            <span style="font-weight:bold">${doc.nome}</span>
-                            <span class="data">${doc.data}</span>
-                        </div>
-                        <i class="fas fa-chevron-right" style="color:#ccc"></i>
-                    `;
-                    lista.appendChild(item);
-                });
-            } else {
-                lista.innerHTML = "Pasta vazia.";
-            }
-        } catch (e) { lista.innerHTML = "Erro ao carregar arquivos."; }
+        const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
+        if(snap.exists()){
+            const dados = snap.val();
+            const pastas = [...new Set(Object.values(dados).map(i => i.gaveta))].sort();
+            grid.innerHTML = "";
+            pastas.forEach(p => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-gaveta';
+                btn.onclick = () => window.abrirPasta(p);
+                btn.innerHTML = `<i class="fas fa-folder-open"></i><span>${p}</span>`;
+                grid.appendChild(btn);
+            });
+        } else { grid.innerHTML = "Nenhum arquivo salvo."; }
     };
 
-    window.carregarDocumento = async (id) => {
-        try {
-            const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF/${id}`));
-            if(snap.exists()){
-                const doc = snap.val();
-                document.getElementById('folha-total').innerHTML = doc.conteudo;
-                window.missaoNome = doc.nome;
-                window.modoAtual = doc.gaveta;
-                document.getElementById('identificador-peca').innerText = doc.nome;
-                document.getElementById('ex-display').innerText = doc.gaveta;
-                document.getElementById('modal-gavetas').style.display = 'none';
-            }
-        } catch (e) { alert("Erro ao abrir arquivo."); }
+    window.abrirPasta = async (pastaNome) => {
+        document.getElementById('grid-pastas').style.display = 'none';
+        const lista = document.getElementById('lista-arquivos');
+        const nav = document.getElementById('nav-gavetas');
+        lista.style.display = 'block';
+        nav.style.display = 'block';
+        document.getElementById('modal-title').innerText = pastaNome;
+
+        const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
+        const filtrados = Object.keys(snap.val())
+            .map(k => ({ id: k, ...snap.val()[k] }))
+            .filter(i => i.gaveta === pastaNome)
+            .reverse();
+
+        lista.innerHTML = "";
+        filtrados.forEach(doc => {
+            const item = document.createElement('div');
+            item.className = 'item-arquivo';
+            item.onclick = () => window.carregarDoc(doc.id);
+            item.innerHTML = `
+                <div><b>${doc.nome}</b><br><small>${doc.data}</small></div>
+                <i class="fas fa-file-alt"></i>
+            `;
+            lista.appendChild(item);
+        });
     };
 
-    window.renomearMissao = () => {
-        const n = prompt("NOME DO RELATÓRIO:", window.missaoNome);
-        if(n) { 
-            window.missaoNome = n.toUpperCase(); 
-            document.getElementById('identificador-peca').innerText = window.missaoNome;
-        }
-    };
-
-    window.ativarTreinoLivre = () => {
-        window.modoAtual = "TREINO";
-        document.getElementById('ex-display').innerText = "TREINO";
-        alert("Modo Treino Ativado");
-    };
-
-    window.ativarModoQuestoes = () => {
-        window.modoAtual = "QUESTÕES";
-        document.getElementById('ex-display').innerText = "QUESTÕES";
-        alert("Modo Questões Ativado");
+    window.carregarDoc = async (id) => {
+        const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF/${id}`));
+        const doc = snap.val();
+        document.getElementById('folha-total').innerHTML = doc.conteudo;
+        window.nomeArquivo = doc.nome;
+        window.pastaAtual = doc.gaveta;
+        document.getElementById('identificador-peca').innerText = doc.nome;
+        document.getElementById('modo-label').innerText = doc.nome;
+        document.getElementById('modal-gavetas').style.display = 'none';
     };
 </script>
 
