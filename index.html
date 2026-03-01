@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA MENTORIA MILITAR - PMDF / PMGO</title>
+    <title>SISTEMA JOAQUIM - OPERACIONAL MASTER</title>
     <style>
         :root { 
             --primary: #002344; --accent: #1e5c2d; --bg: #f4f7f6; 
@@ -15,13 +15,12 @@
         
         header { background: var(--primary); color: white; height: var(--header-h); padding: 0 15px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 3px solid var(--yellow); }
         
-        /* Layout Principal */
         main { display: flex; flex: 1; overflow: hidden; }
 
-        /* SISTEMA DE PASTAS (VALIDADO OAB) */
+        /* SISTEMA DE PASTAS OAB */
         .sidebar-pastas { width: var(--sidebar-w); background: #f8f9fa; border-right: 2px solid #dee2e6; display: flex; flex-direction: column; }
         .folder-header { background: #e9ecef; padding: 15px; border-bottom: 1px solid #ccc; }
-        .folder-select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #aaa; font-weight: bold; color: var(--primary); outline: none; }
+        .folder-select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #aaa; font-weight: bold; color: var(--primary); outline: none; cursor: pointer; }
         
         .file-list { flex: 1; overflow-y: auto; padding: 10px; }
         .file-item { 
@@ -31,7 +30,7 @@
         }
         .file-item:hover { border-color: var(--primary); background: #eef2f7; transform: translateX(5px); }
 
-        /* EDITOR (SKELETON TÉCNICO) */
+        /* EDITOR SKELETON */
         .editor-container { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #ccc; }
         .editor-tools { background: #eee; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; border-bottom: 1px solid #ddd; }
         
@@ -40,7 +39,6 @@
         .pdf-panel { width: 45%; background: #525659; }
         #v-enu { width: 100%; height: 100%; border: none; background: white; }
 
-        /* BOTÕES DE COMANDO */
         .btn-intel { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
         .btn-pergaminho { background: var(--yellow) !important; color: black !important; }
 
@@ -51,38 +49,35 @@
 
 <header>
     <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn-intel btn-pergaminho" onclick="abrirEstruturas()">📜 ESTRUTURAS PM</button>
-        <span style="font-weight: bold; letter-spacing: 1px;">QG OPERACIONAL 2026</span>
+        <button class="btn-intel btn-pergaminho" onclick="abrirEstruturas()">📜 PERGAMINHO</button>
+        <strong>SISTEMA OPERACIONAL</strong>
     </div>
     <div style="display:flex; gap:8px;">
-        <button class="btn-intel" onclick="abrirMod('teses')">⚖️ TESES PENAIS</button>
-        <button class="btn-intel" onclick="abrirMod('questoes')">❓ 50 QUESTÕES</button>
-        <button class="btn-intel" onclick="abrirMod('inteligencia')">💡 NÃO CONFUNDA</button>
-        <button class="btn-intel" style="background:var(--accent)" onclick="salvarPDF()">💾 SALVAR PDF</button>
+        <button class="btn-intel" onclick="abrirMod('teses')">TESES</button>
+        <button class="btn-intel" onclick="abrirMod('questoes')">50 QUESTÕES</button>
+        <button class="btn-intel" onclick="abrirMod('inteligencia')">NÃO CONFUNDA</button>
+        <button id="btn-save" class="btn-intel" style="background:var(--accent)" onclick="salvarManual()">💾 DISQUETE</button>
     </div>
 </header>
 
 <main>
     <aside class="sidebar-pastas">
         <div class="folder-header">
-            <label style="font-size: 0.6rem; font-weight: bold; color: #666; display: block; margin-bottom: 5px;">MÓDULO DE ESTUDO:</label>
             <select id="folder-selector" class="folder-select" onchange="carregarPasta(this.value)">
-                <option value="provas_pmdf">📂 PROVAS PMDF (AOCP)</option>
-                <option value="provas_pmgo">📂 PROVAS PMGO (AOCP)</option>
-                <option value="vade_militar">📂 VADE MECUM / LEIS</option>
-                <option value="dicas_qg">📂 DICAS E POST-ITS</option>
+                <option value="provas_pmdf">📂 PROVAS PMDF</option>
+                <option value="provas_pmgo">📂 PROVAS PMGO</option>
+                <option value="leis">📂 VADE MECUM</option>
             </select>
         </div>
-        <div class="file-list" id="lista-arquivos">
-            </div>
+        <div class="file-list" id="lista-arquivos"></div>
     </aside>
 
     <section class="editor-container">
         <div class="editor-tools">
-            <span id="doc-titulo">TREINO DISCURSIVA / OBJETIVA</span>
-            <span style="color:var(--accent)">MODO BLINDADO ATIVO</span>
+            <span id="doc-titulo">FOLHA DE RESPOSTAS</span>
+            <span id="status-save" style="color:red">OFFLINE</span>
         </div>
-        <textarea id="area-peca" spellcheck="false" placeholder="Inicie seu treino operacional aqui..."></textarea>
+        <textarea id="area-peca" spellcheck="false" placeholder="Carregando blindagem..."></textarea>
     </section>
 
     <section class="pdf-panel">
@@ -90,85 +85,68 @@
     </section>
 </main>
 
-<script>
-    // BASE DE DADOS OFICIAL PMDF/PMGO
-    const DATA_PASTAS = {
-        provas_pmdf: [
-            { nome: "Prova Soldado 2023 - AOCP", url: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf" },
-            { nome: "Espelho Redação PMDF 2023", url: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_espelho_redacao.pdf" }
-        ],
-        provas_pmgo: [
-            { nome: "Prova Soldado 2022 - AOCP", url: "https://www.institutoaocp.org.br/concursos/arquivos/PMGO_SOLDADO_CADERNO_PROVA.pdf" },
-            { nome: "Caderno Cadete PMGO 2022", url: "https://www.institutoaocp.org.br/concursos/arquivos/PMGO_CADETE_CADERNO_PROVA.pdf" }
-        ],
-        vade_militar: [
-            { nome: "Código Penal (Planalto)", url: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm", ext: true },
-            { nome: "Processo Penal (Planalto)", url: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm", ext: true },
-            { nome: "Constituição Federal", url: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm", ext: true }
-        ],
-        dicas_qg: [
-            { nome: "Mnemônicos de Direito Penal", acao: "MNEMO" },
-            { nome: "Dicas de Abordagem Policial", acao: "DICA_AB" }
-        ]
-    };
+<script type="module">
+    import { db } from './firebase-config.js';
+    import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    function carregarPasta(pasta) {
+    const PATH_FIREBASE = "ESTUDO_PM_JOAQUIM/MASTER";
+
+    // CARREGAR PASTA (ESTILO OAB)
+    window.carregarPasta = (pasta) => {
         const lista = document.getElementById('lista-arquivos');
+        const DATA = {
+            provas_pmdf: [
+                { nome: "PMDF 2023 - Caderno A", url: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_prova_tipo_a.pdf" },
+                { nome: "Espelho Discursiva PMDF", url: "https://www.institutoaocp.org.br/concursos/arquivos/pmdf_soldado_espelho_redacao.pdf" }
+            ],
+            provas_pmgo: [
+                { nome: "PMGO 2022 - Soldado", url: "https://www.institutoaocp.org.br/concursos/arquivos/PMGO_SOLDADO_CADERNO_PROVA.pdf" }
+            ],
+            leis: [
+                { nome: "Código Penal", url: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm", ext: true }
+            ]
+        };
         lista.innerHTML = '';
-        
-        DATA_PASTAS[pasta].forEach(item => {
+        DATA[pasta].forEach(item => {
             const div = document.createElement('div');
             div.className = 'file-item';
-            div.innerHTML = `<span>📂</span> ${item.nome}`;
+            div.innerHTML = `📄 ${item.nome}`;
             div.onclick = () => {
-                if(item.ext) {
-                    window.open(item.url, '_blank');
-                } else if(item.url) {
-                    document.getElementById('v-enu').src = item.url;
-                    document.getElementById('doc-titulo').innerText = item.nome;
-                } else {
-                    executarDica(item.acao);
-                }
+                if(item.ext) window.open(item.url, '_blank');
+                else document.getElementById('v-enu').src = item.url;
             };
             lista.appendChild(div);
         });
-    }
+    };
 
-    // BOTÃO PERGAMINHO: ESTRUTURAS TÉCNICAS
-    function abrirEstruturas() {
-        const area = document.getElementById('area-peca');
-        area.value = "--- ESTRUTURA DISCURSIVA PM (AOCP) ---\n\n" +
-                     "1. INTRODUÇÃO: Apresentação do tema + tese central.\n" +
-                     "2. DESENVOLVIMENTO 1: Análise jurídica/legal do fato.\n" +
-                     "3. DESENVOLVIMENTO 2: Aplicação prática na segurança pública.\n" +
-                     "4. CONCLUSÃO: Síntese e fechamento operativo.";
-    }
+    // FUNÇÕES DE INTELIGÊNCIA
+    window.abrirEstruturas = () => { document.getElementById('area-peca').value = "--- ESTRUTURA AOCP ---\n1. TEMA\n2. ARGUMENTO TÉCNICO\n3. ARGUMENTO OPERACIONAL\n4. CONCLUSÃO"; };
+    
+    window.abrirMod = (tipo) => {
+        const mods = { teses: "[TESES] Legitima Defesa...", questoes: "[BATERIA 50 QUESTÕES]", inteligencia: "[NÃO CONFUNDA] Crimes Militares x Comuns" };
+        document.getElementById('area-peca').value = mods[tipo];
+    };
 
-    function abrirMod(tipo) {
-        const area = document.getElementById('area-peca');
-        if(tipo === 'teses') area.value = "[TESES JURÍDICAS]\n1. Atipicidade da Conduta\n2. Excludentes de Ilicitude (Legítima Defesa/Estrito Dever)\n3. Princípio da Insignificância";
-        if(tipo === 'questoes') area.value = "[50 QUESTÕES] Iniciando bateria de exercícios AOCP...";
-        if(tipo === 'inteligencia') area.value = "[INTELIGÊNCIA NÃO CONFUNDA]\n- Roubo x Extorsão\n- Resistência x Desobediência\n- Peculato Furto x Furto Qualificado";
+    // BLINDAGEM NO FIREBASE MASTEROAB-DB5E1
+    async function salvarNoFirebase() {
+        const txt = document.getElementById('area-peca').value;
+        try {
+            await set(ref(db, PATH_FIREBASE), { texto: txt, timestamp: Date.now() });
+            document.getElementById('status-save').innerText = "BLINDADO NO FIREBASE";
+            document.getElementById('status-save').style.color = "green";
+        } catch (e) {
+            document.getElementById('status-save').innerText = "ERRO AO SALVAR";
+        }
     }
+    window.salvarManual = salvarNoFirebase;
 
-    function salvarPDF() {
-        alert("Disquete: PDF gerado e salvo no histórico da mentoria.");
-    }
-
-    function executarDica(acao) {
-        const area = document.getElementById('area-peca');
-        if(acao === 'MNEMO') area.value += "\n\n[MNEMÔNICO] L.U.T.A (Lugar - Ubiquidade / Tempo - Atividade)";
-        if(acao === 'DICA_AB') area.value += "\n\n[DICA] Sempre verbalize de forma clara antes de qualquer uso da força.";
-    }
-
-    window.onload = () => {
+    // INICIALIZAÇÃO
+    window.onload = async () => {
         carregarPasta('provas_pmdf');
-        const rascunho = localStorage.getItem('estudo_militar');
-        if(rascunho) document.getElementById('area-peca').value = rascunho;
+        const snap = await get(ref(db, PATH_FIREBASE));
+        if(snap.exists()) document.getElementById('area-peca').value = snap.val().texto;
         
-        setInterval(() => {
-            localStorage.setItem('estudo_militar', document.getElementById('area-peca').value);
-        }, 5000);
+        setInterval(salvarNoFirebase, 20000); // Salva a cada 20s
     };
 </script>
 </body>
