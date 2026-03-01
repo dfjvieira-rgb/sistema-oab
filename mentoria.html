@@ -2,64 +2,98 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>MENTORIA HUB - V13</title>
+    <title>HUB MENTORIA V13 - BANCO DE DADOS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #020617; color: white; margin: 0; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 60px; }
-        .card { background: #1e293b; border-left: 4px solid #fbbf24; padding: 20px; border-radius: 8px; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); background: #334155; }
-        .tag { font-size: 10px; background: #fbbf24; color: black; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-        .btn-inject { width: 100%; margin-top: 15px; padding: 10px; background: transparent; border: 1px solid #fbbf24; color: #fbbf24; cursor: pointer; border-radius: 6px; font-weight: bold; }
-        .btn-inject:hover { background: #fbbf24; color: black; }
-        .search-box { position: fixed; top: 0; left: 0; width: 100%; padding: 15px; background: #0f172a; border-bottom: 2px solid #334155; display: flex; gap: 10px; z-index: 10; }
-        input { flex: 1; padding: 10px; border-radius: 5px; border: none; background: #1e293b; color: white; }
+        :root { --primary: #020617; --gold: #fbbf24; --card: #1e293b; --nc: #f472b6; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding: 20px; padding-bottom: 100px; }
+        
+        .header-hub { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 15px; border-bottom: 2px solid var(--gold); z-index: 100; display: flex; gap: 10px; }
+        input, textarea { flex: 1; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; }
+        
+        .btn-save { background: var(--gold); color: black; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 900; cursor: pointer; }
+
+        .feed-anotacoes { margin-top: 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        
+        .post-it { 
+            background: var(--card); border-left: 5px solid var(--gold); padding: 15px; border-radius: 8px; 
+            animation: fadeIn 0.3s ease; position: relative;
+        }
+        .post-it h4 { margin: 0 0 10px 0; color: var(--gold); text-transform: uppercase; font-size: 14px; }
+        .post-it p { font-size: 13px; line-height: 1.5; color: #cbd5e1; }
+        .post-it .macete { background: rgba(251, 191, 36, 0.1); padding: 8px; border-radius: 4px; font-size: 11px; margin-top: 10px; font-weight: bold; border: 1px dashed var(--gold); }
+        
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-action { flex: 1; padding: 8px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 4px; border: none; }
+        .btn-inj { background: #059669; color: white; }
+        .btn-del { background: #ef4444; color: white; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="search-box">
-    <input type="text" id="busca" placeholder="Filtrar Teses, Leis ou 'Não Confunda'..." onkeyup="filtrar()">
-    <div style="color: #fbbf24; font-weight: 900; display: flex; align-items: center; padding-right: 20px;">HUB V13</div>
+<div class="header-hub">
+    <input type="text" id="titulo" placeholder="Título (Ex: Art. 9 CPM)">
+    <textarea id="conteudo" placeholder="Conteúdo técnico..." rows="1"></textarea>
+    <input type="text" id="macete" placeholder="Macete/Mnemônico">
+    <button class="btn-save" onclick="salvarAnotacao()">GRAVAR</button>
 </div>
 
-<div class="grid" id="feed">
-    <div class="card" data-search="deserção crime militar propriamente">
-        <span class="tag">DIREITO PENAL MILITAR</span>
-        <h3>Deserção (Art. 187 CPM)</h3>
-        <p>Ausentar-se o militar, sem licença, da unidade onde serve, por mais de 8 dias.</p>
-        <button class="btn-inject" onclick="injetar('A conduta amolda-se ao crime de deserção, previsto no Art. 187 do CPM, por se tratar de crime propriamente militar...')">INJETAR NA PEÇA</button>
+<div class="feed-anotacoes" id="lista-anotacoes">
     </div>
 
-    <div class="card" data-search="prazo ipm preso solto cppm">
-        <span class="tag">PROC. PENAL MILITAR</span>
-        <h3>Prazos do IPM (Art. 20 CPPM)</h3>
-        <p>Indiciado Preso: 20 dias (Improrrogável).<br>Indiciado Solto: 40 dias (+20 dias).</p>
-        <button class="btn-inject" onclick="injetar('No que tange aos prazos, observa-se o cumprimento do Art. 20 do CPPM, uma vez que o indiciado se encontra preso...')">INJETAR NA PEÇA</button>
-    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <div class="card" data-search="não confunda insubordinação desobediência">
-        <span class="tag" style="background: #f472b6;">INTELIGÊNCIA: NÃO CONFUNDA</span>
-        <h3>Insubordinação vs Desobediência</h3>
-        <p>Insubordinação: Recusa de obediência a ordem sobre assunto de serviço (Art. 163 CPM). Exige militar vs militar.</p>
-        <button class="btn-inject" onclick="injetar('Não se confunde a desobediência comum com a insubordinação militar, esta última exige que a ordem seja sobre assunto de serviço...')">INJETAR NA PEÇA</button>
-    </div>
-</div>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
+        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'mentoria_v13_anotacoes');
 
-<script>
-    function filtrar() {
-        let input = document.getElementById('busca').value.toLowerCase();
-        let cards = document.getElementsByClassName('card');
-        for (let i = 0; i < cards.length; i++) {
-            let content = cards[i].getAttribute('data-search');
-            cards[i].style.display = content.includes(input) ? "" : "none";
+    // SALVAR DENTRO DA MENTORIA
+    window.salvarAnotacao = () => {
+        const t = document.getElementById('titulo').value;
+        const c = document.getElementById('conteudo').value;
+        const m = document.getElementById('macete').value;
+        if(!t || !c) return alert("Preencha o título e conteúdo!");
+
+        push(dbRef, { titulo: t, conteudo: c, macete: m });
+        
+        document.getElementById('titulo').value = "";
+        document.getElementById('conteudo').value = "";
+        document.getElementById('macete').value = "";
+    };
+
+    // CARREGAR E EXIBIR DENTRO DA MENTORIA
+    onValue(dbRef, (snapshot) => {
+        const lista = document.getElementById('lista-anotacoes');
+        lista.innerHTML = "";
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).reverse().forEach(id => {
+                const item = data[id];
+                lista.innerHTML += `
+                    <div class="post-it">
+                        <h4>${item.titulo}</h4>
+                        <p>${item.conteudo}</p>
+                        ${item.macete ? `<div class="macete">⚡ MACETE: ${item.macete}</div>` : ""}
+                        <div class="actions">
+                            <button class="btn-action btn-inj" onclick="injetarNaFolha('${item.conteudo.replace(/'/g, "\\'")}')">USAR NA PEÇA</button>
+                            <button class="btn-action btn-del" onclick="apagarAnotacao('${id}')">APAGAR</button>
+                        </div>
+                    </div>
+                `;
+            });
         }
-    }
+    });
 
-    function injetar(texto) {
-        // Comunica com a folha principal (index)
-        window.parent.injetarNaFolha(texto);
-    }
+    window.injetarNaFolha = (texto) => { window.parent.receberTexto(texto); };
+    window.apagarAnotacao = (id) => { if(confirm("Apagar permanentemente?")) remove(ref(db, `mentoria_v13_anotacoes/${id}`)); };
 </script>
 </body>
 </html>
