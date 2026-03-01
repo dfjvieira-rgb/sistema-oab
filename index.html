@@ -1,186 +1,163 @@
-<script type="module">
-    import { db } from './firebase-config.js';
-    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { FolhaEngine } from './folha-engine.js';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>JOAQUIM OPERACIONAL 2026 - PM ELITE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #001f3f; /* Azul Marinho Policial */
+            --gold: #fbbf24; --gold-dark: #d97706;
+            --bg-paper: #cbd5e1; --paper-color: #ffffff; 
+            --mentoria: #16a34a; /* Verde Operacional */
+            --sidebar-w: 70px; --perigo: #ef4444;
+            --glass: rgba(15, 23, 42, 0.8);
+            --questoes: #2563eb; --teses: #dc2626; --biblioteca: #475569;
+        }
 
-    // --- CONFIGURAÇÃO MASTER OAB / PM 2026 ---
-    const PATH_HISTORICO = "ESTUDO_PM_JOAQUIM/HISTORICO_OFICIAL";
-    const PATH_RASCUNHO = "ESTUDO_PM_JOAQUIM/MASTER_RASCUNHO";
-
-    window.db = db;
-    window.activeEx = localStorage.getItem('activeEx') || "39";
-    window.modoAtual = localStorage.getItem('modoAtual') || "TREINO"; 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO";
-
-    window.historicoUndo = [];
-    let debounceTimer = null;
-    window.marcaTextoAtivo = false;
-    window.currentColor = '#fef08a';
-
-    // --- BIBLIOTECA DE APOIO ---
-    window.LISTA_PDF_BIBLIOTECA = [
-        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
-        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
-        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO.pdf" },
-        { nome: "TESES OAB 2ª FASE", url: "TESES_OAB.pdf" },
-        { nome: "100 ARTIGOS PARA GRIFAR", url: "100_ARTIGOS.PDF" }
-    ];
-
-    window.onload = async () => {
-        // Inicializa a Folha com as 150 linhas mecânicas
-        FolhaEngine.montar('folha-total');
-        atualizarDisplayModo(); 
+        body.dark-mode { --bg-paper: #020617; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        setTimeout(() => {
-            const ed = document.getElementById('editor-principal');
-            if(ed) {
-                ed.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        const html = ed.innerHTML;
-                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
-                            window.historicoUndo.push(html);
-                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
-                        }
-                    }, 800);
-                });
-                ed.addEventListener('mouseup', () => {
-                    if(window.marcaTextoAtivo) {
-                        const selection = window.getSelection();
-                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
-                    }
-                });
-            }
-        }, 1000);
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--primary); 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white;
+        }
 
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 30000); // Backup automático a cada 30s
-    };
+        header { 
+            background: var(--primary); height: 60px; padding: 0 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--gold); z-index: 5000;
+        }
 
-    // --- INTELIGÊNCIA DOS EXAMES (35-39) ---
-    window.injetarTeses = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ MARTELO: TESES (35-39)";
+        .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; }
+        .logo span { color: var(--gold); }
+
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        content.innerHTML = `
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Súmula 369, I, TST: Estabilidade de dirigente sindical garantida mesmo com comunicação fora do prazo, se dentro do contrato.')"><span>Ex 35: Dirigente Sindical</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva. Acabou o prazo, acabou o direito.')"><span>Ex 36: Ultratividade</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos (Exame 37 acusou erro em 1 ano).')"><span>Ex 37: Prescrição Execução</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade municipal/estadual.')"><span>Ex 38: Fato do Príncipe</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade (Exame 39).')"><span>Ex 39: Conselho Fiscal</span></div>
-        `;
-        modal.style.display = 'flex';
-    };
+        .sidebar { 
+            width: var(--sidebar-w); background: #001529; display: flex; 
+            flex-direction: column; align-items: center; gap: 10px; padding: 15px 0; 
+            border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; 
+        }
 
-    // --- GESTÃO DE GAVETAS (FIREBASE MASTER) ---
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        const tipo = window.modoAtual; 
-        const nomeAlvo = window.pecaAtualNome;
+        .btn-side { 
+            width: 50px; min-height: 50px; border: none; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; color: white; 
+            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05); position: relative;
+        }
+        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
+        .btn-side i { font-size: 1.1rem; color: var(--gold); }
 
-        if(!confirm(`Deseja salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
+        .btn-side::after {
+            content: attr(data-label); position: absolute; left: 60px; background: #000; color: #fff;
+            padding: 6px 12px; border-radius: 6px; font-size: 10px; white-space: nowrap; 
+            opacity: 0; pointer-events: none; transition: 0.2s; z-index: 6000; border: 1px solid var(--gold);
+        }
+        .btn-side:hover::after { opacity: 1; left: 75px; }
 
-        try {
-            const idFinal = Date.now().toString();
-            const agora = new Date();
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-            
-            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
-                exame: tipo, 
-                peca: `${nomeAlvo} (${dataF})`, 
-                conteudo: ed.innerHTML
-            });
-            alert("✅ Guardado no Plano de Voo!");
-        } catch (e) { alert("Erro ao salvar no Firebase."); }
-    };
+        .editor-container { 
+            flex: 1; display: flex; flex-direction: column; 
+            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
+        }
+        .editor-container.collapsed { flex: 0.3; opacity: 0.5; }
 
-    // --- FUNÇÕES DE NAVEGAÇÃO E PDF ---
-    window.verPDF = (t) => {
-        const f = document.getElementById('pdf-frame');
-        let url = "";
-        
-        switch(t) {
-            case 'P': url = `ro${window.activeEx}.pdf`; break;
-            case 'G': url = `ro${window.activeEx}-gabarito.pdf`; break;
-            case 'V': url = 'vade.pdf'; break;
-            case 'LP': url = 'livro_processo.pdf'; break;
-            case 'LM': url = 'livro_material.pdf'; break;
+        .sticky-tools { 
+            position: sticky; top: -20px; z-index: 1000; background: white; 
+            width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px;
+        }
+
+        #identificador-peca { 
+            padding: 12px; background: #f8fafc; text-align: center; 
+            font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold);
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
+            text-transform: uppercase; font-size: 0.8rem;
         }
         
-        f.src = url;
-        document.getElementById('pdf-title').innerText = `DOCUMENTO: ${url}`;
-        document.getElementById('pdf-viewer').classList.add('active');
-        window.toggleRecolherEditor(); 
-    };
-
-    window.abrirExames = () => {
-        const modal = document.getElementById('universal-modal');
-        document.getElementById('modal-title').innerText = "ESCOLHER EXAME (35-39)";
-        const content = document.getElementById('modal-content');
-        content.innerHTML = "";
-        for(let i=39; i>=35; i--) {
-            const b = document.createElement('div'); b.className = 'opt-btn'; 
-            b.innerHTML = `<span>EXAME ${i} ${i==39?'(ÚLTIMO)':''}</span> <i class="fas fa-chevron-right"></i>`;
-            b.onclick = () => { 
-                window.activeEx = i.toString(); 
-                window.modoAtual = i.toString(); 
-                window.pecaAtualNome = "PEÇA OFICIAL"; 
-                persistirERefrescar();
-                modal.style.display = 'none';
-            };
-            content.appendChild(b);
+        .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; align-items: center; }
+        .btn-lib { 
+            flex: 1; padding: 12px; border: none; background: transparent; 
+            cursor: pointer; font-weight: 800; font-size: 0.7rem; 
+            text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
         }
-        modal.style.display = 'flex';
-    };
 
-    // --- UTILITÁRIOS ---
-    window.desfazer = () => {
-        if(window.historicoUndo.length > 1) {
-            window.historicoUndo.pop();
-            const estadoAnterior = window.historicoUndo[window.historicoUndo.length - 1];
-            document.getElementById('editor-principal').innerHTML = estadoAnterior;
-        }
-    };
+        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 2500px; position: relative; }
 
-    window.renomearTreino = () => {
-        const n = prompt("Nome do Documento:", window.pecaAtualNome);
-        if (n) { window.pecaAtualNome = n; persistirERefrescar(); }
-    };
+        #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; border-left: 0 solid var(--gold); overflow: hidden; }
+        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
+        #pdf-viewer.full-view { width: 100% !important; flex: 1; }
 
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed && ed.innerText.trim() !== "") {
-            await set(ref(db, PATH_RASCUNHO), { conteudo: ed.innerHTML, timestamp: Date.now() }); 
-        }
-    }
+        .pdf-controls { background: #0f172a; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 12px; align-items: center; border-bottom: 1px solid var(--gold);}
+        iframe { width: 100%; flex: 1; border: none; }
 
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, PATH_RASCUNHO)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
+        #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
+        .fab-main { width: 65px; height: 65px; border-radius: 50%; background: var(--gold); border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; color: black; }
 
-    function persistirERefrescar() {
-        localStorage.setItem('modoAtual', window.modoAtual);
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
-        localStorage.setItem('activeEx', window.activeEx);
-        atualizarDisplayModo();
-    }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
+        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
+        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
 
-    window.atualizarDisplayModo = () => {
-        document.getElementById('ex-display').innerText = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
-        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
-    };
+        @media (max-width: 768px) { .sidebar { display: none; } #mobile-hub { display: flex; } }
+    </style>
+</head>
+<body class="dark-mode">
 
-    // Funções de interface (fechar, recolher) mantidas conforme Parte 1
-    window.fecharPDF = () => {
-        document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
-        document.getElementById('editor-container').classList.remove('collapsed');
-    };
-    window.toggleRecolherEditor = () => {
-        document.getElementById('editor-container').classList.toggle('collapsed');
-        document.getElementById('pdf-viewer').classList.toggle('full-view');
-    };
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
+<header>
+    <div class="logo">QG JOAQUIM <span>PM ELITE</span></div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">PRONTO</span></div>
+</header>
 
-</script>
+<main>
+    <aside class="sidebar">
+        <button class="btn-side" style="background:var(--gold); color:#000" data-label="PROVAS PM" onclick="window.abrirProvas()"><i class="fas fa-shield-halved"></i></button>
+        <button class="btn-side" style="background:#facc15; color:#000" data-label="NOVO TREINO" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
+        <button class="btn-side" style="background:var(--questoes); color:#fff" data-label="50 QUESTÕES" onclick="window.ativarModoQuestoes()"><i class="fas fa-list-check"></i></button>
+        <button class="btn-side" style="background:var(--teses); color:#fff" data-label="TESES PENAIS" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
+        <button class="btn-side" style="background:var(--biblioteca); color:#fff" data-label="BIBLIOTECA" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder-tree"></i></button>
+        <button class="btn-side" style="background:#334155;" data-label="MINHA PASTA" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" style="background:#10b981;" data-label="FINALIZAR / BLINDAR" onclick="window.finalizarPeca()"><i class="fas fa-cloud-arrow-up"></i></button>
+        <hr style="width:70%; opacity:0.1; margin:5px 0">
+        <button class="btn-side" style="background:var(--mentoria);" data-label="IA MENTORIA" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" style="background:#475569;" data-label="PERGAMINHO" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i></button>
+        <hr style="width:70%; opacity:0.1; margin:5px 0">
+        <button class="btn-side" style="background:#000; border:1px solid var(--gold)" data-label="VADE MECUM" onclick="window.verPDF('VADE')"><i class="fas fa-book-scale"></i></button>
+    </aside>
+
+    <section class="editor-container" id="editor-container">
+        <div class="sticky-tools">
+            <div id="identificador-peca" onclick="window.renomearTreino()">SCANNER... <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i></div>
+            <div class="toolbar-liberdade">
+                <button class="btn-lib" style="background:#64748b; color:white" onclick="window.desfazer()"><i class="fas fa-undo"></i></button>
+                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-eraser"></i> Limpar</button>
+                <button class="btn-lib" id="btn-foco" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> PDF</button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+            </div>
+        </div>
+        <div class="paper">
+            <div id="folha-total"></div>
+        </div>
+    </section>
+
+    <section id="pdf-viewer">
+        <div class="pdf-controls">
+            <div><span id="pdf-title">CADERNO</span></div>
+            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
+        </div>
+        <iframe id="pdf-frame"></iframe>
+    </section>
+</main>
+
+<div class="modal" id="universal-modal">
+    <div class="modal-body">
+        <div id="modal-back-btn" style="display:none; cursor:pointer; font-weight:bold; color:var(--gold)" onclick="window.gerenciadorPasta()">← VOLTAR</div>
+        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
+        <div id="modal-content"></div>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">FECHAR</button>
+    </div>
+</div>
+
+</body>
+</html>
