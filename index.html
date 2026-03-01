@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOLHA DE PROVA - SOLDADO PMDF</title>
+    <title>ESTUDO EDITAL PMDF 2023 - SOLDADO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { --primary: #064e3b; --gold: #fbbf24; --bg: #f8fafc; --sidebar: #022c22; }
@@ -12,10 +12,10 @@
         header { background: var(--primary); padding: 10px 20px; border-bottom: 3px solid var(--gold); display: flex; justify-content: space-between; align-items: center; color: white; z-index: 100; }
         .badge { background: var(--gold); color: black; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 10px; }
 
-        /* LAW-BAR: FOCO SOLDADO/PRAÇA */
-        .law-bar { background: #022c22; padding: 10px 20px; display: flex; gap: 15px; overflow-x: auto; border-bottom: 1px solid #065f46; scrollbar-width: none; }
-        .law-link { color: #a7f3d0; text-decoration: none; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.3s; padding: 5px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); }
-        .law-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); }
+        /* LAW-BAR: LEIS EXTRAÍDAS DO EDITAL 04/2023 */
+        .law-bar { background: #022c22; padding: 10px 20px; display: flex; gap: 12px; overflow-x: auto; border-bottom: 1px solid #065f46; scrollbar-width: thin; }
+        .law-link { color: #a7f3d0; text-decoration: none; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: 0.3s; padding: 6px 12px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid transparent; }
+        .law-link:hover { color: var(--gold); background: rgba(255,255,255,0.1); border-color: var(--gold); }
         .law-link i { color: var(--gold); }
 
         main { display: flex; flex: 1; overflow: hidden; }
@@ -42,48 +42,48 @@
 <body>
 
 <header>
-    <div><i class="fas fa-person-military-pointing"></i> PRANCHETA DO <span style="color:var(--gold)">SOLDADO PMDF</span></div>
+    <div><i class="fas fa-shield-halved"></i> PMDF <span style="color:var(--gold)">EDITAL 2023</span></div>
     <div id="counter" class="badge">LINHAS: 01</div>
 </header>
 
 <nav class="law-bar">
-    <a href="https://sinj.df.gov.br/sinj/Norma/25390/Lei_7289_18_12_1984.html" target="_blank" class="law-link"><i class="fas fa-book"></i> ESTATUTO (Lei 7.289)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/decreto/1970-1979/d667.htm" target="_blank" class="law-link"><i class="fas fa-shield-halved"></i> DECRETO 667/69</a>
-    <a href="https://sinj.df.gov.br/sinj/Norma/34211/Decreto_10260_16_02_1987.html" target="_blank" class="law-link"><i class="fas fa-gavel"></i> RDPM (Decreto 10.260)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/leis/l13022.htm" target="_blank" class="law-link"><i class="fas fa-city"></i> ESTATUTO GUARDAS (Subsidiário)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12681.htm" target="_blank" class="law-link"><i class="fas fa-database"></i> SINESP (Abordagens)</a>
-    <a href="https://www.planalto.gov.br/ccivil_03/leis/l4898.htm" target="_blank" class="law-link"><i class="fas fa-handcuffs"></i> ABUSO DE AUTORIDADE</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm" target="_blank" class="law-link"><i class="fas fa-scale-balanced"></i> CF/88 (ARTS 37, 42, 142, 144)</a>
+    <a href="https://sinj.df.gov.br/sinj/Norma/25390/Lei_7289_18_12_1984.html" target="_blank" class="law-link"><i class="fas fa-book"></i> ESTATUTO (LEI 7.289/84)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/leis/l6450.htm" target="_blank" class="law-link"><i class="fas fa-sitemap"></i> ORG. BÁSICA (LEI 6.450/77)</a>
+    <a href="https://sinj.df.gov.br/sinj/Norma/34211/Decreto_10260_16_02_1987.html" target="_blank" class="law-link"><i class="fas fa-gavel"></i> RDPM (DEC. 10.260/87)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" target="_blank" class="law-link"><i class="fas fa-gun"></i> PENAL MILITAR (DL 1.001/69)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" target="_blank" class="law-link"><i class="fas fa-file-signature"></i> PROC. PENAL MILITAR (DL 1.002/69)</a>
+    <a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm" target="_blank" class="law-link"><i class="fas fa-handcuffs"></i> ABUSO AUTORIDADE (L 13.869)</a>
 </nav>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" onclick="abrirMentoria()" title="Mentoria de Praça"><i class="fas fa-brain"></i></button>
-        <button class="btn-side" onclick="window.print()" title="Imprimir Relatório"><i class="fas fa-print"></i></button>
-        <button class="btn-side" onclick="document.execCommand('undo')"><i class="fas fa-rotate-left"></i></button>
-        <button class="btn-side" onclick="limpar()" style="margin-top:auto; color:#f87171;"><i class="fas fa-eraser"></i></button>
+        <button class="btn-side" onclick="abrirMentoria()" title="Mentoria Inteligente"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" onclick="window.print()" title="Salvar PDF"><i class="fas fa-save"></i></button>
+        <button class="btn-side" onclick="document.execCommand('undo')" title="Desfazer"><i class="fas fa-undo"></i></button>
+        <button class="btn-side" onclick="limpar()" style="margin-top: auto; color: #ef4444;"><i class="fas fa-trash-can"></i></button>
     </aside>
 
     <section class="editor-view">
         <div class="paper-official">
             <div id="editor" contenteditable="true" spellcheck="false" oninput="contarLinhas()">
-                <b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b><br>
-                <b>RELATÓRIO DE OCORRÊNCIA POLICIAL MILITAR</b><br><br>
-                HISTÓRICO: 
+                <b>ESTUDO DIRIGIDO - EDITAL PMDF 2023</b><br>
+                <b>LEGISLAÇÃO ESPECÍFICA APLICADA À PMDF</b><br><br>
+                TESES E ANOTAÇÕES: 
             </div>
         </div>
     </section>
 </main>
 
 <div id="mentoria-hub">
-    <button class="close-hub" onclick="abrirMentoria()"><i class="fas fa-arrow-left"></i> VOLTAR AO SERVIÇO</button>
+    <button class="close-hub" onclick="abrirMentoria()">VOLTAR À FOLHA</button>
     <iframe src="mentoria.html" style="width:100%; height:100%; border:none;"></iframe>
 </div>
 
 <script>
     function abrirMentoria() { document.getElementById('mentoria-hub').classList.toggle('active'); }
     function contarLinhas() {
-        const text = document.getElementById('editor').innerText;
-        const lines = text.split('\n').length;
+        const lines = document.getElementById('editor').innerText.split('\n').length;
         document.getElementById('counter').innerText = `LINHAS: ${String(lines).padStart(2, '0')}`;
     }
     window.receberTexto = (texto) => {
@@ -92,7 +92,7 @@
         document.execCommand('insertHTML', false, `<br>${texto}<br>`);
         abrirMentoria();
     };
-    function limpar() { if(confirm("Limpar prancheta?")) document.getElementById('editor').innerHTML = "<b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b><br><b>RELATÓRIO...</b>"; }
+    function limpar() { if(confirm("Apagar rascunho?")) document.getElementById('editor').innerHTML = "<b>ESTUDO DIRIGIDO...</b>"; }
 </script>
 </body>
 </html>
