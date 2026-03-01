@@ -231,21 +231,21 @@
 </div>
 <script type="module">
     import { db } from './firebase-config.js';
-    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
-    // CONFIGURAÇÃO DE ESTADO - FOCO PMDF 2025
+    // CONFIGURAÇÃO DE ESTADO - BLINDAGEM PMDF 2025
     window.db = db;
-    window.activeEx = localStorage.getItem('activeEx') || "CFO-2025";
-    window.modoAtual = localStorage.getItem('modoAtual') || "TREINO CFO"; 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO RELATÓRIO PM";
+    window.activeEx = localStorage.getItem('pmdf_activeEx') || "CFO-2025";
+    window.modoAtual = localStorage.getItem('pmdf_modoAtual') || "TREINO CFO"; 
+    window.pecaAtualNome = localStorage.getItem('pmdf_pecaAtualNome') || "NOVO RELATÓRIO PM";
 
     window.historicoUndo = [];
     let debounceTimer = null;
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
 
-    // BIBLIOTECA INJETADA COM CONTEÚDO PMDF (EDITAL 03/2025)
+    // BIBLIOTECA - CONTEÚDO OFICIAL PMDF
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: "EDITAL PMDF 03/2025 - ABERTURA", url: "edital_pmdf_2025.pdf" },
         { nome: "CÓDIGO PENAL MILITAR (CPM)", url: "cpm_atualizado.pdf" },
@@ -280,41 +280,95 @@
                 });
             }
         }, 1000);
+
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
     };
 
+    // --- LOGICA DE PERSISTÊNCIA (BLINDADA PARA PMDF) ---
+    async function carregarRascunho() {
+        try {
+            const snapshot = await get(ref(db, `producao_pmdf/RASCUNHO/aluno_elite`));
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const ed = document.getElementById('editor-principal');
+                if(ed) ed.innerHTML = data.conteudo || "";
+                window.pecaAtualNome = data.nome || window.pecaAtualNome;
+                atualizarDisplayModo();
+            }
+        } catch (e) { console.error("Erro ao carregar rascunho PMDF", e); }
+    }
+
+    async function salvarAutomatico() {
+        const ed = document.getElementById('editor-principal');
+        if(!ed || ed.innerHTML === "") return;
+        try {
+            await set(ref(db, `producao_pmdf/RASCUNHO/aluno_elite`), {
+                conteudo: ed.innerHTML,
+                nome: window.pecaAtualNome,
+                data: new Date().toISOString()
+            });
+        } catch (e) { console.error("Auto-save falhou"); }
+    }
+
+    // --- MENTORIA IA (LIGADA E CONTEXTUALIZADA PMDF) ---
+    window.abrirMentoria = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerHTML = '<i class="fas fa-robot"></i> INTELIGÊNCIA PMDF';
+        
+        content.innerHTML = `
+            <div id="chat-pm" style="height:250px; overflow-y:auto; background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:15px; font-size:13px; color:#1e293b; border:1px solid #e2e8f0;">
+                <b style="color:var(--mentoria)">IA MENTORIA:</b> Aluno-Oficial, como posso auxiliar no seu Inquérito (IPM) ou na fundamentação baseada no CPM hoje?
+            </div>
+            <textarea id="prompt-ia" placeholder="Ex: Como fundamentar a legítima defesa no CPM?" style="width:100%; height:90px; padding:12px; border-radius:10px; border:2px solid #e2e8f0; font-family:inherit; resize:none;"></textarea>
+            <button onclick="window.enviarDuvidaIA()" id="btn-ia-send" style="width:100%; padding:15px; background:var(--mentoria); color:white; border:none; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i> ENVIAR PARA COMANDO
+            </button>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.enviarDuvidaIA = async () => {
+        const promptInput = document.getElementById('prompt-ia');
+        const chat = document.getElementById('chat-pm');
+        const texto = promptInput.value.trim();
+        if(!texto) return;
+
+        chat.innerHTML += `<div style="text-align:right; margin-top:10px"><b>Você:</b> ${texto}</div>`;
+        
+        // REGRA [2026-01-30]: Salva a interação no histórico da mentoria PMDF
+        try {
+            await push(ref(db, 'producao_pmdf/MENTORIA_CHATS'), {
+                pergunta: texto,
+                data: new Date().toLocaleString(),
+                pecaRelacionada: window.pecaAtualNome
+            });
+            
+            setTimeout(() => {
+                chat.innerHTML += `<div style="background:#e0e7ff; padding:10px; border-radius:8px; margin-top:10px;"><b>IA PMDF:</b> Recebido. Processando análise baseada no Código Penal Militar... (Módulo em Alpha).</div>`;
+                chat.scrollTop = chat.scrollHeight;
+                promptInput.value = "";
+            }, 800);
+        } catch (e) { alert("Erro de conexão PMDF."); }
+    };
+
+    // --- FUNÇÕES DE INTERFACE E ESTRUTURA ---
     window.renomearTreino = () => {
-        const n = prompt("Defina o nome do Relatório/Questão PMDF:", window.pecaAtualNome);
+        const n = prompt("Nome do Relatório/Questão PMDF:", window.pecaAtualNome);
         if (n && n.trim() !== "") { 
             window.pecaAtualNome = n.trim(); 
             persistirERefrescar();
         }
     };
 
-    // GAVETAS AJUSTADAS PARA CARREIRA POLICIAL (OFICIAL PM)
-    window.gerenciadorPasta = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 GAVETAS DE INTELIGÊNCIA PMDF";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES PM')"><span>QUESTÕES DISCURSIVAS</span> <i class="fas fa-question-circle" style="color:var(--questoes)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO CFO')"><span>TREINO DE PEÇAS (IPM)</span> <i class="fas fa-shield-alt" style="color:#facc15"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES MILITARES')"><span>TESES (CPM/CPPM)</span> <i class="fas fa-gavel" style="color:var(--teses)"></i></div>
-            <div class="opt-btn" onclick="window.abrirListaExamesGaveta()"><span>HISTÓRICO CONCURSOS</span> <i class="fas fa-archive" style="color:var(--gold)"></i></div>
-        `;
-        modal.style.display = 'flex';
-    };
-
-    // MODELOS DE ESTRUTURA PARA PMDF (BOTÃO PERGAMINHO)
     window.abrirPergaminho = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📜 ESTRUTURAS DE POLÍCIA JUDICIÁRIA MILITAR";
+        document.getElementById('modal-title').innerText = "📜 ESTRUTURAS OFICIAIS PMDF";
         content.innerHTML = `
             <div class="opt-btn" onclick="window.injetarEstrutura('IPM')"><span>RELATÓRIO DE IPM (ART. 22 CPPM)</span> <i class="fas fa-file-alt"></i></div>
-            <div class="opt-btn" onclick="window.injetarEstrutura('APFM')"><span>AUTO DE PRISÃO EM FLAGRANTE (APFM)</span> <i class="fas fa-handcuffs"></i></div>
+            <div class="opt-btn" onclick="window.injetarEstrutura('APFM')"><span>AUTO DE PRISÃO (APFM)</span> <i class="fas fa-handcuffs"></i></div>
             <div class="opt-btn" onclick="window.injetarEstrutura('SINDICANCIA')"><span>SINDICANCIA ADMINISTRATIVA</span> <i class="fas fa-clipboard-list"></i></div>
         `;
         modal.style.display = 'flex';
@@ -323,56 +377,66 @@
     window.injetarEstrutura = (tipo) => {
         const ed = document.getElementById('editor-principal');
         const modelos = {
-            'IPM': '<b>AO SENHOR ENCARREGADO DO INQUÉRITO POLICIAL MILITAR Nº ...</b><br><br><b>RELATÓRIO FINAL</b><br><br><b>ENCARREGADO:</b> Aluno-Oficial PM ..., Matrícula ...<br><br><b>INDICIADO:</b> ..., Graduação/Posto..., RG Militar...<br><br>O presente Inquérito Policial Militar foi instaurado por meio da Portaria nº ... com o fito de apurar a conduta tipificada no Art. ... do Código Penal Militar...',
-            'APFM': '<b>AUTO DE PRISÃO EM FLAGRANTE MILITAR (ART. 243 CPPM)</b><br><br>Aos ... dias do mês de ... de 2026, no Quartel do ... Batalhão da PMDF, perante mim, Aluno-Oficial PM..., compareceu o condutor...',
-            'SINDICANCIA': '<b>RELATÓRIO DE SINDICÂNCIA ADMINISTRATIVA DISCIPLINAR</b><br><br><b>OBJETO:</b> Apuração de transgressão disciplinar prevista na Lei nº 7.289/84 e Decreto nº 4.345/02...<br><br><b>SINDICADO:</b> ...'
+            'IPM': '<b>RELATÓRIO FINAL DE IPM</b><br><br><b>AO SENHOR ENCARREGADO...</b><br><br>O presente Inquérito Policial Militar...',
+            'APFM': '<b>AUTO DE PRISÃO EM FLAGRANTE MILITAR (ART. 243 CPPM)</b><br><br>Aos ... dias do mês de...',
+            'SINDICANCIA': '<b>RELATÓRIO DE SINDICÂNCIA Nº ...</b><br><br><b>OBJETO:</b> Apuração de transgressão...'
         };
-        if(confirm("Deseja injetar esta estrutura oficial da PMDF? O texto atual será substituído.")) {
+        if(confirm("Substituir texto atual pela estrutura oficial PMDF?")) {
             ed.innerHTML = modelos[tipo];
             document.getElementById('universal-modal').style.display = 'none';
         }
     };
 
-    // PERSISTÊNCIA E DISPLAY - FOCO NO EDITAL CFO
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        if(!ed || ed.innerHTML === "") return;
+        if (!confirm(`Deseja salvar e fechar "${window.pecaAtualNome}" no Histórico PMDF?`)) return;
+
+        try {
+            const idFinal = Date.now().toString();
+            await set(ref(db, `producao_pmdf/HISTORICO/${idFinal}`), {
+                exame: window.modoAtual, 
+                peca: window.pecaAtualNome, 
+                conteudo: ed.innerHTML,
+                data: new Date().toLocaleString('pt-BR')
+            });
+            alert("✅ Missão Cumprida! Salvo no histórico PMDF.");
+            ed.innerHTML = ""; 
+            await remove(ref(db, `producao_pmdf/RASCUNHO/aluno_elite`));
+        } catch (e) { alert("Erro ao salvar no banco PMDF."); }
+    };
+
+    // --- FERRAMENTAS DE EDIÇÃO ---
+    window.setHighlightColor = (col) => { window.currentColor = col; window.marcaTextoAtivo = (col !== 'transparent'); };
+    window.desfazer = () => {
+        if (window.historicoUndo.length > 1) {
+            window.historicoUndo.pop();
+            document.getElementById('editor-principal').innerHTML = window.historicoUndo[window.historicoUndo.length - 1];
+        }
+    };
+    window.limparFolha = () => confirm("Apagar todo o texto?") && (document.getElementById('editor-principal').innerHTML = "");
+
     function persistirERefrescar() {
-        localStorage.setItem('modoAtual', window.modoAtual);
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
-        localStorage.setItem('activeEx', window.activeEx);
+        localStorage.setItem('pmdf_modoAtual', window.modoAtual);
+        localStorage.setItem('pmdf_pecaAtualNome', window.pecaAtualNome);
         atualizarDisplayModo();
     }
 
     window.atualizarDisplayModo = () => {
-        const display = document.getElementById('ex-display');
-        const ident = document.getElementById('identificador-peca');
-        display.innerText = "PMDF CFO 2025";
-        ident.innerHTML = `${window.pecaAtualNome} <i class="fas fa-shield" style="font-size:10px; opacity:0.5; color:var(--gold)"></i>`;
+        document.getElementById('ex-display').innerText = "CFO PMDF 2025";
+        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
     };
 
-    // FINALIZAR COM REGRA DE DISQUETE [2026-01-30]
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        if(!ed) return;
-        const tipo = window.modoAtual; 
-        const nomeAlvo = window.pecaAtualNome;
-
-        if (!confirm(`Deseja salvar e fechar "${nomeAlvo}" na gaveta [${tipo}] para o histórico PMDF?`)) return;
-
-        try {
-            const agora = new Date();
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-            const idFinal = Date.now().toString();
-            
-            await set(ref(db, `producao_pmdf/HISTORICO/${idFinal}`), {
-                exame: tipo, 
-                peca: `${nomeAlvo} (CFO-2025)`, 
-                conteudo: ed.innerHTML,
-                data: dataF
-            });
-            alert("✅ Missão Cumprida! Guardado no histórico da Mentoria PM.");
-            ed.innerHTML = ""; // Limpa após salvar conforme instrução
-        } catch (e) { alert("Erro ao salvar no banco PMDF."); }
+    // --- VISUALIZADOR DE PDF ---
+    window.verPDF = (tipo) => {
+        const v = document.getElementById('pdf-viewer');
+        const f = document.getElementById('pdf-frame');
+        const titulos = { 'V': 'CÓDIGO MILITAR', 'P': 'EDITAL PMDF', 'G': 'GABARITO CEBRASPE' };
+        document.getElementById('pdf-title').innerText = titulos[tipo] || "DOCUMENTO";
+        f.src = "edital_pmdf_2025.pdf"; // URL padrão ou dinâmica
+        v.classList.add('active');
     };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.toggleRecolherEditor = () => document.getElementById('editor-container').classList.toggle('collapsed');
 
-    // Restante das funções de visualização de PDF (window.verPDF, fecharPDF, etc) permanecem iguais para manter a estrutura Master OAB
 </script>
-
