@@ -144,135 +144,198 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { db } from './firebase-config.js';
+    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { FolhaEngine } from './folha-engine.js';
 
-    // --- CONFIGURAÇÃO E ESTADO ---
-    const config = {
-        apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
-        authDomain: "masteroab-db5e1.firebaseapp.com",
-        projectId: "masteroab-db5e1",
-        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com"
-    };
-    const app = initializeApp(config);
-    const db = getDatabase(app);
+    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER (ESTRUTURA PM 2026) ---
+    // O uso do prefixo "PM2026_" garante que não haja colisão com o projeto OAB
+    const PREFIXO = "PM2026";
+    const PATH_HISTORICO = `${PREFIXO}/HISTORICO_OFICIAL`;
+    const PATH_RASCUNHO = `${PREFIXO}/MASTER_RASCUNHO`;
 
-    const QUALIFICACAO_CONSTANTES = {
-        INDICIADO: "NOME DO INDICIADO, Posto/Graduação, RG nº ..., CPF nº ..., residente em...",
-        VITIMA: "NOME DA VÍTIMA, qualificação completa conforme Art. ... do CPPM",
-        AUTORIDADE: "AO SENHOR ENCARREGADO DO IPM / COMANDANTE DO ..."
-    };
-
-    let currentTab = 'nc';
-    let cache = {};
-    let historicoUndo = [];
-
-    const temasMap = {
-        nc: { t: 'Não Confunda', c: 'var(--nc)' },
-        peca: { t: 'Estruturas de Peças', c: 'var(--peca)' },
-        cpm: { t: 'Direito Penal Militar', c: 'var(--cpm)' },
-        cppm: { t: 'Processo Penal Militar', c: 'var(--cppm)' },
-        leg: { t: 'Legislação PMDF', c: 'var(--leg)' }
-    };
-
-    // --- LÓGICA DO EDITOR ---
-    const ed = document.getElementById('folha-total');
+    window.db = db;
     
-    ed.addEventListener('input', () => {
-        if(historicoUndo[historicoUndo.length - 1] !== ed.innerHTML) {
-            historicoUndo.push(ed.innerHTML);
-            if(historicoUndo.length > 30) historicoUndo.shift();
-        }
-    });
+    // Recuperação de estado isolada via LocalStorage com prefixo único
+    window.activeEx = localStorage.getItem(`${PREFIXO}_activeEx`) || "39";
+    window.modoAtual = localStorage.getItem(`${PREFIXO}_modoAtual`) || "TREINO"; 
+    window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "NOVO TREINO PM";
 
-    window.desfazer = () => {
-        if(historicoUndo.length > 1) {
-            historicoUndo.pop();
-            ed.innerHTML = historicoUndo[historicoUndo.length - 1];
-        }
-    };
+    window.historicoUndo = [];
+    let debounceTimer = null;
+    window.marcaTextoAtivo = false;
+    window.currentColor = '#fef08a';
 
-    window.ativarMarcaTexto = (cor) => {
-        document.execCommand('backColor', false, cor);
-    };
+    // --- BIBLIOTECA DE APOIO ESPECÍFICA ---
+    window.LISTA_PDF_BIBLIOTECA = [
+        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
+        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
+        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO.pdf" },
+        { nome: "TESES OAB 2ª FASE", url: "TESES_OAB.pdf" },
+        { nome: "100 ARTIGOS PARA GRIFAR", url: "100_ARTIGOS.PDF" }
+    ];
 
-    window.limparFolha = () => {
-        if(confirm("Deseja apagar toda a folha de resposta?")) ed.innerHTML = "";
-    };
-
-    // --- LÓGICA DO HUB ---
-    window.abrirHub = (tab) => {
-        showTab(tab);
-        document.getElementById('hub-inteligencia').classList.add('active');
-    };
-
-    window.fecharHub = () => {
-        document.getElementById('hub-inteligencia').classList.remove('active');
-    };
-
-    window.showTab = (tab) => {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        const activeTab = document.querySelector(`.tab[onclick*='${tab}']`);
-        if(activeTab) activeTab.classList.add('active');
-        document.getElementById('titulo-hub').innerText = temasMap[tab].t;
-        render();
-    };
-
-    window.salvarHub = () => {
-        const t = document.getElementById('inp-t').value;
-        const c = document.getElementById('inp-c').value;
-        const r = document.getElementById('inp-r').value;
-        if(!t || !c) return alert("Preencha título e conteúdo!");
-        push(ref(db, 'v13_master'), { t, c, r: r || "", cat: currentTab, ts: serverTimestamp() });
-        document.getElementById('inp-t').value = ""; document.getElementById('inp-c').value = ""; document.getElementById('inp-r').value = "";
-    };
-
-    onValue(ref(db, 'v13_master'), (snap) => {
-        cache = snap.val() || {};
-        render();
-    });
-
-    function render() {
-        const feed = document.getElementById('feed-hub');
-        feed.innerHTML = "";
-        Object.keys(cache).reverse().forEach(id => {
-            const it = cache[id];
-            if(it.cat === currentTab) {
-                feed.innerHTML += `
-                    <div class="post-it" style="background:${temasMap[it.cat].c}">
-                        <div style="display:flex; justify-content:space-between; align-items:center">
-                            <strong>${it.t}</strong>
-                            <i class="fas fa-trash" onclick="apagar('${id}')" style="cursor:pointer; opacity:0.4; font-size:12px"></i>
-                        </div>
-                        <p style="font-size:14px; margin:10px 0;">${it.c}</p>
-                        ${it.r ? `<div class="macete-box">⚡ MACETE: ${it.r}</div>` : ""}
-                        <button onclick="injetar('${id}')" style="margin-top:12px; width:100%; border:none; padding:12px; border-radius:8px; background:rgba(0,0,0,0.8); color:white; font-weight:bold; cursor:pointer;">INJETAR NA PEÇA</button>
-                    </div>`;
+    window.onload = async () => {
+        // Inicializa a FolhaEngine (Garante as 150 linhas padrão FGV)
+        FolhaEngine.montar('folha-total');
+        atualizarDisplayModo(); 
+        
+        setTimeout(() => {
+            const ed = document.getElementById('editor-principal');
+            if(ed) {
+                ed.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const html = ed.innerHTML;
+                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
+                            window.historicoUndo.push(html);
+                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
+                        }
+                    }, 800);
+                });
+                ed.addEventListener('mouseup', () => {
+                    if(window.marcaTextoAtivo) {
+                        const selection = window.getSelection();
+                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
+                    }
+                });
             }
-        });
+        }, 1000);
+
+        await carregarRascunho();
+        setInterval(salvarAutomatico, 30000); 
+    };
+
+    // --- INTELIGÊNCIA DOS EXAMES ANALISADOS (35-39) ---
+    window.injetarTeses = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ MARTELO: TESES (35-39)";
+        
+        content.innerHTML = `
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Súmula 369, I, TST: Estabilidade de dirigente sindical garantida mesmo com comunicação fora do prazo, se dentro do contrato.')"><span>Ex 35: Dirigente Sindical</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva. Acabou o prazo, acabou o direito.')"><span>Ex 36: Ultratividade</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos (Exame 37 acusou erro em 1 ano).')"><span>Ex 37: Prescrição Execução</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade municipal/estadual.')"><span>Ex 38: Fato do Príncipe</span></div>
+            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade (Exame 39).')"><span>Ex 39: Conselho Fiscal</span></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    // --- GESTÃO DE GAVETAS (FIREBASE ISOLADO PM) ---
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        const tipo = window.modoAtual; 
+        const nomeAlvo = window.pecaAtualNome;
+
+        if(!confirm(`[PLANO PM] Salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
+
+        try {
+            const idFinal = Date.now().toString();
+            const agora = new Date();
+            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            
+            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
+                exame: tipo, 
+                peca: `${nomeAlvo} (${dataF})`, 
+                conteudo: ed.innerHTML,
+                origem: "PM_REDACOES"
+            });
+            alert("✅ Guardado no Plano de Voo PM!");
+        } catch (e) { alert("Erro ao salvar no Firebase PM."); }
+    };
+
+    // --- NAVEGAÇÃO E PDFs ---
+    window.verPDF = (t) => {
+        const f = document.getElementById('pdf-frame');
+        let url = "";
+        switch(t) {
+            case 'P': url = `ro${window.activeEx}.pdf`; break;
+            case 'G': url = `ro${window.activeEx}-gabarito.pdf`; break;
+            case 'V': url = 'vade.pdf'; break;
+            case 'LP': url = 'livro_processo.pdf'; break;
+            case 'LM': url = 'livro_material.pdf'; break;
+        }
+        f.src = url;
+        document.getElementById('pdf-title').innerText = `PM APOIO: ${url}`;
+        document.getElementById('pdf-viewer').classList.add('active');
+        window.toggleRecolherEditor(); 
+    };
+
+    window.abrirExames = () => {
+        const modal = document.getElementById('universal-modal');
+        document.getElementById('modal-title').innerText = "ESCOLHER EXAME (35-39)";
+        const content = document.getElementById('modal-content');
+        content.innerHTML = "";
+        for(let i=39; i>=35; i--) {
+            const b = document.createElement('div'); b.className = 'opt-btn'; 
+            b.innerHTML = `<span>EXAME ${i} ${i==39?'(ÚLTIMO)':''}</span> <i class="fas fa-chevron-right"></i>`;
+            b.onclick = () => { 
+                window.activeEx = i.toString(); 
+                window.modoAtual = i.toString(); 
+                window.pecaAtualNome = "PEÇA OFICIAL PM"; 
+                persistirERefrescar();
+                modal.style.display = 'none';
+            };
+            content.appendChild(b);
+        }
+        modal.style.display = 'flex';
+    };
+
+    // --- PERSISTÊNCIA E BACKUP ---
+    function persistirERefrescar() {
+        localStorage.setItem(`${PREFIXO}_modoAtual`, window.modoAtual);
+        localStorage.setItem(`${PREFIXO}_pecaAtualNome`, window.pecaAtualNome);
+        localStorage.setItem(`${PREFIXO}_activeEx`, window.activeEx);
+        atualizarDisplayModo();
     }
 
-    window.injetar = (id) => {
-        const it = cache[id];
-        ed.focus();
-        document.execCommand('insertHTML', false, `<br><br><b>${it.t}:</b><br>${it.c}<br>`);
-        fecharHub();
-    };
+    async function salvarAutomatico() { 
+        const ed = document.getElementById('editor-principal'); 
+        if(ed && ed.innerText.trim() !== "") {
+            await set(ref(db, PATH_RASCUNHO), { 
+                conteudo: ed.innerHTML, 
+                timestamp: Date.now(),
+                contexto: "PM_WORK" 
+            }); 
+        }
+    }
 
-    window.apagar = (id) => { if(confirm("Apagar registro permanentemente?")) remove(ref(db, `v13_master/${id}`)); };
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, PATH_RASCUNHO)); 
+        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
+    }
 
-    // --- FINALIZAÇÃO E PDF ---
-    window.salvarPeca = () => {
-        window.print();
-        alert("O PDF foi gerado. Conforme regra [2026-01-30], limpe o que o disquete salva e organize o conceito.");
-    };
-
-    window.finalizarMissao = () => {
-        if(confirm("Deseja finalizar a peça e salvar no histórico definitivo?")) {
-            alert("Missão Cumprida! Peça blindada.");
+    // --- UI TOOLS ---
+    window.desfazer = () => {
+        if(window.historicoUndo.length > 1) {
+            window.historicoUndo.pop();
+            const estadoAnterior = window.historicoUndo[window.historicoUndo.length - 1];
+            document.getElementById('editor-principal').innerHTML = estadoAnterior;
         }
     };
+
+    window.renomearTreino = () => {
+        const n = prompt("Nome do Documento PM:", window.pecaAtualNome);
+        if (n) { window.pecaAtualNome = n; persistirERefrescar(); }
+    };
+
+    window.atualizarDisplayModo = () => {
+        const label = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
+        document.getElementById('ex-display').innerText = `PM: ${label}`;
+        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
+    };
+
+    window.fecharPDF = () => {
+        document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
+        document.getElementById('editor-container').classList.remove('collapsed');
+    };
+
+    window.toggleRecolherEditor = () => {
+        document.getElementById('editor-container').classList.toggle('collapsed');
+        document.getElementById('pdf-viewer').classList.toggle('full-view');
+    };
+
+    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
+
 </script>
-</body>
-</html>
