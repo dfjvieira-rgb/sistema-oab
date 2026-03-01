@@ -2,340 +2,64 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MENTORIA ELITE PMDF - V13 FULL PAGE</title>
+    <title>MENTORIA HUB - V13</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --primary: #020617; --gold: #fbbf24; --card: #1e293b;
-            --const: #ef4444; --adm: #f97316; --penal: #3b82f6; --proc: #06b6d4;
-            --cpm: #8b5cf6; --cppm: #ec4899; --leg: #10b981; --lo: #facc15;
-            --peca: #a855f7; --nc: #f472b6; --bg-paper: #cbd5e1;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; overflow: hidden; height: 100vh; }
-
-        header {
-            background: var(--card); padding: 10px 20px; border-bottom: 3px solid var(--gold);
-            display: flex; justify-content: space-between; align-items: center; z-index: 100;
-        }
-
-        main { display: flex; height: calc(100vh - 63px); }
-
-        /* SIDEBAR COMPLETA */
-        .sidebar { 
-            width: 70px; background: #1e293b; display: flex; flex-direction: column; 
-            align-items: center; gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1); 
-        }
-        .btn-side { 
-            width: 50px; height: 50px; border: none; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; color: white; 
-            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
-        }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        .btn-side i { font-size: 1.2rem; color: var(--gold); }
-
-        /* EDITOR E PAPEL */
-        .editor-container { flex: 1; background: var(--bg-paper); overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        .toolbar-top {
-            width: 100%; max-width: 850px; background: white; padding: 10px; 
-            display: flex; gap: 10px; border-radius: 8px 8px 0 0; border-bottom: 1px solid #eee;
-            flex-wrap: wrap; justify-content: center;
-        }
-        .btn-tool { padding: 8px 12px; border: none; background: #f1f5f9; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 11px; color: #475569; }
-
-        .paper { 
-            width: 100%; max-width: 850px; background: white; min-height: 1200px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 60px; color: #000;
-        }
-        #folha-total { outline: none; line-height: 1.8; font-size: 16px; font-family: 'Times New Roman', serif; text-align: justify; }
-
-        /* HUB FULL PAGE */
-        #hub-inteligencia {
-            position: fixed; inset: 0; background: var(--primary); z-index: 9999;
-            display: none; flex-direction: column; animation: fadeIn 0.2s ease-in-out;
-        }
-        #hub-inteligencia.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .header-hub {
-            background: var(--card); padding: 15px 20px; border-bottom: 3px solid var(--gold);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .btn-voltar { background: white; color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; }
-
-        .conteudo-hub { flex: 1; overflow-y: auto; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
-
-        .panel-input { background: #0f172a; border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 1px dashed #334155; }
-        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; }
-
-        .post-it { padding: 20px; border-radius: 18px; margin-bottom: 20px; color: #020617; }
-        .post-it strong { display: block; font-size: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 10px; }
-        
-        .nav-tabs { background: var(--card); display: flex; overflow-x: auto; padding: 15px; gap: 10px; border-top: 2px solid var(--gold); }
-        .tab { min-width: 100px; padding: 12px; background: #0f172a; border-radius: 10px; color: #94a3b8; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; flex-shrink: 0; }
-        .tab.active { background: var(--gold); color: black; }
-
-        .color-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid #ddd; }
+        body { font-family: 'Inter', sans-serif; background: #020617; color: white; margin: 0; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 60px; }
+        .card { background: #1e293b; border-left: 4px solid #fbbf24; padding: 20px; border-radius: 8px; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); background: #334155; }
+        .tag { font-size: 10px; background: #fbbf24; color: black; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
+        .btn-inject { width: 100%; margin-top: 15px; padding: 10px; background: transparent; border: 1px solid #fbbf24; color: #fbbf24; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .btn-inject:hover { background: #fbbf24; color: black; }
+        .search-box { position: fixed; top: 0; left: 0; width: 100%; padding: 15px; background: #0f172a; border-bottom: 2px solid #334155; display: flex; gap: 10px; z-index: 10; }
+        input { flex: 1; padding: 10px; border-radius: 5px; border: none; background: #1e293b; color: white; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo" style="font-weight:900;">JOAQUIM <span style="color:var(--gold)">ELITE PMDF</span></div>
-    <div style="font-size: 11px; color: var(--gold); font-weight: 800;">MISSÃO: ALUNO-OFICIAL CFO</div>
-</header>
-
-<main>
-    <aside class="sidebar">
-        <button class="btn-side" style="background:var(--nc);" onclick="abrirHub('nc')" title="IA Não Confunda"><i class="fas fa-brain"></i></button>
-        <button class="btn-side" style="background:var(--peca);" onclick="abrirHub('peca')" title="Pergaminho (Estruturas)"><i class="fas fa-scroll"></i></button>
-        <button class="btn-side" style="background:var(--cpm);" onclick="abrirHub('cpm')" title="Leis Secas"><i class="fas fa-gavel"></i></button>
-        <button class="btn-side" style="background:var(--leg);" onclick="salvarPeca()" title="Disquete (Salvar PDF)"><i class="fas fa-save"></i></button>
-        <hr style="width:60%; opacity:0.1">
-        <button class="btn-side" onclick="desfazer()"><i class="fas fa-undo"></i></button>
-        <button class="btn-side" onclick="limparFolha()"><i class="fas fa-eraser"></i></button>
-    </aside>
-
-    <section class="editor-container">
-        <div class="toolbar-top">
-            <button class="btn-tool" onclick="document.execCommand('bold')"><b>B</b></button>
-            <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
-                <div class="color-dot" style="background:#fef08a;" onclick="ativarMarcaTexto('#fef08a')"></div>
-                <div class="color-dot" style="background:#bbf7d0;" onclick="ativarMarcaTexto('#bbf7d0')"></div>
-                <button class="btn-tool" onclick="ativarMarcaTexto('transparent')"><i class="fas fa-slash"></i></button>
-            </div>
-            <button class="btn-tool" style="margin-left:auto; background:var(--gold); color:black;" onclick="finalizarMissao()">FINALIZAR MISSÃO</button>
-        </div>
-        <div class="paper">
-            <div id="folha-total" contenteditable="true" spellcheck="false">
-                <b>AO JUÍZO DA VARA DE AUDITORIA MILITAR DO DISTRITO FEDERAL</b><br><br>
-                Inquérito Policial Militar nº ...<br>
-                Objeto: ...
-            </div>
-        </div>
-    </section>
-</main>
-
-<div id="hub-inteligencia">
-    <div class="header-hub">
-        <button class="btn-voltar" onclick="fecharHub()"><i class="fas fa-arrow-left"></i> VOLTAR AO ESTUDO</button>
-        <span id="titulo-hub" style="font-weight: 900; color: var(--gold); text-transform: uppercase;">INTELIGÊNCIA OPERACIONAL</span>
-    </div>
-
-    <div class="conteudo-hub">
-        <div class="panel-input" id="panel-editor-hub">
-            <input id="inp-t" placeholder="Título do Assunto (Ex: Art. 9 CPM)">
-            <textarea id="inp-c" rows="3" placeholder="Conteúdo técnico para injetar na peça..."></textarea>
-            <input id="inp-r" placeholder="Macete/Mnemônico (Opcional)">
-            <button onclick="salvarHub()" style="width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:900; cursor:pointer; color:black;">GRAVAR NA MEMÓRIA</button>
-        </div>
-        <div id="feed-hub"></div>
-    </div>
-
-    <nav class="nav-tabs">
-        <div class="tab active" onclick="showTab('nc')">NÃO CONFUNDA</div>
-        <div class="tab" onclick="showTab('peca')">ESTRUTURAS</div>
-        <div class="tab" onclick="showTab('cpm')">PENAL MILITAR</div>
-        <div class="tab" onclick="showTab('cppm')">PROC. PENAL MIL.</div>
-        <div class="tab" onclick="showTab('leg')">LEGISLAÇÃO PM</div>
-    </nav>
+<div class="search-box">
+    <input type="text" id="busca" placeholder="Filtrar Teses, Leis ou 'Não Confunda'..." onkeyup="filtrar()">
+    <div style="color: #fbbf24; font-weight: 900; display: flex; align-items: center; padding-right: 20px;">HUB V13</div>
 </div>
 
-<script type="module">
-    import { db } from './firebase-config.js';
-    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { FolhaEngine } from './folha-engine.js';
+<div class="grid" id="feed">
+    <div class="card" data-search="deserção crime militar propriamente">
+        <span class="tag">DIREITO PENAL MILITAR</span>
+        <h3>Deserção (Art. 187 CPM)</h3>
+        <p>Ausentar-se o militar, sem licença, da unidade onde serve, por mais de 8 dias.</p>
+        <button class="btn-inject" onclick="injetar('A conduta amolda-se ao crime de deserção, previsto no Art. 187 do CPM, por se tratar de crime propriamente militar...')">INJETAR NA PEÇA</button>
+    </div>
 
-    // --- CONFIGURAÇÃO DE ISOLAMENTO MASTER (ESTRUTURA PM 2026) ---
-    // O uso do prefixo "PM2026_" garante que não haja colisão com o projeto OAB
-    const PREFIXO = "PM2026";
-    const PATH_HISTORICO = `${PREFIXO}/HISTORICO_OFICIAL`;
-    const PATH_RASCUNHO = `${PREFIXO}/MASTER_RASCUNHO`;
+    <div class="card" data-search="prazo ipm preso solto cppm">
+        <span class="tag">PROC. PENAL MILITAR</span>
+        <h3>Prazos do IPM (Art. 20 CPPM)</h3>
+        <p>Indiciado Preso: 20 dias (Improrrogável).<br>Indiciado Solto: 40 dias (+20 dias).</p>
+        <button class="btn-inject" onclick="injetar('No que tange aos prazos, observa-se o cumprimento do Art. 20 do CPPM, uma vez que o indiciado se encontra preso...')">INJETAR NA PEÇA</button>
+    </div>
 
-    window.db = db;
-    
-    // Recuperação de estado isolada via LocalStorage com prefixo único
-    window.activeEx = localStorage.getItem(`${PREFIXO}_activeEx`) || "39";
-    window.modoAtual = localStorage.getItem(`${PREFIXO}_modoAtual`) || "TREINO"; 
-    window.pecaAtualNome = localStorage.getItem(`${PREFIXO}_pecaAtualNome`) || "NOVO TREINO PM";
+    <div class="card" data-search="não confunda insubordinação desobediência">
+        <span class="tag" style="background: #f472b6;">INTELIGÊNCIA: NÃO CONFUNDA</span>
+        <h3>Insubordinação vs Desobediência</h3>
+        <p>Insubordinação: Recusa de obediência a ordem sobre assunto de serviço (Art. 163 CPM). Exige militar vs militar.</p>
+        <button class="btn-inject" onclick="injetar('Não se confunde a desobediência comum com a insubordinação militar, esta última exige que a ordem seja sobre assunto de serviço...')">INJETAR NA PEÇA</button>
+    </div>
+</div>
 
-    window.historicoUndo = [];
-    let debounceTimer = null;
-    window.marcaTextoAtivo = false;
-    window.currentColor = '#fef08a';
-
-    // --- BIBLIOTECA DE APOIO ESPECÍFICA ---
-    window.LISTA_PDF_BIBLIOTECA = [
-        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
-        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
-        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO.pdf" },
-        { nome: "TESES OAB 2ª FASE", url: "TESES_OAB.pdf" },
-        { nome: "100 ARTIGOS PARA GRIFAR", url: "100_ARTIGOS.PDF" }
-    ];
-
-    window.onload = async () => {
-        // Inicializa a FolhaEngine (Garante as 150 linhas padrão FGV)
-        FolhaEngine.montar('folha-total');
-        atualizarDisplayModo(); 
-        
-        setTimeout(() => {
-            const ed = document.getElementById('editor-principal');
-            if(ed) {
-                ed.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        const html = ed.innerHTML;
-                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
-                            window.historicoUndo.push(html);
-                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
-                        }
-                    }, 800);
-                });
-                ed.addEventListener('mouseup', () => {
-                    if(window.marcaTextoAtivo) {
-                        const selection = window.getSelection();
-                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
-                    }
-                });
-            }
-        }, 1000);
-
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 30000); 
-    };
-
-    // --- INTELIGÊNCIA DOS EXAMES ANALISADOS (35-39) ---
-    window.injetarTeses = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ MARTELO: TESES (35-39)";
-        
-        content.innerHTML = `
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Súmula 369, I, TST: Estabilidade de dirigente sindical garantida mesmo com comunicação fora do prazo, se dentro do contrato.')"><span>Ex 35: Dirigente Sindical</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 614, §3º CLT: Vedada a ultratividade de norma coletiva. Acabou o prazo, acabou o direito.')"><span>Ex 36: Ultratividade</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 11-A CLT: Prescrição Intercorrente exige inércia por 2 anos (Exame 37 acusou erro em 1 ano).')"><span>Ex 37: Prescrição Execução</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('Art. 486 CLT: Fato do Príncipe. Paralisação por ato de autoridade municipal/estadual.')"><span>Ex 38: Fato do Príncipe</span></div>
-            <div class="opt-btn" onclick="FolhaEngine.injetarTextoMultilinhas('OJ 365 SDI-I: Membro de Conselho Fiscal não tem estabilidade (Exame 39).')"><span>Ex 39: Conselho Fiscal</span></div>
-        `;
-        modal.style.display = 'flex';
-    };
-
-    // --- GESTÃO DE GAVETAS (FIREBASE ISOLADO PM) ---
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        const tipo = window.modoAtual; 
-        const nomeAlvo = window.pecaAtualNome;
-
-        if(!confirm(`[PLANO PM] Salvar "${nomeAlvo}" na Gaveta [${tipo}]?`)) return;
-
-        try {
-            const idFinal = Date.now().toString();
-            const agora = new Date();
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-            
-            await set(ref(db, `${PATH_HISTORICO}/${idFinal}`), {
-                exame: tipo, 
-                peca: `${nomeAlvo} (${dataF})`, 
-                conteudo: ed.innerHTML,
-                origem: "PM_REDACOES"
-            });
-            alert("✅ Guardado no Plano de Voo PM!");
-        } catch (e) { alert("Erro ao salvar no Firebase PM."); }
-    };
-
-    // --- NAVEGAÇÃO E PDFs ---
-    window.verPDF = (t) => {
-        const f = document.getElementById('pdf-frame');
-        let url = "";
-        switch(t) {
-            case 'P': url = `ro${window.activeEx}.pdf`; break;
-            case 'G': url = `ro${window.activeEx}-gabarito.pdf`; break;
-            case 'V': url = 'vade.pdf'; break;
-            case 'LP': url = 'livro_processo.pdf'; break;
-            case 'LM': url = 'livro_material.pdf'; break;
-        }
-        f.src = url;
-        document.getElementById('pdf-title').innerText = `PM APOIO: ${url}`;
-        document.getElementById('pdf-viewer').classList.add('active');
-        window.toggleRecolherEditor(); 
-    };
-
-    window.abrirExames = () => {
-        const modal = document.getElementById('universal-modal');
-        document.getElementById('modal-title').innerText = "ESCOLHER EXAME (35-39)";
-        const content = document.getElementById('modal-content');
-        content.innerHTML = "";
-        for(let i=39; i>=35; i--) {
-            const b = document.createElement('div'); b.className = 'opt-btn'; 
-            b.innerHTML = `<span>EXAME ${i} ${i==39?'(ÚLTIMO)':''}</span> <i class="fas fa-chevron-right"></i>`;
-            b.onclick = () => { 
-                window.activeEx = i.toString(); 
-                window.modoAtual = i.toString(); 
-                window.pecaAtualNome = "PEÇA OFICIAL PM"; 
-                persistirERefrescar();
-                modal.style.display = 'none';
-            };
-            content.appendChild(b);
-        }
-        modal.style.display = 'flex';
-    };
-
-    // --- PERSISTÊNCIA E BACKUP ---
-    function persistirERefrescar() {
-        localStorage.setItem(`${PREFIXO}_modoAtual`, window.modoAtual);
-        localStorage.setItem(`${PREFIXO}_pecaAtualNome`, window.pecaAtualNome);
-        localStorage.setItem(`${PREFIXO}_activeEx`, window.activeEx);
-        atualizarDisplayModo();
-    }
-
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed && ed.innerText.trim() !== "") {
-            await set(ref(db, PATH_RASCUNHO), { 
-                conteudo: ed.innerHTML, 
-                timestamp: Date.now(),
-                contexto: "PM_WORK" 
-            }); 
+<script>
+    function filtrar() {
+        let input = document.getElementById('busca').value.toLowerCase();
+        let cards = document.getElementsByClassName('card');
+        for (let i = 0; i < cards.length; i++) {
+            let content = cards[i].getAttribute('data-search');
+            cards[i].style.display = content.includes(input) ? "" : "none";
         }
     }
 
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, PATH_RASCUNHO)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
+    function injetar(texto) {
+        // Comunica com a folha principal (index)
+        window.parent.injetarNaFolha(texto);
     }
-
-    // --- UI TOOLS ---
-    window.desfazer = () => {
-        if(window.historicoUndo.length > 1) {
-            window.historicoUndo.pop();
-            const estadoAnterior = window.historicoUndo[window.historicoUndo.length - 1];
-            document.getElementById('editor-principal').innerHTML = estadoAnterior;
-        }
-    };
-
-    window.renomearTreino = () => {
-        const n = prompt("Nome do Documento PM:", window.pecaAtualNome);
-        if (n) { window.pecaAtualNome = n; persistirERefrescar(); }
-    };
-
-    window.atualizarDisplayModo = () => {
-        const label = isNaN(window.modoAtual) ? window.modoAtual : "EXAME " + window.modoAtual;
-        document.getElementById('ex-display').innerText = `PM: ${label}`;
-        document.getElementById('identificador-peca').innerHTML = `${window.pecaAtualNome} <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
-    };
-
-    window.fecharPDF = () => {
-        document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
-        document.getElementById('editor-container').classList.remove('collapsed');
-    };
-
-    window.toggleRecolherEditor = () => {
-        document.getElementById('editor-container').classList.toggle('collapsed');
-        document.getElementById('pdf-viewer').classList.toggle('full-view');
-    };
-
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
-
 </script>
+</body>
+</html>
