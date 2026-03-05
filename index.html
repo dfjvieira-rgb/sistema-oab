@@ -45,11 +45,38 @@
         }
 
         .content-wrapper { flex: 1; display: flex; width: 100%; transition: all 0.4s ease; overflow: hidden; position: relative; }
-        .editor-container { flex: 1 0 100%; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px; transition: all 0.4s ease; }
-        .editor-container.collapsed { flex: 0 0 0%; overflow: hidden; padding: 0; }
 
-        .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: #fff; width: 100%; max-width: 850px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 15px; }
-        #identificador-peca { padding: 12px; background: #f8fafc; font-weight: 800; color: #020617; border-bottom: 2px solid var(--mpu-gold); cursor: pointer; font-size: 0.85rem; display: flex; justify-content: space-between; }
+        /* --- FOLHA ENGINE WRAPPER --- */
+        .editor-container { 
+            flex: 1 0 100%; display: flex; flex-direction: column; background: var(--bg-paper); 
+            overflow-y: auto; align-items: center; padding: 20px 10px; transition: all 0.4s ease;
+        }
+
+        .sticky-tools { 
+            position: sticky; top: -20px; z-index: 1000; background: #fff; width: 100%; max-width: 850px; 
+            border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 15px;
+        }
+        
+        #identificador-peca { 
+            padding: 12px; background: #f8fafc; text-align: left; padding-left: 20px; 
+            font-weight: 800; color: #020617; border-bottom: 2px solid var(--mpu-gold); 
+            cursor: pointer; font-size: 0.85rem; display: flex; justify-content: space-between;
+        }
+
+        /* BARRA DE MARCA TEXTO OAB STYLE */
+        .highlighter-bar {
+            display: flex; justify-content: center; gap: 15px; padding: 8px; background: #eee;
+            border-bottom: 1px solid #ddd;
+        }
+        .hl-btn { 
+            width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .hl-btn:hover { transform: scale(1.2); }
+        .hl-yellow { background: #ffff00; }
+        .hl-green { background: #00ff00; }
+        .hl-pink { background: #ff00ff; }
+        .hl-clear { background: #fff; border-color: #ccc; display: flex; align-items: center; justify-content: center; color: #333; font-size: 10px; }
 
         .paper { 
             width: 100%; max-width: 850px; background: white; min-height: 1500px; 
@@ -57,18 +84,20 @@
             background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
             background-size: 100% 28px; line-height: 28px;
         }
-        #editor-principal { outline: none; min-height: 900px; font-family: 'Courier New', monospace; font-size: 16px; text-align: justify; color: #000; }
+        #editor-principal { 
+            outline: none; min-height: 1200px; font-family: 'Courier New', monospace; 
+            font-size: 16px; text-align: justify; color: #000; 
+        }
 
+        /* --- PDF VIEWER --- */
         #pdf-viewer { flex: 0 0 0%; background: #fff; transition: all 0.4s ease; display: flex; flex-direction: column; overflow: hidden; border-left: 0 solid var(--mpu-gold); }
         #pdf-viewer.active { flex: 1 0 50%; border-left-width: 4px; }
-        #pdf-viewer.full-view { flex: 1 0 100%; }
         #pdf-frame { flex: 1; border: none; }
 
+        /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
         .modal-body { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 12px; color: #0f172a; max-height: 90vh; overflow-y: auto; position: relative; }
         .opt-btn { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; color: #1e293b; align-items: center; }
-
-        #ex-display { background: var(--mpu-gold); color: white; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,7 +105,7 @@
 <header>
     <div class="logo-area">
         <button id="toggle-menu" onclick="window.alternarSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="logo"><i class="fas fa-shield-halved"></i> PMDF | <span id="ex-display">INICIALIZANDO</span></div>
+        <div class="logo"><i class="fas fa-shield-halved"></i> ARSENAL PMDF | <span id="ex-display">MODO ESTUDO</span></div>
     </div>
     <div style="display: flex; gap: 15px; align-items: center;">
         <div id="relogio" style="font-family: monospace; font-weight: bold; color: var(--mpu-gold);"></div>
@@ -85,37 +114,49 @@
 
 <main>
     <aside class="sidebar" id="sidebar-menu">
-        <button class="btn-side" style="background:var(--sucesso);" onclick="window.finalizarPeca()"><i class="fas fa-check-double"></i> FINALIZAR E SALVAR</button>
+        <button class="btn-side" style="background:var(--sucesso);" onclick="window.finalizarPeca()"><i class="fas fa-save"></i> FINALIZAR E SALVAR</button>
         <button class="btn-side" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i> MINHAS GAVETAS</button>
         
         <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
         
-        <button class="btn-side" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> NOVA QUESTÃO</button>
-        <button class="btn-side" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> NOVA TESE PMDF</button>
-        <button class="btn-side" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> TREINO LIVRE</button>
+        <button class="btn-side" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> RESOLVER QUESTÕES</button>
+        <button class="btn-side" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> CRIAR TESE JURÍDICA</button>
+        <button class="btn-side" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> TREINO LIVRE (REDAÇÃO)</button>
         
         <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
 
-        <button class="btn-side" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-book"></i> NÚCLEO DURO (LEIS)</button>
+        <button class="btn-side" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-book"></i> VADE MECUM PMDF</button>
         <button class="btn-side" onclick="window.inteligenciaNaoConfunda()"><i class="fas fa-lightbulb"></i> NÃO CONFUNDA</button>
         <button class="btn-side" style="background:var(--perigo);" onclick="window.limparFolha()"><i class="fas fa-eraser"></i> LIMPAR TELA</button>
     </aside>
 
     <div class="content-wrapper">
-        <section class="editor-container" id="editor-container">
+        <section class="editor-container">
             <div class="sticky-tools">
                 <div id="identificador-peca" onclick="window.renomearTreino()">
-                    -- 
+                    <span><i class="fas fa-file-contract"></i> <span>CARREGANDO...</span></span>
+                    <span style="font-size: 10px; opacity: 0.7;">CLIQUE PARA RENOMEAR</span>
+                </div>
+                <div class="highlighter-bar">
+                    <div class="hl-btn hl-yellow" onclick="window.marcarTexto('#ffff00')" title="Amarelo"></div>
+                    <div class="hl-btn hl-green" onclick="window.marcarTexto('#00ff00')" title="Verde"></div>
+                    <div class="hl-btn hl-pink" onclick="window.marcarTexto('#ff00ff')" title="Rosa"></div>
+                    <div class="hl-btn hl-clear" onclick="window.marcarTexto('transparent')" title="Limpar"><i class="fas fa-times"></i></div>
                 </div>
             </div>
+            
             <div class="paper">
-                <div id="editor-principal" contenteditable="true" spellcheck="false"></div>
+                <div id="editor-principal" contenteditable="true" spellcheck="false">
+                    <p style="text-align: center;"><b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b></p>
+                    <p style="text-align: center; font-size: 12px;">NÚCLEO DE PREPARAÇÃO JURÍDICA ELITE</p>
+                    <hr style="margin: 20px 0;">
+                </div>
             </div>
         </section>
 
         <section id="pdf-viewer">
             <div style="background:#020617; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--mpu-gold);">
-                <span id="pdf-title" style="color:white; font-size:12px; font-weight:bold;">CONSULTA</span>
+                <span id="pdf-title" style="color:white; font-size:11px; font-weight:bold;">CONSULTA</span>
                 <button onclick="window.fecharPDF()" style="background:var(--mpu-gold); border:none; padding:5px 12px; border-radius:4px; color:white; font-size:10px; cursor:pointer;">FECHAR X</button>
             </div>
             <iframe id="pdf-frame" src=""></iframe>
@@ -138,7 +179,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Configuração Firebase (Sua base PMDF/Master)
     const firebaseConfig = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
         authDomain: "masteroab-db5e1.firebaseapp.com",
@@ -151,206 +191,173 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    window.db = db;
 
-    // --- ESTADOS DO SISTEMA (Lógica OAB Blindada) ---
-    window.activeEx = localStorage.getItem('activeEx') || "PMDF_2026";
-    window.modoTreinoLivre = localStorage.getItem('modoTreinoLivre') === "true";
+    // --- ESTADOS DO SISTEMA BLINDADOS ---
+    window.activeEx = localStorage.getItem('activeEx') || "PMDF_GERAL";
     window.modoQuestoes = localStorage.getItem('modoQuestoes') === "true";
     window.modoTeses = localStorage.getItem('modoTeses') === "true";
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO ESTUDO";
+    window.modoTreinoLivre = localStorage.getItem('modoTreinoLivre') === "true";
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO ESTUDO PMDF";
 
     window.onload = async () => {
-        atualizarDisplayModo();
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 30000);
+        window.atualizarDisplayModo();
+        await window.carregarRascunho();
+        setInterval(window.salvarAutomatico, 30000);
         setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
     };
 
-    // --- GERENCIADOR DE GAVETAS ---
+    // --- MARCA TEXTO ---
+    window.marcarTexto = (cor) => {
+        const sel = window.getSelection();
+        if (!sel.rangeCount || sel.isCollapsed) return;
+        if (cor === 'transparent') { document.execCommand('removeFormat', false, null); }
+        else { document.execCommand('hiliteColor', false, cor); }
+    };
+
+    // --- GAVETAS E SALVAMENTO ---
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 MINHA PASTA PMDF";
+        document.getElementById('modal-title').innerText = "📂 MEU ACERVO PMDF";
         content.innerHTML = `
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>GAVETA: QUESTÕES</span> <i class="fas fa-question-circle" style="color:var(--questoes)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>GAVETA: TREINOS</span> <i class="fas fa-edit" style="color:#facc15"></i></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>GAVETA: TESES JURÍDICAS</span> <i class="fas fa-gavel" style="color:var(--teses)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('PMDF_2026')"><span>ARQUIVOS GERAIS</span> <i class="fas fa-archive" style="color:var(--gold)"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>GAVETA: REDAÇÕES/TREINO</span> <i class="fas fa-pen-nib" style="color:var(--mentoria)"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('PMDF_GERAL')"><span>ARQUIVOS GERAIS</span> <i class="fas fa-archive" style="color:var(--gold)"></i></div>
         `;
         modal.style.display = 'flex';
     };
 
-    window.abrirGavetaEspecifica = async (tipoGaveta) => {
+    window.abrirGavetaEspecifica = async (gaveta) => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "block";
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
-        content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Acessando Nuvem...</div>";
+        document.getElementById('modal-title').innerText = `GAVETA: ${gaveta}`;
+        content.innerHTML = "<div style='text-align:center'><i class='fas fa-spinner fa-spin'></i> Acessando Nuvem...</div>";
         
         try {
             const snap = await get(ref(db, `producao_pmdf/HISTORICO`));
             content.innerHTML = "";
             if (snap.exists()) {
                 const dados = snap.val();
-                const filtrados = Object.keys(dados)
-                    .map(k => ({ id: k, ...dados[k] }))
-                    .filter(item => String(item.exame) === String(tipoGaveta));
-                
-                if(filtrados.length === 0) { content.innerHTML = "Gaveta vazia."; return; }
-
-                filtrados.reverse().forEach(item => {
+                const filtrados = Object.keys(dados).filter(k => dados[k].exame === gaveta);
+                if(filtrados.length === 0) content.innerHTML = "Gaveta vazia.";
+                filtrados.reverse().forEach(k => {
+                    const item = dados[k];
                     const div = document.createElement('div');
-                    div.style.cssText = "padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background:#fff; margin-bottom:8px; border-radius:8px;";
-                    div.innerHTML = `
-                        <div onclick="window.carregarPecaPasta('${item.id}')" style="cursor:pointer; flex:1;">
-                            <strong style="font-size:14px; color:#020617">${item.peca}</strong>
-                        </div>
-                        <div style="display:flex; gap:12px;">
-                            <i class="fas fa-trash" style="color:var(--perigo); cursor:pointer" onclick="window.deletarPecaPasta('${item.id}', '${tipoGaveta}')"></i>
-                        </div>
-                    `;
+                    div.className = "opt-btn";
+                    div.innerHTML = `<div><strong>${item.peca}</strong></div><i class="fas fa-trash" style="color:red" onclick="event.stopPropagation(); window.deletarPeca('${k}', '${gaveta}')"></i>`;
+                    div.onclick = () => window.carregarPecaPasta(k);
                     content.appendChild(div);
                 });
             } else { content.innerHTML = "Vazia."; }
         } catch (e) { content.innerHTML = "Erro de conexão."; }
     };
 
-    // --- SALVAMENTO BLINDADO ---
-    window.finalizarPeca = async () => { 
-        const ed = document.getElementById('editor-principal'); 
-        if(!ed || ed.innerText.trim() === "") return alert("Folha vazia!"); 
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        if(ed.innerText.trim() === "") return alert("Escreva algo primeiro!");
         
-        let tipoDestino = window.activeEx;
-        if (window.modoQuestoes) tipoDestino = "QUESTÕES";
-        else if (window.modoTeses) tipoDestino = "TESES";
-        else if (window.modoTreinoLivre) tipoDestino = "TREINO";
+        let destino = window.activeEx;
+        if (window.modoQuestoes) destino = "QUESTÕES";
+        else if (window.modoTeses) destino = "TESES";
+        else if (window.modoTreinoLivre) destino = "TREINO";
 
-        const nomeAlvo = window.pecaAtualNome;
+        const snap = await get(ref(db, `producao_pmdf/HISTORICO`));
+        let idFinal = Date.now().toString();
         
-        try {
-            const snap = await get(ref(db, `producao_pmdf/HISTORICO`));
-            let idFinal = Date.now().toString();
-            let jaExiste = false;
+        if (snap.exists()) {
+            const encontrado = Object.keys(snap.val()).find(k => snap.val()[k].peca.startsWith(window.pecaAtualNome) && snap.val()[k].exame === destino);
+            if (encontrado && confirm("Atualizar arquivo existente?")) idFinal = encontrado;
+        }
 
-            if (snap.exists()) {
-                const dados = snap.val();
-                const encontrado = Object.keys(dados).find(k => {
-                    const nomeLimpo = dados[k].peca.includes(' (') ? dados[k].peca.split(' (')[0] : dados[k].peca;
-                    return nomeLimpo === nomeAlvo && dados[k].exame === tipoDestino;
-                });
-                if (encontrado) {
-                    jaExiste = true;
-                    if (!confirm(`Atualizar arquivo "${nomeAlvo}" existente?`)) return;
-                    idFinal = encontrado;
-                }
-            }
-
-            const agora = new Date(); 
-            const dataF = agora.toLocaleDateString('pt-BR') + " " + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); 
-            
-            await set(ref(db, `producao_pmdf/HISTORICO/${idFinal}`), { 
-                exame: tipoDestino, 
-                peca: `${nomeAlvo} (${dataF})`, 
-                conteudo: ed.innerHTML 
-            }); 
-            
-            alert(`Sincronizado na gaveta ${tipoDestino}!`);
-        } catch (e) { alert("Erro ao salvar."); }
+        const dataF = new Date().toLocaleString('pt-BR');
+        await set(ref(db, `producao_pmdf/HISTORICO/${idFinal}`), {
+            exame: destino,
+            peca: `${window.pecaAtualNome} (${dataF})`,
+            conteudo: ed.innerHTML
+        });
+        alert("Sincronizado com sucesso!");
     };
 
-    // --- NAVEGAÇÃO E MODOS ---
-    window.atualizarDisplayModo = () => {
-        const display = document.getElementById('ex-display');
-        const ident = document.getElementById('identificador-peca');
-        display.innerText = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : (window.modoTreinoLivre ? "TREINO" : "GERAL"));
-        ident.innerHTML = `<span><i class="fas fa-file-contract"></i> ${window.pecaAtualNome}</span> <i class="fas fa-pen" style="font-size:10px; opacity:0.5"></i>`;
-    };
-
-    window.ativarModoQuestoes = () => { const n = prompt("Nome da Questão:"); if(n) { localStorage.setItem('modoQuestoes', "true"); localStorage.setItem('modoTeses', "false"); localStorage.setItem('modoTreinoLivre', "false"); localStorage.setItem('pecaAtualNome', n.toUpperCase()); window.location.reload(); } };
-    window.ativarModoTeses = () => { const n = prompt("Assunto da Tese:"); if(n) { localStorage.setItem('modoTeses', "true"); localStorage.setItem('modoQuestoes', "false"); localStorage.setItem('modoTreinoLivre', "false"); localStorage.setItem('pecaAtualNome', n.toUpperCase()); window.location.reload(); } };
-    window.ativarTreinoLivre = () => { const n = prompt("Nome do Treino:"); if(n) { localStorage.setItem('modoTreinoLivre', "true"); localStorage.setItem('modoQuestoes', "false"); localStorage.setItem('modoTeses', "false"); localStorage.setItem('pecaAtualNome', n.toUpperCase()); window.location.reload(); } };
-
-    window.carregarPecaPasta = async (k) => { 
-        const snap = await get(ref(db, `producao_pmdf/HISTORICO/${k}`)); 
-        if(snap.exists()){ 
-            const data = snap.val(); 
-            window.pecaAtualNome = data.peca.includes(' (') ? data.peca.split(' (')[0] : data.peca; 
-            localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
-            localStorage.setItem('modoQuestoes', data.exame === "QUESTÕES");
-            localStorage.setItem('modoTreinoLivre', data.exame === "TREINO");
-            localStorage.setItem('modoTeses', data.exame === "TESES");
+    window.carregarPecaPasta = async (k) => {
+        const snap = await get(ref(db, `producao_pmdf/HISTORICO/${k}`));
+        if(snap.exists()){
+            const data = snap.val();
             document.getElementById('editor-principal').innerHTML = data.conteudo;
-            document.getElementById('universal-modal').style.display='none'; 
-            atualizarDisplayModo(); 
-        } 
-    };
-
-    window.deletarPecaPasta = async (id, tipo) => {
-        if(confirm("Apagar permanentemente?")) {
-            await remove(ref(db, `producao_pmdf/HISTORICO/${id}`));
-            window.abrirGavetaEspecifica(tipo);
+            window.pecaAtualNome = data.peca.split(' (')[0];
+            localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+            document.getElementById('universal-modal').style.display = 'none';
+            window.atualizarDisplayModo();
         }
     };
 
-    // --- UTILITÁRIOS ---
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed) await set(ref(db, `producao_pmdf/RASCUNHO_LIVE`), { conteudo: ed.innerHTML, nome: window.pecaAtualNome }); 
-    }
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, `producao_pmdf/RASCUNHO_LIVE`)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
+    window.deletarPeca = async (id, gaveta) => {
+        if(confirm("Excluir para sempre?")) {
+            await remove(ref(db, `producao_pmdf/HISTORICO/${id}`));
+            window.abrirGavetaEspecifica(gaveta);
+        }
+    };
+
+    // --- MODOS ---
+    window.atualizarDisplayModo = () => {
+        document.getElementById('ex-display').innerText = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : (window.modoTreinoLivre ? "REDAÇÃO" : "GERAL"));
+        document.getElementById('identificador-peca').querySelector('span span').innerText = window.pecaAtualNome;
+    };
+
+    window.ativarModoQuestoes = () => { const n = prompt("ID da Questão:"); if(n) { window.resetModos(); localStorage.setItem('modoQuestoes', "true"); localStorage.setItem('pecaAtualNome', "QUESTÃO: " + n.toUpperCase()); window.location.reload(); } };
+    window.ativarModoTeses = () => { const n = prompt("Assunto da Tese:"); if(n) { window.resetModos(); localStorage.setItem('modoTeses', "true"); localStorage.setItem('pecaAtualNome', "TESE: " + n.toUpperCase()); window.location.reload(); } };
+    window.ativarTreinoLivre = () => { const n = prompt("Título da Redação:"); if(n) { window.resetModos(); localStorage.setItem('modoTreinoLivre', "true"); localStorage.setItem('pecaAtualNome', n.toUpperCase()); window.location.reload(); } };
+
+    window.resetModos = () => {
+        localStorage.setItem('modoQuestoes', "false");
+        localStorage.setItem('modoTeses', "false");
+        localStorage.setItem('modoTreinoLivre', "false");
+    };
+
+    // --- RASCUNHO ---
+    window.salvarAutomatico = async () => {
+        const html = document.getElementById('editor-principal').innerHTML;
+        await set(ref(db, `producao_pmdf/RASCUNHO_LIVE`), { conteudo: html, nome: window.pecaAtualNome });
+    };
+
+    window.carregarRascunho = async () => {
+        const snap = await get(ref(db, `producao_pmdf/RASCUNHO_LIVE`));
+        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo;
+    };
 
     window.alternarSidebar = () => document.getElementById('sidebar-menu').classList.toggle('collapsed');
-    window.renomearTreino = () => { const n = prompt("Renomear estudo:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n.toUpperCase(); atualizarDisplayModo(); } };
-    window.limparFolha = () => confirm("Limpar tela?") && (document.getElementById('editor-principal').innerHTML = "");
-    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active', 'full-view'); };
+    window.renomearTreino = () => { const n = prompt("Novo nome:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n.toUpperCase(); window.atualizarDisplayModo(); } };
+    window.limparFolha = () => confirm("Apagar tudo?") && (document.getElementById('editor-principal').innerHTML = "");
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
 
-    // --- NÚCLEO DURO PDFS ---
     window.abrirBibliotecaPDF = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "VADE MECUM PMDF";
-        const leis = [
-            { n: "ESTATUTO PMDF", u: "https://www.planalto.gov.br/ccivil_03/leis/l7289.htm" },
-            { n: "CPM", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" },
-            { n: "CPPM", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" }
-        ];
-        content.innerHTML = "";
-        leis.forEach(l => {
-            const b = document.createElement('div'); b.className = 'opt-btn';
-            b.innerHTML = `<span>${l.n}</span> <i class="fas fa-file-pdf" style="color:red"></i>`;
-            b.onclick = () => {
-                document.getElementById('pdf-frame').src = l.u;
-                document.getElementById('pdf-title').innerText = l.n;
-                document.getElementById('pdf-viewer').classList.add('active');
-                modal.style.display = 'none';
-            };
-            content.appendChild(b);
-        });
+        content.innerHTML = `<div class="opt-btn" onclick="window.abrirPDF('ESTATUTO PMDF', 'https://www.planalto.gov.br/ccivil_03/leis/l7289.htm')">ESTATUTO PMDF</div>
+                             <div class="opt-btn" onclick="window.abrirPDF('CPM', 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm')">CÓD. PENAL MILITAR</div>`;
         modal.style.display = 'flex';
+    };
+
+    window.abrirPDF = (titulo, url) => {
+        document.getElementById('pdf-frame').src = url;
+        document.getElementById('pdf-title').innerText = titulo;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
     window.inteligenciaNaoConfunda = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "DICAS: NÃO CONFUNDA";
-        const dicas = [
-            { t: "Exclusão vs. Expulsão", d: "Exclusão: Administrativo/Praças sem estabilidade. Expulsão: Sanção moral/estáveis." }
-        ];
-        content.innerHTML = "";
-        dicas.forEach(d => {
-            const b = document.createElement('div'); b.className = 'opt-btn';
-            b.innerHTML = `<span>${d.t}</span>`;
-            b.onclick = () => {
-                document.getElementById('editor-principal').innerHTML += `<div style="background:#fef9c3; padding:10px; border-left:4px solid var(--mpu-gold); color:#000; margin:10px 0;"><b>DICA:</b> ${d.d}</div>`;
-                modal.style.display = 'none';
-            };
-            content.appendChild(b);
-        });
+        document.getElementById('modal-title').innerText = "DICAS PMDF";
+        content.innerHTML = `<div class="opt-btn" onclick="window.colarDica('Exclusão vs Expulsão', 'Exclusão: Administrativa. Expulsão: Sanção Moral.')">EXCLUSÃO VS EXPULSÃO</div>`;
         modal.style.display = 'flex';
+    };
+
+    window.colarDica = (t, d) => {
+        document.getElementById('editor-principal').innerHTML += `<div style="background:#fef9c3; padding:10px; border-left:4px solid var(--mpu-gold); margin:10px 0; color:#000;"><b>${t}:</b> ${d}</div>`;
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
 </script>
