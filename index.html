@@ -3,176 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MASTER PMDF | ELITE NÚCLEO DURO</title>
+    <title>SISTEMA JURÍDICO | PMDF ELITE FINAL</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
-            --bg-paper: #cbd5e1; --mentoria: #a855f7; 
-            --sidebar-w-collapsed: 60px;
-            --sidebar-w-expanded: 240px;
-            --success: #10b981; --biblioteca: #3b82f6; --perigo: #ef4444;
+            --mpu-green: #064e3b; --mpu-blue: #0c4a6e; --mpu-gold: #b45309;
+            --bg-paper: #cbd5e1; --sidebar-w: 260px; --sucesso: #166534; --perigo: #991b1b;
+            --juris: #4338ca; --redacao: #c2410c; --info: #0369a1;
             color-scheme: light !important;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        header { 
-            background: var(--primary); height: 55px; padding: 0 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 2px solid var(--gold); z-index: 5000; 
-        }
-
-        .logo { font-size: 1rem; font-weight: 900; color: white; letter-spacing: 1px; }
-        .logo span { color: var(--gold); }
-
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
-        
-        /* SIDEBAR INTELIGENTE (GAVETA) */
-        .sidebar { 
-            width: var(--sidebar-w-collapsed); 
-            background: #1e293b; 
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--mpu-blue); 
+            height: 100vh; 
             display: flex; 
             flex-direction: column; 
-            padding: 10px 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            z-index: 1000;
-            white-space: nowrap;
+            overflow: hidden; 
+            color: white;
         }
-        .sidebar:hover { width: var(--sidebar-w-expanded); }
-
-        .btn-side { 
-            width: 100%; height: 50px; border: none; background: transparent;
-            display: flex; align-items: center; color: white; cursor: pointer; 
-            transition: 0.2s; padding: 0 18px; gap: 15px; text-decoration: none;
-        }
-        .btn-side i { min-width: 25px; font-size: 18px; text-align: center; }
-        .btn-side span { opacity: 0; transition: 0.3s; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-        .sidebar:hover span { opacity: 1; }
-        .btn-side:hover { background: rgba(255,255,255,0.1); color: var(--gold); }
-
-        /* AREA DE CONTEUDO */
-        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); position: relative; }
         
+        header { 
+            background: linear-gradient(90deg, #001a33 0%, var(--mpu-green) 100%); 
+            height: 60px; padding: 0 25px; display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 3px solid var(--mpu-gold); z-index: 5000; 
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        #toggle-menu { background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        
+        .sidebar { 
+            width: var(--sidebar-w); background: #020617; display: flex; flex-direction: column; gap: 8px; 
+            padding: 15px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; z-index: 100;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.collapsed { margin-left: calc(var(--sidebar-w) * -1); }
+        
+        .btn-side { 
+            width: 100%; min-height: 42px; border: none; border-radius: 6px; 
+            display: flex; align-items: center; padding: 0 15px; 
+            color: white; font-weight: 600; cursor: pointer; gap: 10px; 
+            font-size: 0.7rem; text-transform: uppercase; transition: 0.2s; 
+            background: rgba(255,255,255,0.05); 
+        }
+
+        .content-wrapper { flex: 1; display: flex; width: 100%; transition: all 0.4s ease; overflow: hidden; position: relative; }
+
         .editor-container { 
-            flex: 1 0 100%; display: flex; flex-direction: column; overflow-y: auto; 
-            align-items: center; padding: 20px 10px; transition: all 0.4s ease; 
+            flex: 1 0 100%; display: flex; flex-direction: column; background: var(--bg-paper); 
+            overflow-y: auto; align-items: center; padding: 20px 10px; transition: all 0.4s ease;
         }
         .content-wrapper.dual-active .editor-container { flex: 1 0 50%; }
 
-        /* PDF VIEWER */
-        #pdf-viewer { 
-            flex: 0 0 0%; background: #FFFFFF !important; transition: all 0.4s ease; 
-            display: flex; flex-direction: column; overflow: hidden; visibility: hidden;
-            border-left: 0px solid var(--gold);
+        .sticky-tools { 
+            position: sticky; top: -20px; z-index: 1000; background: #fff; width: 100%; max-width: 850px; 
+            border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 15px;
         }
-        #pdf-viewer.active { flex: 1 0 50%; visibility: visible; border-left: 4px solid var(--gold); }
         
-        #pdf-frame { width: 100%; flex: 1; border: none; background: #FFFFFF !important; }
-
-        /* FOLHA DE RESPOSTA */
-        .sticky-tools { position: sticky; top: -20px; z-index: 800; background: white; width: 100%; max-width: 800px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        #identificador-peca { padding: 12px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--gold); cursor: pointer; font-size: 13px; }
+        #identificador-peca { 
+            padding: 12px; background: #f8fafc; text-align: left; padding-left: 20px; 
+            font-weight: 800; color: var(--mpu-blue); border-bottom: 2px solid var(--mpu-gold); 
+            cursor: pointer; font-size: 0.85rem; display: flex; justify-content: space-between;
+        }
         
-        .paper { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); min-height: 1200px; padding: 50px; color: #1e293b; }
-        #folha-total { outline: none; min-height: 1100px; font-family: 'Courier New', monospace; font-size: 17px; line-height: 1.6; }
+        .paper { 
+            width: 100%; max-width: 850px; background: white; min-height: 1500px; 
+            padding: 60px; color: #1e293b; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 100% 28px; line-height: 28px;
+        }
+        
+        #folha-total { outline: none; min-height: 900px; font-family: 'Courier New', monospace; font-size: 16px; text-align: justify; }
 
-        /* BOTAO MOBILE (TROCA DE TELA) */
+        #pdf-viewer { 
+            flex: 0 0 0%; 
+            background: #FFFFFF !important; 
+            transition: all 0.4s ease; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            border-left: 0 solid var(--mpu-gold);
+            filter: none !important;
+        }
+        .content-wrapper.dual-active #pdf-viewer { flex: 1 0 50%; border-left-width: 4px; }
+        
+        #pdf-frame { 
+            flex: 1; 
+            border: none; 
+            background: #FFFFFF !important; 
+            color-scheme: light !important;
+            box-shadow: inset 0 0 0 2000px #FFFFFF !important;
+        }
+        
         #mobile-switch {
-            display: none; position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px;
-            background: var(--gold); color: #000; border-radius: 50%; border: none;
-            z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 24px;
+            display: none; position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
+            background: var(--mpu-gold); color: white; border-radius: 50%; border: none;
+            z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 20px;
         }
 
         @media (max-width: 768px) {
-            .sidebar { position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row; justify-content: space-around; padding: 0; border-right: none; border-top: 2px solid var(--gold); }
-            .sidebar:hover { width: 100%; }
-            .btn-side { flex-direction: column; justify-content: center; padding: 0; gap: 4px; font-size: 9px; }
-            .btn-side span { opacity: 1; font-size: 8px; }
-            .sidebar i { font-size: 16px; }
-            .editor-container { padding-bottom: 80px; }
-            .content-wrapper.dual-active .editor-container { flex: 1 0 100%; display: none; }
-            .content-wrapper.dual-active.show-editor .editor-container { display: flex; }
-            .content-wrapper.dual-active.show-editor #pdf-viewer { display: none; }
-            #pdf-viewer.active { flex: 1 0 100%; }
-            #mobile-switch.visible { display: block; }
+            .content-wrapper.dual-active .editor-container { flex: 1 0 100%; }
+            .content-wrapper.dual-active #pdf-viewer { 
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                flex: none; z-index: 2000; transform: translateX(0); border-left: none;
+                background: #FFFFFF !important;
+                box-shadow: inset 0 0 0 2000px #FFFFFF !important;
+            }
+            .content-wrapper.dual-active.show-editor #pdf-viewer { transform: translateX(100%); }
+            .content-wrapper.dual-active #mobile-switch { display: block; }
+            .sidebar { position: absolute; height: 100%; z-index: 6000; }
             .paper { padding: 30px 15px; }
         }
 
-        /* MODAIS */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; color: #333; }
-        .opt-btn { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #ddd; background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
-        .tag-lei { font-size: 10px; background: var(--primary); color: var(--gold); padding: 2px 6px; border-radius: 4px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 110000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-body { background: white; width: 100%; max-width: 550px; padding: 25px; border-radius: 12px; color: #0f172a; max-height: 90vh; overflow-y: auto; }
+        
+        .opt-btn { width: 100%; padding: 10px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #ddd; background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; font-size: 0.75rem; align-items: center; color: var(--mpu-blue); }
+        .tag-lei { font-size: 9px; background: var(--mpu-green); color: #fff; padding: 2px 6px; border-radius: 4px; }
+        
+        #timer-box { font-family: monospace; color: var(--mpu-gold); font-size: 14px; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">PMDF <span>ELITE</span> | NÚCLEO DURO</div>
-    <div id="relogio" style="color:var(--gold); font-family:monospace; font-weight:bold;"></div>
+    <div class="logo-area">
+        <button id="toggle-menu" onclick="window.alternarSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="logo"><i class="fas fa-shield-halved"></i> ARSENAL PMDF | <span>NÚCLEO DURO</span></div>
+    </div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <div id="timer-box">SESSÃO: <span id="sessao-timer">00:00:00</span></div>
+        <div id="relogio" style="font-family: monospace; font-weight: bold; color: var(--mpu-gold);"></div>
+    </div>
 </header>
 
 <main>
-    <aside class="sidebar" id="sidebar">
-        <button class="btn-side" onclick="window.location.reload()">
-            <i class="fas fa-plus-circle" style="color:var(--gold)"></i> <span>NOVA MISSÃO</span>
-        </button>
-        <button class="btn-side" onclick="window.abrirSalvar()">
-            <i class="fas fa-save" style="color:var(--success)"></i> <span>SALVAR</span>
-        </button>
-        <button class="btn-side" onclick="window.abrirGavetaArquivos()">
-            <i class="fas fa-folder-open"></i> <span>ARQUIVOS</span>
-        </button>
-        <button class="btn-side" onclick="window.abrirNucleoDuro()">
-            <i class="fas fa-gavel" style="color:var(--gold)"></i> <span>NÚCLEO DURO</span>
-        </button>
-        <button class="btn-side" onclick="window.abrirNaoConfunda()">
-            <i class="fas fa-lightbulb" style="color:var(--mentoria)"></i> <span>INTELIGÊNCIA</span>
-        </button>
-        <div style="flex:1" class="spacer-mobile"></div>
-        <button class="btn-side" onclick="window.limpar()" style="color:var(--perigo)">
-            <i class="fas fa-trash-alt"></i> <span>LIMPAR</span>
-        </button>
+    <aside class="sidebar" id="sidebar-menu">
+        <div style="font-size: 9px; color: var(--mpu-gold); font-weight: 900; margin: 10px 0; letter-spacing: 1px;">CONTROLE DE MISSÃO</div>
+        <button class="btn-side" style="background:var(--sucesso);" onclick="window.salvarNasGavetas()"><i class="fas fa-save"></i> SALVAR NA NUVEM</button>
+        <button class="btn-side" onclick="window.abrirGavetas()"><i class="fas fa-box-archive"></i> MEUS ARQUIVOS</button>
+        
+        <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+        
+        <button class="btn-side" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-book-atlas"></i> NÚCLEO DURO (LEIS)</button>
+        <button class="btn-side" style="background:var(--juris);" onclick="window.abrirJurisprudencia()"><i class="fas fa-gavel"></i> JURIS / STF / STJ</button>
+        <button class="btn-side" style="background:var(--redacao);" onclick="window.abrirRedacao()"><i class="fas fa-pen-nib"></i> TREINO DISCURSIVO</button>
+        <button class="btn-side" style="background:var(--info);" onclick="window.inteligenciaNaoConfunda()"><i class="fas fa-lightbulb"></i> NÃO CONFUNDA</button>
+
+        <div style="margin: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);"></div>
+        <button class="btn-side" style="background:var(--perigo);" onclick="window.limparTela()"><i class="fas fa-eraser"></i> LIMPAR TELA</button>
     </aside>
 
     <div class="content-wrapper" id="master-wrapper">
-        <button id="mobile-switch" onclick="window.toggleMobile()"><i class="fas fa-exchange-alt"></i></button>
-
+        <button id="mobile-switch" onclick="window.toggleMobileView()"><i class="fas fa-exchange-alt"></i></button>
+        
         <section class="editor-container">
             <div class="sticky-tools">
-                <div id="identificador-peca" onclick="window.renomear()">MISSÃO SEM TÍTULO</div>
+                <div id="identificador-peca" onclick="window.renomear()">
+                    <span><i class="fas fa-file-contract"></i> <span>ESTUDO PMDF: SEM TÍTULO</span></span>
+                    <span style="font-size: 10px; opacity: 0.7;">CLIQUE PARA RENOMEAR</span>
+                </div>
             </div>
             <div class="paper">
                 <div id="folha-total" contenteditable="true" spellcheck="false">
-                    <p style="text-align:center"><b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b></p>
-                    <p style="text-align:center; font-size:12px">SISTEMA DE TREINAMENTO AVANÇADO</p>
-                    <hr><br>
+                    <p style="text-align: center;"><b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b></p>
+                    <p style="text-align: center; font-size: 12px;">SISTEMA INTEGRADO DE PREPARAÇÃO OPERACIONAL/JURÍDICA</p>
+                    <hr style="margin: 20px 0;">
+                    <br>
                 </div>
             </div>
         </section>
 
         <section id="pdf-viewer">
-            <div style="background:#0f172a; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span id="pdf-title" style="color:var(--gold); font-weight:bold; font-size:12px;">CONSULTA</span>
-                <button onclick="window.fecharPDF()" style="background:red; color:white; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
+            <div style="background:#001a33; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid var(--mpu-gold);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="btn-foco-mobile" style="display:none; background:var(--mpu-gold); border:none; padding:4px 8px; border-radius:4px; color:white; font-weight:bold; font-size:10px;" onclick="window.toggleMobileView()">LER / ESCREVER</button>
+                    <span id="pdf-title" style="color:white; font-size:11px; font-weight:bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 150px;">CONSULTA</span>
+                </div>
+                <button onclick="window.fecharPDF()" style="background:var(--mpu-gold); border:none; padding:5px 15px; border-radius:4px; font-weight:bold; cursor:pointer; color:white; font-size:10px;">FECHAR X</button>
             </div>
             <iframe id="pdf-frame" src=""></iframe>
         </section>
     </div>
 </main>
 
-<div class="modal" id="modal-leis">
+<div class="modal" id="modal-base">
     <div class="modal-body">
-        <h2 style="margin-bottom:15px; border-bottom:2px solid var(--gold)">NÚCLEO DURO PMDF</h2>
-        <div id="lista-leis"></div>
-        <button onclick="window.fecharModais()" style="width:100%; margin-top:15px; padding:10px; background:#333; color:white; border:none; border-radius:6px;">FECHAR</button>
+        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:3px solid var(--mpu-green); padding-bottom:10px; font-size:1.1rem; color:var(--mpu-blue)"></h2>
+        <div id="modal-content"></div>
+        <button onclick="document.getElementById('modal-base').style.display='none'" style="width:100%; padding:12px; background:#000; color:white; border-radius:6px; margin-top:20px; cursor:pointer; border:none;">FECHAR</button>
     </div>
 </div>
 
@@ -192,77 +216,194 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const BASE_PATH = "SISTEMA_PMDF_ELITE/GAVETAS";
 
-    window.pecaNome = "MISSÃO SEM TÍTULO";
+    window.pecaNome = "ESTUDO PMDF: SEM TÍTULO";
 
-    const LEIS_PMDF = [
-        { n: "CONSTITUIÇÃO", t: "CF/88 Art. 144", u: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm#art144" },
-        { n: "LEI 7.289/84", t: "Estatuto da PMDF", u: "https://www.planalto.gov.br/ccivil_03/leis/l7289.htm" },
-        { n: "LEI 12.086/09", t: "Promoção de Oficiais/Praças", u: "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l12086.htm" },
-        { n: "LEI 6.450/77", t: "Organização Básica PMDF", u: "https://www.planalto.gov.br/ccivil_03/leis/l6450.htm" },
-        { n: "DEC. 4.346/02", t: "RDE - Regulamento Disciplinar", u: "https://www.planalto.gov.br/ccivil_03/decreto/2002/d4346.htm" },
-        { n: "CPPM", t: "Proc. Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" },
-        { n: "CPM", t: "Código Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" }
-    ];
-
-    window.abrirNucleoDuro = () => {
-        const container = document.getElementById('lista-leis');
-        container.innerHTML = "";
-        LEIS_PMDF.forEach(lei => {
-            const btn = document.createElement('div');
-            btn.className = 'opt-btn';
-            btn.innerHTML = `<span><span class="tag-lei">${lei.n}</span> ${lei.t}</span> <i class="fas fa-chevron-right"></i>`;
-            btn.onclick = () => {
-                document.getElementById('pdf-frame').src = lei.u;
-                document.getElementById('pdf-title').innerText = lei.n;
-                document.getElementById('pdf-viewer').classList.add('active');
-                document.getElementById('master-wrapper').classList.add('dual-active');
-                document.getElementById('mobile-switch').classList.add('visible');
-                window.fecharModais();
-            };
-            container.appendChild(btn);
-        });
-        document.getElementById('modal-leis').style.display = 'flex';
-    };
-
-    window.toggleMobile = () => {
+    window.toggleMobileView = () => {
         document.getElementById('master-wrapper').classList.toggle('show-editor');
     };
 
+    // --- NÚCLEO DURO PMDF ATUALIZADO ---
+    const NUCLEO_DURO = [
+        { n: "L. 7.289/84", t: "Estatuto dos Policiais Militares (PMDF)", u: "https://www.planalto.gov.br/ccivil_03/leis/l7289.htm" },
+        { n: "L. 6.450/77", t: "Lei de Organização Básica (LOB)", u: "https://www.planalto.gov.br/ccivil_03/leis/l6450.htm" },
+        { n: "L. 12.086/09", t: "Lei de Promoções PMDF/CBMDF", u: "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l12086.htm" },
+        { n: "LODF", t: "Lei Orgânica do Distrito Federal", u: "https://www.sinj.df.gov.br/sinj/Norma/53412/Lei_Org_nica_do_Distrito_Federal.html" },
+        { n: "CPM", t: "Código Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" },
+        { n: "CPPM", t: "Cód. Processo Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" },
+        { n: "L. 4.898/65", t: "Abuso de Autoridade (Nova L. 13.869)", u: "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm" },
+        { n: "L. 8.069/90", t: "ECA - Estatuto da Criança", u: "https://www.planalto.gov.br/ccivil_03/leis/l8069.htm" }
+    ];
+
+    const CATEGORIAS = [
+        { id: "PECAS", nome: "Relatórios e Autos", icon: "fa-file-signature" },
+        { id: "TESES", nome: "Teses Jurídicas Criminais", icon: "fa-scale-balanced" },
+        { id: "JURIS", nome: "Jurisprudência Militar", icon: "fa-gavel" },
+        { id: "NAO_CONFUNDA", nome: "Dicas de Prova/Rua", icon: "fa-lightbulb" }
+    ];
+
+    window.alternarSidebar = () => {
+        const side = document.getElementById('sidebar-menu');
+        side.classList.toggle('collapsed');
+    };
+
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "VADE MECUM NÚCLEO DURO PMDF";
+        content.innerHTML = "";
+        NUCLEO_DURO.forEach(lei => {
+            const d = document.createElement('div'); d.className = 'opt-btn';
+            d.innerHTML = `<span><span class="tag-lei">${lei.n}</span> ${lei.t}</span>`;
+            d.onclick = () => {
+                document.getElementById('pdf-frame').src = lei.u;
+                document.getElementById('pdf-title').innerText = lei.n;
+                document.getElementById('master-wrapper').classList.add('dual-active');
+                modal.style.display = 'none';
+                document.getElementById('sidebar-menu').classList.add('collapsed');
+                document.getElementById('master-wrapper').classList.remove('show-editor');
+            };
+            content.appendChild(d);
+        });
+        modal.style.display = 'flex';
+    };
+
     window.fecharPDF = () => {
-        document.getElementById('pdf-viewer').classList.remove('active');
         document.getElementById('master-wrapper').classList.remove('dual-active');
-        document.getElementById('mobile-switch').classList.remove('visible');
+        document.getElementById('pdf-frame').src = "";
     };
 
-    window.fecharModais = () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-
-    window.renomear = () => {
-        const n = prompt("NOME DA MISSÃO:", window.pecaNome);
-        if(n) { window.pecaNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.pecaNome; }
+    window.salvarNasGavetas = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "SINCRONIZAR ARQUIVO PMDF";
+        content.innerHTML = `<p style="font-size:11px; margin-bottom:10px;">Documento: <b>${window.pecaNome}</b></p>`;
+        CATEGORIAS.forEach(cat => {
+            const btn = document.createElement('div'); btn.className = 'opt-btn';
+            btn.innerHTML = `<span><i class="fas ${cat.icon}"></i> &nbsp; ${cat.nome}</span>`;
+            btn.onclick = async () => {
+                const conteudo = document.getElementById('folha-total').innerHTML;
+                const path = `${BASE_PATH}/${cat.id}`;
+                const snap = await get(ref(db, path));
+                let keyEncontrada = null;
+                if (snap.exists()) {
+                    const dados = snap.val();
+                    keyEncontrada = Object.keys(dados).find(key => dados[key].nome === window.pecaNome);
+                }
+                const finalKey = keyEncontrada || Date.now().toString();
+                await set(ref(db, `${path}/${finalKey}`), { nome: window.pecaNome, data: new Date().toLocaleString(), conteudo: conteudo });
+                alert("Base PMDF Atualizada!"); modal.style.display = 'none';
+            };
+            content.appendChild(btn);
+        });
+        modal.style.display = 'flex';
     };
 
-    window.limpar = () => confirm("Deseja apagar tudo?") && (document.getElementById('folha-total').innerHTML = "");
-
-    window.abrirSalvar = async () => {
-        const id = Date.now().toString();
-        const cont = document.getElementById('folha-total').innerHTML;
-        await set(ref(db, `PMDF_ELITE/GAVETA/${id}`), { nome: window.pecaNome, conteudo: cont, data: new Date().toLocaleString() });
-        alert("Sincronizado na Nuvem PMDF!");
+    window.abrirGavetas = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "ACERVO DE ESTUDOS PMDF";
+        content.innerHTML = "";
+        CATEGORIAS.forEach(cat => {
+            const btn = document.createElement('div'); btn.className = 'opt-btn';
+            btn.innerHTML = `<span><i class="fas ${cat.icon}"></i> &nbsp; ${cat.nome}</span>`;
+            btn.onclick = () => window.listarArquivos(cat.id, cat.nome);
+            content.appendChild(btn);
+        });
+        modal.style.display = 'flex';
     };
 
-    window.abrirNaoConfunda = () => {
-        const dicas = [
-            "Crime Militar Próprio vs. Impróprio",
-            "Transgressão Disciplinar vs. Crime Militar",
-            "Pena de Reclusão vs. Detenção no CPM"
+    window.listarArquivos = async (catId, catNome) => {
+        const content = document.getElementById('modal-content');
+        content.innerHTML = "Lendo nuvem...";
+        const snap = await get(ref(db, `${BASE_PATH}/${catId}`));
+        content.innerHTML = `<div onclick="window.abrirGavetas()" style="cursor:pointer; color:var(--mpu-blue); font-weight:bold; margin-bottom:10px;">← Voltar</div>`;
+        if (snap.exists()) {
+            Object.keys(snap.val()).reverse().forEach(k => {
+                const item = snap.val()[k];
+                const d = document.createElement('div'); d.className = 'opt-btn';
+                d.innerHTML = `<span>${item.nome} <br><small style="font-size:9px;">Sinc: ${item.data}</small></span>`;
+                d.onclick = () => {
+                    document.getElementById('folha-total').innerHTML = item.conteudo;
+                    window.pecaNome = item.nome;
+                    document.getElementById('identificador-peca').querySelector('span span').innerText = item.nome;
+                    document.getElementById('modal-base').style.display = 'none';
+                };
+                content.appendChild(d);
+            });
+        } else { content.innerHTML += "<p>Gaveta Vazia.</p>"; }
+    };
+
+    window.abrirJurisprudencia = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "JURISPRUDÊNCIA CRIMINAL/MILITAR";
+        const links = [
+            { n: "STF Informativos", u: "https://portal.stf.jus.br/informativo/" },
+            { n: "STJ Juris Tese", u: "https://scon.stj.jus.br/SCON/" },
+            { n: "TJDFT Jurisprudência", u: "https://www.tjdft.jus.br/jurisprudencia" }
         ];
-        const d = prompt("INTELIGÊNCIA PMDF:\n\n1. " + dicas[0] + "\n2. " + dicas[1] + "\n3. " + dicas[2] + "\n\nDigite o número para inserir:");
-        if(d) {
-            document.getElementById('folha-total').innerHTML += `<div style="background:#fff3cd; padding:10px; border-left:5px solid #ffc107; margin:10px 0;"><b>DICA PMDF:</b> Estudo sobre ${dicas[d-1]}</div>`;
-        }
+        content.innerHTML = "";
+        links.forEach(l => {
+            const btn = document.createElement('div'); btn.className = 'opt-btn';
+            btn.innerHTML = `<span>${l.n} <i class="fas fa-external-link-alt"></i></span>`;
+            btn.onclick = () => { window.open(l.u, '_blank'); };
+            content.appendChild(btn);
+        });
+        modal.style.display = 'flex';
     };
 
+    window.inteligenciaNaoConfunda = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "DICAS: PMDF NÃO CONFUNDA";
+        const dicas = [
+            { t: "Exclusão vs. Expulsão", d: "Exclusão é gênero ou para praças sem estabilidade. Expulsão é sanção moral para praças com estabilidade." },
+            { t: "Transgressão vs. Crime", d: "Transgressão é erro administrativo (RDE). Crime Militar é infração penal (CPM)." },
+            { t: "LODF Art. 102", d: "Compete à PMDF a polícia ostensiva e a preservação da ordem pública no DF." }
+        ];
+        content.innerHTML = "";
+        dicas.forEach(item => {
+            const b = document.createElement('div'); b.className = 'opt-btn';
+            b.innerHTML = `<span><b>${item.t}</b></span>`;
+            b.onclick = () => { document.getElementById('folha-total').innerHTML += `<div style="background:#fef9c3; padding:10px; border-left:4px solid var(--mpu-gold); margin:10px 0;"><b>NÃO CONFUNDA:</b> ${item.d}</div>`; modal.style.display='none'; };
+            content.appendChild(b);
+        });
+        modal.style.display = 'flex';
+    };
+
+    window.abrirRedacao = () => {
+        const modal = document.getElementById('modal-base');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "TREINO DISCURSIVO PMDF";
+        const temas = ["Uso Progressivo da Força", "Hierarquia e Disciplina como Pilares", "O Policial Militar em Folga e o Flagrante"];
+        content.innerHTML = "";
+        temas.forEach(t => {
+            const btn = document.createElement('div'); btn.className = 'opt-btn';
+            btn.innerHTML = `<span>${t}</span>`;
+            btn.onclick = () => {
+                document.getElementById('folha-total').innerHTML = `<h2>TEMA DISCURSIVO: ${t}</h2><hr><br><p>[ESCREVA SUA REDAÇÃO AQUI]</p>`;
+                window.pecaNome = "TREINO: " + t.substring(0, 10);
+                document.getElementById('identificador-peca').querySelector('span span').innerText = window.pecaNome;
+                modal.style.display = 'none';
+            };
+            content.appendChild(btn);
+        });
+        modal.style.display = 'flex';
+    };
+
+    let segundos = 0;
+    setInterval(() => {
+        segundos++;
+        const h = Math.floor(segundos / 3600).toString().padStart(2, '0');
+        const m = Math.floor((segundos % 3600) / 60).toString().padStart(2, '0');
+        const s = (segundos % 60).toString().padStart(2, '0');
+        document.getElementById('sessao-timer').innerText = `${h}:${m}:${s}`;
+    }, 1000);
+
+    window.renomear = () => { const n = prompt("NOME DO ESTUDO:", window.pecaNome); if(n) { window.pecaNome = n.toUpperCase(); document.getElementById('identificador-peca').querySelector('span span').innerText = n; } };
+    window.limparTela = () => confirm("Limpar tudo?") && (document.getElementById('folha-total').innerHTML = "");
     setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
 </script>
 </body>
