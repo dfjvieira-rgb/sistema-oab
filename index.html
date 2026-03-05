@@ -11,9 +11,9 @@
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --mentoria: #a855f7; --sidebar-w: 70px;
             --success: #10b981; --biblioteca: #3b82f6; --pasta-cinza: #475569; --gerenciador-dark: #1e293b;
+            color-scheme: light !important;
         }
 
-        body.dark-mode { --bg-paper: #0f172a; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -24,40 +24,81 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        .sidebar { width: var(--sidebar-w); background: #1e293b; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1); }
+        .sidebar { width: var(--sidebar-w); background: #1e293b; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1); z-index: 100; }
         .btn-side { width: 45px; height: 45px; border: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.05); }
         .btn-side:hover { transform: scale(1.05); background: rgba(255,255,255,0.1); }
 
-        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); transition: 0.3s; }
-        .editor-container { flex: 1; display: flex; flex-direction: column; overflow-y: auto; align-items: center; padding: 20px 10px; }
+        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); transition: 0.4s ease; position: relative; }
+        
+        /* EDITOR */
+        .editor-container { flex: 1 0 100%; display: flex; flex-direction: column; overflow-y: auto; align-items: center; padding: 20px 10px; transition: all 0.4s ease; }
+        .content-wrapper.dual-active .editor-container { flex: 1 0 50%; }
 
-        #pdf-sidebar { width: 0; background: #334155; border-left: 0px solid var(--gold); transition: 0.3s; position: relative; display: flex; flex-direction: column; overflow: hidden; visibility: hidden; }
-        #pdf-sidebar.active { width: 50%; visibility: visible; border-left: 3px solid var(--gold); }
-        #pdf-sidebar.full-screen { width: 100%; visibility: visible; border-left: none; }
+        /* PDF SIDEBAR COM BLINDAGEM MODO CLARO */
+        #pdf-sidebar { 
+            flex: 0 0 0%; 
+            background: #FFFFFF !important; 
+            transition: all 0.4s ease; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            visibility: hidden;
+            border-left: 0px solid var(--gold);
+            filter: none !important;
+        }
+        #pdf-sidebar.active { flex: 1 0 50%; visibility: visible; border-left: 3px solid var(--gold); }
+        #pdf-sidebar.full-screen { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5000; visibility: visible; }
 
         .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: bold; }
-        #pdf-frame { width: 100%; flex: 1; border: none; background: white; }
+        
+        #pdf-frame { 
+            width: 100%; flex: 1; border: none; 
+            background: #FFFFFF !important; 
+            color-scheme: light !important;
+            box-shadow: inset 0 0 0 2000px #FFFFFF !important; /* Blindagem contra Dark Mode */
+        }
 
+        /* COMPONENTES DO PAPEL */
         .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 800px; border-radius: 0 0 12px 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 15px; }
         #identificador-peca { padding: 10px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--gold); cursor: pointer; text-transform: uppercase; font-size: 13px; }
         .paper { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-height: 1200px; padding: 50px; color: #1e293b; line-height: 1.8; }
         #folha-total { outline: none; min-height: 1100px; font-family: 'Courier New', monospace; font-size: 17px; }
 
+        /* BOTAO SANDUICHE (MOBILE SWITCH) */
+        #mobile-switch {
+            display: none; position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px;
+            background: var(--gold); color: #000; border-radius: 50%; border: none;
+            z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.4); font-size: 22px;
+        }
+
+        /* MEDIA QUERIES - INTELIGENCIA MOBILE */
+        @media (max-width: 768px) {
+            .content-wrapper.dual-active .editor-container { flex: 1 0 100%; }
+            #pdf-sidebar.active { 
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+                flex: none; z-index: 2000; transform: translateX(0);
+                background: #FFFFFF !important;
+                box-shadow: inset 0 0 0 2000px #FFFFFF !important;
+            }
+            /* Quando show-editor está ativo, o PDF foge para a direita */
+            .content-wrapper.show-editor #pdf-sidebar.active { transform: translateX(100%); }
+            #mobile-switch.visible { display: block; }
+            .paper { padding: 30px 15px; }
+        }
+
+        /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 110000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 95%; max-width: 600px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
-        
         .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn-gaveta { padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .btn-gaveta:hover { border-color: var(--gold); background: #fff; }
-
         .item-lista { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .item-lista:hover { background: #f1f5f9; }
         .tag-lei { font-size: 9px; background: #1e293b; color: var(--gold); padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px; min-width: 65px; text-align: center; }
-
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     </style>
 </head>
-<body class="dark-mode">
+<body>
 
 <div id="toast">✅ MISSÃO SALVA COM SUCESSO!</div>
 
@@ -77,7 +118,9 @@
         <button class="btn-side" style="background:var(--mentoria);" title="Mentoria AI" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
     </aside>
 
-    <div class="content-wrapper">
+    <div class="content-wrapper" id="master-wrapper">
+        <button id="mobile-switch" onclick="window.toggleSanduiche()"><i class="fas fa-exchange-alt"></i></button>
+
         <section class="editor-container">
             <div class="sticky-tools">
                 <div id="identificador-peca" onclick="window.renomearMissao()">MISSÃO SEM TÍTULO</div>
@@ -109,8 +152,7 @@
             <div><i class="fas fa-file-pdf" style="color:red; margin-right:10px;"></i> <b>EDITAL PMDF 2023</b></div>
             <span class="tag-lei" style="background:red; color:white;">OFICIAL</span>
         </div>
-        <p style="font-size:11px; color:#666; margin-top:15px; text-align:center;">Pronto para receber novos editais e manuais.</p>
-        <button onclick="document.getElementById('modal-gaveta-pdfs').style.display='none'" style="width:100%; margin-top:20px; padding:12px; border:none; background:black; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">FECHAR</button>
+        <button onclick="document.getElementById('modal-gaveta-pdfs').style.display='none'" style="width:100%; margin-top:20px; padding:12px; border:none; background:black; color:white; border-radius:8px; font-weight:bold;">FECHAR</button>
     </div>
 </div>
 
@@ -123,21 +165,6 @@
             </div>
             <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l7960.htm', 'L7960')">
                 <div><span class="tag-lei">LEI 7.960/89</span> <b>Prisão Temporária</b></div><i class="fas fa-external-link-alt"></i>
-            </div>
-            <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l9099.htm', 'L9099')">
-                <div><span class="tag-lei">LEI 9.099/95</span> <b>Juizados Especiais (JECRIM)</b></div><i class="fas fa-external-link-alt"></i>
-            </div>
-            <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/leis/l9296.htm', 'L9296')">
-                <div><span class="tag-lei">LEI 9.296/96</span> <b>Interceptação Telefônica</b></div><i class="fas fa-external-link-alt"></i>
-            </div>
-            <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11340.htm', 'L11340')">
-                <div><span class="tag-lei">LEI 11.340/06</span> <b>Lei Maria da Penha</b></div><i class="fas fa-external-link-alt"></i>
-            </div>
-            <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12850.htm', 'L12850')">
-                <div><span class="tag-lei">LEI 12.850/13</span> <b>Organizações Criminosas</b></div><i class="fas fa-external-link-alt"></i>
-            </div>
-            <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l12037.htm', 'L12037')">
-                <div><span class="tag-lei">LEI 12.037/09</span> <b>Identificação Criminal</b></div><i class="fas fa-external-link-alt"></i>
             </div>
             <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF88')">
                 <div><span class="tag-lei">CF/88</span> <b>Constituição Federal (Art. 5º)</b></div><i class="fas fa-external-link-alt"></i>
@@ -195,6 +222,11 @@
     window.idAtual = null;
     window.missaoNome = "MISSÃO SEM TÍTULO";
 
+    // INTELIGÊNCIA SANDUÍCHE
+    window.toggleSanduiche = () => {
+        document.getElementById('master-wrapper').classList.toggle('show-editor');
+    };
+
     window.abrirGavetaPDFs = () => document.getElementById('modal-gaveta-pdfs').style.display = 'flex';
     window.abrirBiblioteca = () => document.getElementById('modal-biblioteca').style.display = 'flex';
     window.abrirMenuSalvar = () => document.getElementById('modal-salvar-lista').style.display = 'flex';
@@ -226,7 +258,13 @@
             docs.forEach(doc => {
                 const item = document.createElement('div');
                 item.className = 'item-lista';
-                item.onclick = () => { document.getElementById('folha-total').innerHTML = doc.conteudo; window.missaoNome = doc.nome; window.idAtual = doc.id; document.getElementById('identificador-peca').innerText = doc.nome; document.getElementById('modal-gerenciador').style.display = 'none'; };
+                item.onclick = () => { 
+                    document.getElementById('folha-total').innerHTML = doc.conteudo; 
+                    window.missaoNome = doc.nome; 
+                    window.idAtual = doc.id; 
+                    document.getElementById('identificador-peca').innerText = doc.nome; 
+                    document.getElementById('modal-gerenciador').style.display = 'none'; 
+                };
                 item.innerHTML = `<div><b>${doc.nome}</b><br><small>${doc.data}</small></div>`;
                 lista.appendChild(item);
             });
@@ -237,14 +275,33 @@
         document.getElementById('pdf-frame').src = url;
         document.getElementById('pdf-titulo').innerText = titulo;
         document.getElementById('pdf-sidebar').classList.add('active');
+        document.getElementById('master-wrapper').classList.add('dual-active');
+        document.getElementById('mobile-switch').classList.add('visible');
         document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     };
-    window.fecharPDF = () => document.getElementById('pdf-sidebar').classList.remove('active', 'full-screen');
+
+    window.fecharPDF = () => {
+        document.getElementById('pdf-sidebar').classList.remove('active', 'full-screen');
+        document.getElementById('master-wrapper').classList.remove('dual-active');
+        document.getElementById('mobile-switch').classList.remove('visible');
+        document.getElementById('pdf-frame').src = "";
+    };
+
     window.toggleFullPDF = () => document.getElementById('pdf-sidebar').classList.toggle('full-screen');
 
+    window.renomearMissao = () => {
+        const n = prompt("NOME DA MISSÃO:", window.missaoNome);
+        if(n) { window.missaoNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.missaoNome; }
+    }
+
     window.criarNovoTreino = () => {
-        const n = prompt("NOME DA MISSÃO:");
-        if(n) { window.missaoNome = n.toUpperCase(); window.idAtual = null; document.getElementById('identificador-peca').innerText = window.missaoNome; document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`; }
+        const n = prompt("NOME DO NOVO TREINO:");
+        if(n) { 
+            window.missaoNome = n.toUpperCase(); 
+            window.idAtual = null; 
+            document.getElementById('identificador-peca').innerText = window.missaoNome; 
+            document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`; 
+        }
     };
 
     setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
