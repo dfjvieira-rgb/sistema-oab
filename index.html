@@ -3,29 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MASTER OAB | PMDF ELITE</title>
+    <title>MASTER PMDF | ELITE NÚCLEO DURO</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --mentoria: #a855f7; 
             --sidebar-w-collapsed: 60px;
-            --sidebar-w-expanded: 220px;
-            --success: #10b981; --biblioteca: #3b82f6; --pasta-cinza: #475569; --gerenciador-dark: #1e293b;
+            --sidebar-w-expanded: 240px;
+            --success: #10b981; --biblioteca: #3b82f6; --perigo: #ef4444;
             color-scheme: light !important;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { 
+            background: var(--primary); height: 55px; padding: 0 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--gold); z-index: 5000; 
+        }
 
-        header { background: var(--primary); height: 50px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 5000; }
-        .logo { font-size: 1rem; font-weight: 900; color: white; }
+        .logo { font-size: 1rem; font-weight: 900; color: white; letter-spacing: 1px; }
         .logo span { color: var(--gold); }
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR INTELIGENTE (RECOLHÍVEL) */
+        /* SIDEBAR INTELIGENTE (GAVETA) */
         .sidebar { 
             width: var(--sidebar-w-collapsed); 
             background: #1e293b; 
@@ -35,10 +42,10 @@
             border-right: 1px solid rgba(255,255,255,0.1); 
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
-            z-index: 100;
+            z-index: 1000;
             white-space: nowrap;
         }
-        .sidebar:hover, .sidebar.expanded { width: var(--sidebar-w-expanded); }
+        .sidebar:hover { width: var(--sidebar-w-expanded); }
 
         .btn-side { 
             width: 100%; height: 50px; border: none; background: transparent;
@@ -46,176 +53,126 @@
             transition: 0.2s; padding: 0 18px; gap: 15px; text-decoration: none;
         }
         .btn-side i { min-width: 25px; font-size: 18px; text-align: center; }
-        .btn-side span { opacity: 0; transition: 0.3s; font-weight: 600; font-size: 13px; }
-        .sidebar:hover span, .sidebar.expanded span { opacity: 1; }
-        .btn-side:hover { background: rgba(255,255,255,0.1); }
+        .btn-side span { opacity: 0; transition: 0.3s; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+        .sidebar:hover span { opacity: 1; }
+        .btn-side:hover { background: rgba(255,255,255,0.1); color: var(--gold); }
 
-        /* MENU HAMBÚRGUER NO TOPO DA SIDEBAR */
-        .menu-toggle {
-            color: var(--gold); padding: 15px 20px; cursor: pointer; font-size: 20px;
-            display: flex; align-items: center; gap: 15px;
+        /* AREA DE CONTEUDO */
+        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); position: relative; }
+        
+        .editor-container { 
+            flex: 1 0 100%; display: flex; flex-direction: column; overflow-y: auto; 
+            align-items: center; padding: 20px 10px; transition: all 0.4s ease; 
         }
-
-        .content-wrapper { flex: 1; display: flex; overflow: hidden; background: var(--bg-paper); transition: 0.4s ease; position: relative; }
-        .editor-container { flex: 1 0 100%; display: flex; flex-direction: column; overflow-y: auto; align-items: center; padding: 20px 10px; transition: all 0.4s ease; }
         .content-wrapper.dual-active .editor-container { flex: 1 0 50%; }
 
-        /* PDF SIDEBAR */
-        #pdf-sidebar { 
+        /* PDF VIEWER */
+        #pdf-viewer { 
             flex: 0 0 0%; background: #FFFFFF !important; transition: all 0.4s ease; 
             display: flex; flex-direction: column; overflow: hidden; visibility: hidden;
-            border-left: 0px solid var(--gold); filter: none !important;
+            border-left: 0px solid var(--gold);
         }
-        #pdf-sidebar.active { flex: 1 0 50%; visibility: visible; border-left: 3px solid var(--gold); }
-        #pdf-sidebar.full-screen { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5000; visibility: visible; }
-        .pdf-header { background: #0f172a; color: var(--gold); padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: bold; }
-        #pdf-frame { width: 100%; flex: 1; border: none; background: #FFFFFF !important; color-scheme: light !important; box-shadow: inset 0 0 0 2000px #FFFFFF !important; }
+        #pdf-viewer.active { flex: 1 0 50%; visibility: visible; border-left: 4px solid var(--gold); }
+        
+        #pdf-frame { width: 100%; flex: 1; border: none; background: #FFFFFF !important; }
 
-        /* PAPEL E IDENTIFICADOR */
-        .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 800px; border-radius: 0 0 12px 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 15px; }
-        #identificador-peca { padding: 10px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--gold); cursor: pointer; text-transform: uppercase; font-size: 13px; }
-        .paper { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-height: 1200px; padding: 50px; color: #1e293b; line-height: 1.8; }
-        #folha-total { outline: none; min-height: 1100px; font-family: 'Courier New', monospace; font-size: 17px; }
+        /* FOLHA DE RESPOSTA */
+        .sticky-tools { position: sticky; top: -20px; z-index: 800; background: white; width: 100%; max-width: 800px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        #identificador-peca { padding: 12px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--gold); cursor: pointer; font-size: 13px; }
+        
+        .paper { width: 100%; max-width: 800px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); min-height: 1200px; padding: 50px; color: #1e293b; }
+        #folha-total { outline: none; min-height: 1100px; font-family: 'Courier New', monospace; font-size: 17px; line-height: 1.6; }
 
-        /* MOBILE SWITCH */
+        /* BOTAO MOBILE (TROCA DE TELA) */
         #mobile-switch {
-            display: none; position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px;
+            display: none; position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px;
             background: var(--gold); color: #000; border-radius: 50%; border: none;
-            z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.4); font-size: 22px;
+            z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 24px;
         }
 
         @media (max-width: 768px) {
-            .sidebar { position: absolute; height: 100%; width: 0; }
-            .sidebar.expanded { width: var(--sidebar-w-expanded); }
+            .sidebar { position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row; justify-content: space-around; padding: 0; border-right: none; border-top: 2px solid var(--gold); }
+            .sidebar:hover { width: 100%; }
+            .btn-side { flex-direction: column; justify-content: center; padding: 0; gap: 4px; font-size: 9px; }
+            .btn-side span { opacity: 1; font-size: 8px; }
+            .sidebar i { font-size: 16px; }
+            .editor-container { padding-bottom: 80px; }
+            .content-wrapper.dual-active .editor-container { flex: 1 0 100%; display: none; }
+            .content-wrapper.dual-active.show-editor .editor-container { display: flex; }
+            .content-wrapper.dual-active.show-editor #pdf-viewer { display: none; }
+            #pdf-viewer.active { flex: 1 0 100%; }
             #mobile-switch.visible { display: block; }
             .paper { padding: 30px 15px; }
         }
 
-        /* MODAIS E TOAST */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 600px; padding: 20px; border-radius: 15px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
-        .grid-gavetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-gaveta { padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .item-lista { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .tag-lei { font-size: 9px; background: #1e293b; color: var(--gold); padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; display: none; z-index: 200000; }
+        /* MODAIS */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
+        .modal-body { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; color: #333; }
+        .opt-btn { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #ddd; background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
+        .tag-lei { font-size: 10px; background: var(--primary); color: var(--gold); padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div id="toast">✅ MISSÃO SALVA COM SUCESSO!</div>
-
 <header>
-    <div class="logo">MASTER OAB <span>| PMDF ELITE</span></div>
-    <div id="relogio" style="color:white; font-family:monospace; font-size:12px; font-weight:bold;"></div>
+    <div class="logo">PMDF <span>ELITE</span> | NÚCLEO DURO</div>
+    <div id="relogio" style="color:var(--gold); font-family:monospace; font-weight:bold;"></div>
 </header>
 
 <main>
     <aside class="sidebar" id="sidebar">
-        <div class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('expanded')">
-            <i class="fas fa-bars"></i> <span>MENU ELITE</span>
-        </div>
-
-        <button class="btn-side" onclick="window.criarNovoTreino()">
-            <i class="fas fa-plus" style="color:var(--gold)"></i> <span>NOVO TREINO</span>
+        <button class="btn-side" onclick="window.location.reload()">
+            <i class="fas fa-plus-circle" style="color:var(--gold)"></i> <span>NOVA MISSÃO</span>
         </button>
-
-        <button class="btn-side" onclick="window.abrirMenuSalvar()">
-            <i class="fas fa-save" style="color:var(--success)"></i> <span>SALVAR MISSÃO</span>
+        <button class="btn-side" onclick="window.abrirSalvar()">
+            <i class="fas fa-save" style="color:var(--success)"></i> <span>SALVAR</span>
         </button>
-
-        <button class="btn-side" onclick="window.abrirGerenciador()">
-            <i class="fas fa-folder-open" style="color:white"></i> <span>MEUS TRABALHOS</span>
+        <button class="btn-side" onclick="window.abrirGavetaArquivos()">
+            <i class="fas fa-folder-open"></i> <span>ARQUIVOS</span>
         </button>
-
-        <button class="btn-side" onclick="window.abrirGavetaPDFs()">
-            <i class="fas fa-file-pdf" style="color:var(--pasta-cinza)"></i> <span>GAVETA DE PDFS</span>
+        <button class="btn-side" onclick="window.abrirNucleoDuro()">
+            <i class="fas fa-gavel" style="color:var(--gold)"></i> <span>NÚCLEO DURO</span>
         </button>
-
-        <button class="btn-side" onclick="window.abrirBiblioteca()">
-            <i class="fas fa-book-open" style="color:var(--biblioteca)"></i> <span>LEIS DO EDITAL</span>
+        <button class="btn-side" onclick="window.abrirNaoConfunda()">
+            <i class="fas fa-lightbulb" style="color:var(--mentoria)"></i> <span>INTELIGÊNCIA</span>
         </button>
-
-        <div style="flex:1"></div>
-
-        <button class="btn-side" onclick="window.abrirMentoria()">
-            <i class="fas fa-robot" style="color:var(--mentoria)"></i> <span>MENTORIA AI</span>
+        <div style="flex:1" class="spacer-mobile"></div>
+        <button class="btn-side" onclick="window.limpar()" style="color:var(--perigo)">
+            <i class="fas fa-trash-alt"></i> <span>LIMPAR</span>
         </button>
     </aside>
 
     <div class="content-wrapper" id="master-wrapper">
-        <button id="mobile-switch" onclick="window.toggleSanduiche()"><i class="fas fa-exchange-alt"></i></button>
+        <button id="mobile-switch" onclick="window.toggleMobile()"><i class="fas fa-exchange-alt"></i></button>
 
         <section class="editor-container">
             <div class="sticky-tools">
-                <div id="identificador-peca" onclick="window.renomearMissao()">MISSÃO SEM TÍTULO</div>
+                <div id="identificador-peca" onclick="window.renomear()">MISSÃO SEM TÍTULO</div>
             </div>
             <div class="paper">
                 <div id="folha-total" contenteditable="true" spellcheck="false">
-                    <b>SISTEMA INTEGRADO PMDF</b><br>Edital de Processo Penal carregado.<br><br>
+                    <p style="text-align:center"><b>POLÍCIA MILITAR DO DISTRITO FEDERAL</b></p>
+                    <p style="text-align:center; font-size:12px">SISTEMA DE TREINAMENTO AVANÇADO</p>
+                    <hr><br>
                 </div>
             </div>
         </section>
 
-        <div id="pdf-sidebar">
-            <div class="pdf-header">
-                <span id="pdf-titulo">DOCUMENTO</span>
-                <div style="display:flex; gap:15px">
-                    <span onclick="window.toggleFullPDF()" style="cursor:pointer; color:var(--gold);"><i class="fas fa-expand"></i> MAX</span>
-                    <i class="fas fa-times" onclick="window.fecharPDF()" style="cursor:pointer; color:red;"></i>
-                </div>
+        <section id="pdf-viewer">
+            <div style="background:#0f172a; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span id="pdf-title" style="color:var(--gold); font-weight:bold; font-size:12px;">CONSULTA</span>
+                <button onclick="window.fecharPDF()" style="background:red; color:white; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
             </div>
             <iframe id="pdf-frame" src=""></iframe>
-        </div>
+        </section>
     </div>
 </main>
 
-<div class="modal" id="modal-gaveta-pdfs">
+<div class="modal" id="modal-leis">
     <div class="modal-body">
-        <h2 style="font-size:18px; border-bottom:2px solid var(--pasta-cinza); padding-bottom:10px; margin-bottom:15px;"><i class="fas fa-file-pdf"></i> GAVETA DE DOCUMENTOS PDF</h2>
-        <div class="item-lista" onclick="window.abrirPDFNoLado('edital-abertura-04-2023.pdf', 'EDITAL PMDF 2023')">
-            <div><i class="fas fa-file-pdf" style="color:red; margin-right:10px;"></i> <b>EDITAL PMDF 2023</b></div>
-            <span class="tag-lei" style="background:red; color:white;">OFICIAL</span>
-        </div>
-        <button onclick="document.getElementById('modal-gaveta-pdfs').style.display='none'" style="width:100%; margin-top:20px; padding:12px; border:none; background:black; color:white; border-radius:8px; font-weight:bold;">FECHAR</button>
-    </div>
-</div>
-
-<div class="modal" id="modal-biblioteca">
-    <div class="modal-body">
-        <h2 style="font-size:18px; border-bottom:2px solid var(--biblioteca); padding-bottom:10px; margin-bottom:15px;"><i class="fas fa-book"></i> VADE MECUM PMDF</h2>
-        <div class="item-lista" onclick="window.abrirPDFNoLado('https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm', 'CPP')">
-            <div><span class="tag-lei">CPP</span> <b>Código de Processo Penal</b></div><i class="fas fa-external-link-alt"></i>
-        </div>
-        <button onclick="document.getElementById('modal-biblioteca').style.display='none'" style="width:100%; margin-top:20px; padding:12px; border:none; background:black; color:white; border-radius:8px;">FECHAR</button>
-    </div>
-</div>
-
-<div class="modal" id="modal-salvar-lista">
-    <div class="modal-body">
-        <h2 style="font-size:18px; text-align:center; border-bottom:2px solid var(--success); padding-bottom:10px;">ESCOLHA A GAVETA</h2>
-        <div class="grid-gavetas">
-            <div class="btn-gaveta" onclick="window.executarSalvamento('TREINOS')"><i class="fas fa-pen-nib"></i> TREINOS</div>
-            <div class="btn-gaveta" onclick="window.executarSalvamento('QUESTOES')"><i class="fas fa-list-ol"></i> QUESTÕES</div>
-            <div class="btn-gaveta" onclick="window.executarSalvamento('TESES')"><i class="fas fa-gavel"></i> TESES</div>
-            <div class="btn-gaveta" onclick="window.executarSalvamento('LEGISLACAO')"><i class="fas fa-scroll"></i> LEGISLAÇÃO</div>
-        </div>
-        <button onclick="document.getElementById('modal-salvar-lista').style.display='none'" style="width:100%; margin-top:15px; padding:10px; border:none; background:#eee; border-radius:8px;">CANCELAR</button>
-    </div>
-</div>
-
-<div class="modal" id="modal-gerenciador">
-    <div class="modal-body">
-        <div id="nav-gerenciador" style="display:none; cursor:pointer; color:var(--gold-dark); margin-bottom:10px;" onclick="window.voltarGavetasGerenciador()">← VOLTAR</div>
-        <h2 style="font-size:18px; border-bottom:2px solid var(--gold); padding-bottom:5px;">MEUS ARQUIVOS</h2>
-        <div id="view-gavetas-ger" class="grid-gavetas">
-            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('TREINOS')">TREINOS</div>
-            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('QUESTOES')">QUESTÕES</div>
-            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('TESES')">TESES</div>
-            <div class="btn-gaveta" onclick="window.abrirPastaGerenciador('LEGISLACAO')">LEGISLAÇÃO</div>
-        </div>
-        <div id="view-arquivos-ger" style="display:none;"><div id="lista-arquivos"></div></div>
-        <button onclick="document.getElementById('modal-gerenciador').style.display='none'" style="width:100%; margin-top:20px; padding:10px; border:none; background:black; color:white; border-radius:8px;">FECHAR</button>
+        <h2 style="margin-bottom:15px; border-bottom:2px solid var(--gold)">NÚCLEO DURO PMDF</h2>
+        <div id="lista-leis"></div>
+        <button onclick="window.fecharModais()" style="width:100%; margin-top:15px; padding:10px; background:#333; color:white; border:none; border-radius:6px;">FECHAR</button>
     </div>
 </div>
 
@@ -236,79 +193,74 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.idAtual = null;
-    window.missaoNome = "MISSÃO SEM TÍTULO";
+    window.pecaNome = "MISSÃO SEM TÍTULO";
 
-    window.toggleSanduiche = () => document.getElementById('master-wrapper').classList.toggle('show-editor');
-    window.abrirGavetaPDFs = () => document.getElementById('modal-gaveta-pdfs').style.display = 'flex';
-    window.abrirBiblioteca = () => document.getElementById('modal-biblioteca').style.display = 'flex';
-    window.abrirMenuSalvar = () => document.getElementById('modal-salvar-lista').style.display = 'flex';
+    const LEIS_PMDF = [
+        { n: "CONSTITUIÇÃO", t: "CF/88 Art. 144", u: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm#art144" },
+        { n: "LEI 7.289/84", t: "Estatuto da PMDF", u: "https://www.planalto.gov.br/ccivil_03/leis/l7289.htm" },
+        { n: "LEI 12.086/09", t: "Promoção de Oficiais/Praças", u: "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l12086.htm" },
+        { n: "LEI 6.450/77", t: "Organização Básica PMDF", u: "https://www.planalto.gov.br/ccivil_03/leis/l6450.htm" },
+        { n: "DEC. 4.346/02", t: "RDE - Regulamento Disciplinar", u: "https://www.planalto.gov.br/ccivil_03/decreto/2002/d4346.htm" },
+        { n: "CPPM", t: "Proc. Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" },
+        { n: "CPM", t: "Código Penal Militar", u: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" }
+    ];
 
-    window.executarSalvamento = async (gaveta) => {
-        const conteudo = document.getElementById('folha-total').innerHTML;
-        const id = window.idAtual || Date.now().toString();
-        document.getElementById('modal-salvar-lista').style.display = 'none';
-        try {
-            await set(ref(db, `producao_v13/HISTORICO_PMDF/${id}`), { nome: window.missaoNome, data: new Date().toLocaleString('pt-BR'), gaveta: gaveta, conteudo: conteudo });
-            window.idAtual = id;
-            const t = document.getElementById('toast'); t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2500);
-        } catch(e) { console.error(e); }
+    window.abrirNucleoDuro = () => {
+        const container = document.getElementById('lista-leis');
+        container.innerHTML = "";
+        LEIS_PMDF.forEach(lei => {
+            const btn = document.createElement('div');
+            btn.className = 'opt-btn';
+            btn.innerHTML = `<span><span class="tag-lei">${lei.n}</span> ${lei.t}</span> <i class="fas fa-chevron-right"></i>`;
+            btn.onclick = () => {
+                document.getElementById('pdf-frame').src = lei.u;
+                document.getElementById('pdf-title').innerText = lei.n;
+                document.getElementById('pdf-viewer').classList.add('active');
+                document.getElementById('master-wrapper').classList.add('dual-active');
+                document.getElementById('mobile-switch').classList.add('visible');
+                window.fecharModais();
+            };
+            container.appendChild(btn);
+        });
+        document.getElementById('modal-leis').style.display = 'flex';
     };
 
-    window.abrirGerenciador = () => { document.getElementById('modal-gerenciador').style.display = 'flex'; window.voltarGavetasGerenciador(); };
-    window.voltarGavetasGerenciador = () => { document.getElementById('view-gavetas-ger').style.display = 'grid'; document.getElementById('view-arquivos-ger').style.display = 'none'; document.getElementById('nav-gerenciador').style.display = 'none'; };
-    window.abrirPastaGerenciador = async (gaveta) => {
-        const lista = document.getElementById('lista-arquivos');
-        document.getElementById('view-gavetas-ger').style.display = 'none';
-        document.getElementById('view-arquivos-ger').style.display = 'block';
-        document.getElementById('nav-gerenciador').style.display = 'block';
-        lista.innerHTML = "<p style='padding:20px; text-align:center;'>Sincronizando...</p>";
-        const snap = await get(ref(db, `producao_v13/HISTORICO_PMDF`));
-        if(snap.exists()){
-            const docs = Object.keys(snap.val()).map(k => ({id:k, ...snap.val()[k]})).filter(i => i.gaveta === gaveta).reverse();
-            lista.innerHTML = docs.length ? "" : "<p style='padding:20px; text-align:center;'>Vazio.</p>";
-            docs.forEach(doc => {
-                const item = document.createElement('div');
-                item.className = 'item-lista';
-                item.onclick = () => { 
-                    document.getElementById('folha-total').innerHTML = doc.conteudo; 
-                    window.missaoNome = doc.nome; 
-                    window.idAtual = doc.id; 
-                    document.getElementById('identificador-peca').innerText = doc.nome; 
-                    document.getElementById('modal-gerenciador').style.display = 'none'; 
-                };
-                item.innerHTML = `<div><b>${doc.nome}</b><br><small>${doc.data}</small></div>`;
-                lista.appendChild(item);
-            });
-        }
-    };
-
-    window.abrirPDFNoLado = (url, titulo) => {
-        document.getElementById('pdf-frame').src = url;
-        document.getElementById('pdf-titulo').innerText = titulo;
-        document.getElementById('pdf-sidebar').classList.add('active');
-        document.getElementById('master-wrapper').classList.add('dual-active');
-        document.getElementById('mobile-switch').classList.add('visible');
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    window.toggleMobile = () => {
+        document.getElementById('master-wrapper').classList.toggle('show-editor');
     };
 
     window.fecharPDF = () => {
-        document.getElementById('pdf-sidebar').classList.remove('active', 'full-screen');
+        document.getElementById('pdf-viewer').classList.remove('active');
         document.getElementById('master-wrapper').classList.remove('dual-active');
         document.getElementById('mobile-switch').classList.remove('visible');
     };
 
-    window.toggleFullPDF = () => document.getElementById('pdf-sidebar').classList.toggle('full-screen');
+    window.fecharModais = () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 
-    window.renomearMissao = () => {
-        const n = prompt("NOME DA MISSÃO:", window.missaoNome);
-        if(n) { window.missaoNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.missaoNome; }
-    }
+    window.renomear = () => {
+        const n = prompt("NOME DA MISSÃO:", window.pecaNome);
+        if(n) { window.pecaNome = n.toUpperCase(); document.getElementById('identificador-peca').innerText = window.pecaNome; }
+    };
 
-    window.criarNovoTreino = () => {
-        const n = prompt("NOME DO NOVO TREINO:");
-        if(n) { window.missaoNome = n.toUpperCase(); window.idAtual = null; document.getElementById('identificador-peca').innerText = window.missaoNome; document.getElementById('folha-total').innerHTML = `<b>${window.missaoNome}</b><br><br>`; }
+    window.limpar = () => confirm("Deseja apagar tudo?") && (document.getElementById('folha-total').innerHTML = "");
+
+    window.abrirSalvar = async () => {
+        const id = Date.now().toString();
+        const cont = document.getElementById('folha-total').innerHTML;
+        await set(ref(db, `PMDF_ELITE/GAVETA/${id}`), { nome: window.pecaNome, conteudo: cont, data: new Date().toLocaleString() });
+        alert("Sincronizado na Nuvem PMDF!");
+    };
+
+    window.abrirNaoConfunda = () => {
+        const dicas = [
+            "Crime Militar Próprio vs. Impróprio",
+            "Transgressão Disciplinar vs. Crime Militar",
+            "Pena de Reclusão vs. Detenção no CPM"
+        ];
+        const d = prompt("INTELIGÊNCIA PMDF:\n\n1. " + dicas[0] + "\n2. " + dicas[1] + "\n3. " + dicas[2] + "\n\nDigite o número para inserir:");
+        if(d) {
+            document.getElementById('folha-total').innerHTML += `<div style="background:#fff3cd; padding:10px; border-left:5px solid #ffc107; margin:10px 0;"><b>DICA PMDF:</b> Estudo sobre ${dicas[d-1]}</div>`;
+        }
     };
 
     setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleTimeString('pt-BR'); }, 1000);
