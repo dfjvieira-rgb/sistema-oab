@@ -268,6 +268,7 @@
         setInterval(salvarAutomatico, 30000);
     };
 
+    // --- BARRA ROLANTE ---
     async function renderizarBarraRecentes() {
         const barra = document.getElementById('recentes-roll');
         if(!barra) return;
@@ -283,72 +284,72 @@
         }
     }
 
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){
-            const data = snap.val();
-            document.getElementById('editor-principal').innerHTML = data.conteudo;
-            window.pecaAtualNome = data.peca;
-            localStorage.setItem('pecaAtualNome', data.peca);
-            if(document.getElementById('identificador-peca')) document.getElementById('identificador-peca').innerText = data.peca;
-            document.getElementById('universal-modal').style.display = 'none';
-        }
+    // --- VOLTANDO NÚCLEO DURO ---
+    window.abrirNucleoDuroPMDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
+        const leis = [
+            { n: '📄 EDITAL PMDF 2023', u: 'edital-abertura-04-2023.pdf' },
+            { n: '🛡️ ESTATUTO PMDF (L. 7289)', u: 'https://www.planalto.gov.br/ccivil_03/leis/l7289.htm' },
+            { n: '⚔️ CÓD. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm' },
+            { n: '⚖️ PROC. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm' }
+        ];
+        content.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirPDFDireto('${l.u}','${l.n}')"><span>${l.n}</span></div>`).join('');
+        modal.style.display = 'flex';
     };
 
-    // REGRA SOLICITADA: SE EXISTE NOME IGUAL -> ATUALIZA. SE NÃO -> CRIA NOVO.
+    // --- LIGAÇÃO DOS BOTÕES SIDEBAR ---
+    window.ativarTreinoLivre = () => { if(confirm("Novo treino do zero?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; } };
+    window.abrirPergaminho = () => { alert("Estruturas em carga..."); }; 
+    window.abrirBibliotecaPDF = () => window.gerenciadorPasta();
+
+    // --- SALVAMENTO COM LIBERDADE E INTELIGÊNCIA ---
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "💾 SALVAR TRABALHO";
+        document.getElementById('modal-title').innerText = "💾 SALVAR ARQUIVO";
         
-        const nomeConfirmado = prompt("Nome do arquivo para salvar:", window.pecaAtualNome);
+        const nomeConfirmado = prompt("Nome do arquivo (Iguais atualizam, diferentes criam novos):", window.pecaAtualNome);
         if(!nomeConfirmado) return;
         window.pecaAtualNome = nomeConfirmado;
-        localStorage.setItem('pecaAtualNome', nomeConfirmado);
 
         content.innerHTML = `
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('QUESTÕES')"><span>SALVAR EM: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TREINO')"><span>SALVAR EM: PEÇAS</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TESES')"><span>SALVAR EM: TESES</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TREINO')"><span>PASTA: PEÇAS</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TESES')"><span>PASTA: TESES</span></div>
         `;
         modal.style.display = 'flex';
     };
 
     window.executarSalvamentoInteligente = async (pasta) => {
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        let idParaUsar = Date.now(); // Default: novo
-        let existe = false;
-
+        let idParaUsar = Date.now();
         if (snap.exists()) {
-            const dados = snap.val();
-            // Busca se existe arquivo com mesmo nome NA MESMA PASTA
-            const coincidencia = Object.keys(dados).find(k => 
-                dados[k].peca === window.pecaAtualNome && dados[k].exame === pasta
-            );
-            if (coincidencia) {
-                idParaUsar = coincidencia;
-                existe = true;
-            }
+            const coincidencia = Object.keys(snap.val()).find(k => snap.val()[k].peca === window.pecaAtualNome && snap.val()[k].exame === pasta);
+            if (coincidencia) idParaUsar = coincidencia;
         }
-
-        const payload = {
-            exame: pasta,
-            peca: window.pecaAtualNome,
-            conteudo: document.getElementById('editor-principal').innerHTML,
-            ultimaAlteracao: new Date().toLocaleString()
-        };
-
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), payload);
-        
-        alert(existe ? "Arquivo atualizado!" : "Novo arquivo criado!");
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
+            exame: pasta, peca: window.pecaAtualNome, conteudo: document.getElementById('editor-principal').innerHTML
+        });
+        alert("Trabalho Salvo!");
         renderizarBarraRecentes();
         document.getElementById('universal-modal').style.display = 'none';
     };
 
-    // GESTÃO DE GAVETAS (MOVER / EXCLUIR)
+    // --- GESTÃO DE PASTAS ---
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            document.getElementById('editor-principal').innerHTML = snap.val().conteudo;
+            window.pecaAtualNome = snap.val().peca;
+            document.getElementById('identificador-peca').innerText = window.pecaAtualNome;
+            document.getElementById('universal-modal').style.display = 'none';
+        }
+    };
+
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "block";
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
         content.innerHTML = "";
         if (snap.exists()) {
@@ -356,13 +357,10 @@
                 const item = snap.val()[k];
                 if(item.exame === tipo) {
                     const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee";
-                    div.innerHTML = `
-                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; flex:1;">📄 ${item.peca}</span>
-                        <div>
-                            <i class="fas fa-exchange-alt" onclick="window.moverTrabalho('${k}', '${tipo}')" style="margin-right:15px; color:blue; cursor:pointer"></i>
-                            <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}')" style="color:red; cursor:pointer"></i>
-                        </div>`;
+                    div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee";
+                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer">📄 ${item.peca}</span>
+                        <div><i class="fas fa-exchange-alt" onclick="window.moverTrabalho('${k}', '${tipo}')" style="margin-right:10px; color:blue; cursor:pointer"></i>
+                        <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}')" style="color:red; cursor:pointer"></i></div>`;
                     content.appendChild(div);
                 }
             });
@@ -378,34 +376,21 @@
     };
 
     window.excluirTrabalho = async (id) => {
-        if(confirm("Excluir arquivo?")) {
-            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-            renderizarBarraRecentes();
-            window.gerenciadorPasta();
-        }
+        if(confirm("Excluir?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); renderizarBarraRecentes(); window.gerenciadorPasta(); }
     };
 
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
-    }
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
-    window.abrirPDFDireto = (u, n) => {
-        if (u.startsWith('http')) { window.open(u, '_blank'); return; }
-        document.getElementById('pdf-title').innerText = n;
-        document.getElementById('pdf-frame').src = u;
-        document.getElementById('pdf-viewer').classList.add('active');
-    };
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    // --- UTILITÁRIOS ---
+    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
+    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
     window.gerenciadorPasta = () => {
         document.getElementById('modal-title').innerText = "📂 MINHAS PASTAS";
-        document.getElementById('modal-content').innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>QUESTÕES</span></div>
+        document.getElementById('modal-content').innerHTML = `<div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>QUESTÕES</span></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>PEÇAS</span></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>TESES</span></div>`;
         document.getElementById('universal-modal').style.display = 'flex';
     };
+    window.abrirPDFDireto = (u, n) => { if (u.startsWith('http')) { window.open(u, '_blank'); return; } document.getElementById('pdf-frame').src = u; document.getElementById('pdf-viewer').classList.add('active'); };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.desfazer = () => { if(window.historicoUndo.length > 0) document.getElementById('editor-principal').innerHTML = window.historicoUndo.pop(); };
 </script>
