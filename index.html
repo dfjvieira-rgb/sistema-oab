@@ -33,7 +33,6 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR DINÂMICA */
         .sidebar { 
             width: var(--sidebar-w); background: #1e293b; 
             display: flex; flex-direction: column; align-items: center;
@@ -59,13 +58,11 @@
             background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
         }
 
-        /* BLINDAGEM DO CONTAINER */
         #folha-render-container {
             width: 100%; max-width: 850px; margin-top: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); line-height: 0; 
         }
 
-        /* INTELIGÊNCIA DE LINHA DO CÓDIGO ANTERIOR */
         .area-editor * { margin: 0 !important; padding: 0 !important; line-height: var(--pauta) !important; display: inline; }
         .area-editor br { display: block !important; content: ""; }
 
@@ -154,7 +151,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ENGINE COM A INTELIGÊNCIA DE BLINDAGEM (TAB, ENTER BR E 300 LINHAS)
+    // ENGINE EXPANDIDA PARA 1000 LINHAS COM BLINDAGEM DE PAUTA
     export const FolhaEngine = {
         montar: (containerId) => {
             const container = document.getElementById(containerId);
@@ -171,11 +168,11 @@
                     .area-editor { 
                         outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; 
                         line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; 
-                        min-height: 10500px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); 
+                        min-height: 35000px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); 
                         background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; 
                     }
                     @media (max-width: 768px) {
-                        .folha-container { grid-template-columns: 40px 1fr; }
+                        .folha-container { grid-template-columns: 45px 1fr; }
                         .area-editor { font-size: 17px !important; padding: 0 10px !important; }
                     }
                 `;
@@ -185,14 +182,16 @@
             folha.className = 'folha-container';
             const numCol = document.createElement('div');
             numCol.className = 'numeracao';
-            for(let i=1; i<=300; i++) {
+            
+            // LOOP DE 1000 LINHAS
+            for(let i=1; i<=1000; i++) {
                 const n = document.createElement('div'); n.className = 'num-mecanico'; n.innerText = i; numCol.appendChild(n);
             }
+            
             const editor = document.createElement('div');
             editor.className = 'area-editor'; editor.id = 'editor-principal'; editor.contentEditable = "true"; editor.spellcheck = false;
             folha.appendChild(numCol); folha.appendChild(editor); container.appendChild(folha);
             
-            // LÓGICA DE TECLAS DO CÓDIGO INTELIGENTE
             editor.addEventListener('keydown', (e) => {
                 if (e.key === 'Tab') {
                     e.preventDefault();
