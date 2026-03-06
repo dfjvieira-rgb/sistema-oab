@@ -12,7 +12,7 @@
             --bg-paper: #cbd5e1; --paper-color: #ffffff; 
             --sidebar-w: 70px; --perigo: #ef4444;
             --questoes: #3b82f6; --teses: #f97316;
-            /* AJUSTE FINO DA LINHA OAB */
+            /* AJUSTE FINO DA LINHA OAB ORIGINAL */
             --linha-altura: 35.2px; 
         }
 
@@ -76,11 +76,11 @@
             text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
         }
 
-        .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 15px; gap: 10px; height: 45px; border-right: 1px solid #eee;}
-        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        /* PALETA DE 5 CORES */
+        .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 15px; gap: 8px; height: 45px; border-right: 1px solid #eee;}
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .color-dot.active { border-color: #000; transform: scale(1.2); }
 
-        /* --- CORREÇÃO DA FOLHA ESTILO OAB ORIGINAL --- */
         .paper { 
             width: 100%; max-width: 850px; background: white; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5300px; 
@@ -101,14 +101,11 @@
         
         .area-escrita { 
             outline: none; padding: 0 15px; 
-            /* TIPOGRAFIA CORRIGIDA PARA NÃO CORRER */
             font-family: 'Courier New', Courier, monospace !important; 
             font-size: 20px !important; 
             font-weight: 700 !important; 
             line-height: var(--linha-altura) !important; 
             color: #1a1a1a !important;
-            
-            /* LINHAS DE FUNDO ALINHADAS */
             background-image: linear-gradient(#fff 97%, #e2e8f0 3%);
             background-size: 100% var(--linha-altura);
             text-align: justify; white-space: pre-wrap;
@@ -153,10 +150,12 @@
             <div id="identificador-peca" onclick="window.renomearNoTopo()">CLIQUE EM NOVA MISSÃO...</div>
             <div class="toolbar-liberdade">
                 <div class="highlight-box">
-                    <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
-                    <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
-                    <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
-                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer;"><i class="fas fa-eraser"></i></button>
+                    <div class="color-dot active" id="dot-1" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-1')"></div>
+                    <div class="color-dot" id="dot-2" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-2')"></div>
+                    <div class="color-dot" id="dot-3" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-3')"></div>
+                    <div class="color-dot" id="dot-4" style="background:#bfdbfe;" onclick="window.setHighlightColor('#bfdbfe', 'dot-4')"></div>
+                    <div class="color-dot" id="dot-5" style="background:#fbcfe8;" onclick="window.setHighlightColor('#fbcfe8', 'dot-5')"></div>
+                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer; color:#64748b;"><i class="fas fa-eraser"></i></button>
                 </div>
                 <button class="btn-lib" onclick="document.execCommand('undo')">Desfazer</button>
                 <button class="btn-lib" onclick="window.limparFolha()">Limpar</button>
@@ -214,25 +213,25 @@
     }
 
     window.novaMissao = () => {
-        const n = prompt("Nome do Treino:", "");
+        const n = prompt("Nome da Peça/Questão:", "");
         if(n) {
             window.idAtual = "ID_" + Date.now();
             window.pecaAtualNome = n.toUpperCase();
             window.gavetaAtual = null; 
             document.getElementById('editor-principal').innerHTML = "";
-            atualizarDisplay();
+            window.atualizarDisplay();
         }
     };
 
     window.salvarComEscolha = async () => {
-        if(!window.idAtual) { alert("Inicie uma Missão."); return; }
+        if(!window.idAtual) { alert("Inicie uma Missão primeiro."); return; }
         if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
 
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "GAVETA DE DESTINO";
         c.innerHTML = `
-            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO</div>
-            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES</div>
+            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO <i class="fas fa-pen-nib"></i></div>
+            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES <i class="fas fa-question-circle"></i></div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
@@ -247,15 +246,16 @@
             conteudo: document.getElementById('editor-principal').innerHTML
         });
         document.getElementById('universal-modal').style.display = 'none';
-        atualizarDisplay();
+        window.atualizarDisplay();
+        alert("Salvo com sucesso!");
     };
 
     window.gerenciadorPasta = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
         c.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')">GAVETA: REDAÇÃO <i class="fas fa-chevron-right"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')">GAVETA: QUESTÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')">ABRIR: REDAÇÃO <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')">ABRIR: QUESTÕES <i class="fas fa-chevron-right"></i></div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
@@ -263,11 +263,11 @@
     window.abrirGavetaEspecifica = async (tipo) => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = `GAVETA: ${tipo}`;
-        c.innerHTML = "Carregando...";
+        c.innerHTML = "Carregando arquivos...";
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
         if(snap.exists()){
             const filtrados = Object.values(snap.val()).filter(i => i.gaveta === tipo);
-            c.innerHTML = filtrados.length ? "" : "Gaveta vazia.";
+            c.innerHTML = filtrados.length ? "" : "Nenhum arquivo nesta gaveta.";
             filtrados.reverse().forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item-arquivo';
@@ -275,7 +275,7 @@
                     <div class="item-info" onclick="window.carregarArquivo('${item.id}')">
                         <strong>${item.peca}</strong><br><small>${item.data}</small>
                     </div>
-                    <button class="btn-side" style="background:#fee2e2; color:#ef4444" onclick="window.excluirArquivo('${item.id}', '${tipo}')"><i class="fas fa-trash"></i></button>
+                    <button class="btn-side" style="background:#fee2e2; color:#ef4444; min-height:40px; width:40px;" onclick="window.excluirArquivo('${item.id}', '${tipo}')"><i class="fas fa-trash"></i></button>
                 `;
                 c.appendChild(div);
             });
@@ -290,13 +290,13 @@
             window.gavetaAtual = data.gaveta;
             window.pecaAtualNome = data.peca;
             document.getElementById('editor-principal').innerHTML = data.conteudo;
-            atualizarDisplay();
+            window.atualizarDisplay();
             document.getElementById('universal-modal').style.display = 'none';
         }
     };
 
     window.excluirArquivo = async (chave, tipo) => {
-        if(confirm("Excluir?")) {
+        if(confirm("Deseja apagar permanentemente?")) {
             await remove(ref(db, `pmdf_v1/GAVETAS/${chave}`));
             window.abrirGavetaEspecifica(tipo);
         }
@@ -305,8 +305,8 @@
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
-        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM']];
-        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM'], ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CONSTITUIÇÃO FEDERAL']];
+        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]} <i class="fas fa-book"></i></div>`).join('');
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
@@ -319,13 +319,14 @@
 
     window.atualizarDisplay = () => {
         document.getElementById('ex-display').innerText = window.gavetaAtual || "EDIÇÃO";
-        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "NOVA MISSÃO";
+        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
     };
 
     window.setHighlightColor = (color, id) => { window.currentColor = color; document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.limparFormatacao = () => { document.execCommand('removeFormat', false, null); document.execCommand('backColor', false, 'transparent'); };
     window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.renomearNoTopo = () => { if(!window.idAtual) return; const n = prompt("Novo nome:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n.toUpperCase(); window.atualizarDisplay(); } };
 </script>
 </body>
 </html>
