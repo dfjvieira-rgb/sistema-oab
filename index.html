@@ -11,59 +11,140 @@
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
             --bg-paper: #cbd5e1; --paper-color: #ffffff; 
             --sidebar-w: 70px; --perigo: #ef4444;
+            --questoes: #3b82f6; --teses: #f97316;
         }
+
         body.dark-mode { --bg-paper: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white; }
-        header { background: var(--primary); height: 60px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); }
-        .logo { font-size: 1.2rem; font-weight: 900; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--primary); height: 100vh; 
+            display: flex; flex-direction: column; overflow: hidden; color: white;
+        }
+
+        header { 
+            background: var(--primary); height: 60px; padding: 0 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--gold); z-index: 5000;
+        }
+
+        .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; }
         .logo span { color: var(--gold); }
-        main { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: var(--sidebar-w); background: #1e293b; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1); }
-        .btn-side { width: 50px; min-height: 50px; border: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; background: rgba(255,255,255,0.05); }
+
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        
+        .sidebar { 
+            width: var(--sidebar-w); background: #1e293b; 
+            display: flex; flex-direction: column; align-items: center;
+            gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1); 
+            overflow-y: auto; 
+        }
+
+        .btn-side { 
+            width: 50px; min-height: 50px; border: none; border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; color: white; 
+            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
+            position: relative;
+        }
         .btn-side i { font-size: 1.2rem; color: var(--gold); }
-        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px; }
-        .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 850px; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px; }
-        #identificador-peca { padding: 12px; background: #f8fafc; text-align: center; font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold); cursor: pointer; }
+        .btn-side::after {
+            content: attr(data-label); position: absolute; left: 60px; background: #000; color: #fff;
+            padding: 6px 12px; border-radius: 6px; font-size: 10px; white-space: nowrap; opacity: 0; 
+            pointer-events: none; transition: 0.2s; z-index: 6000; border: 1px solid var(--gold);
+        }
+        .btn-side:hover::after { opacity: 1; left: 75px; }
+
+        .editor-container { 
+            flex: 1; display: flex; flex-direction: column; 
+            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
+        }
+
+        .sticky-tools { 
+            position: sticky; top: -20px; z-index: 1000; background: white; 
+            width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px;
+        }
+
+        #identificador-peca { 
+            padding: 12px; background: #f8fafc; text-align: center; 
+            font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold);
+            cursor: pointer;
+        }
+        
         .toolbar-liberdade { display: flex; background: #fff; align-items: center; border-radius: 0 0 12px 12px; }
-        .btn-lib { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9; }
+        .btn-lib { 
+            flex: 1; padding: 12px; border: none; background: transparent; 
+            cursor: pointer; font-weight: 800; font-size: 0.7rem; 
+            text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
+        }
+
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 15px; gap: 10px; height: 45px; border-right: 1px solid #eee;}
-        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-dot.active { border-color: #000; transform: scale(1.1); }
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 2000px; }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot.active { border-color: #000; transform: scale(1.2); }
+
+        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; }
         .folha-grid { display: grid; grid-template-columns: 45px 1fr; }
         .num-lateral { background: #f8fafc; border-right: 2px solid #cbd5e1; }
         .linha-num { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-bottom: 1px solid #f1f5f9; color: #94a3b8; }
-        .area-escrita { outline: none; padding: 0 20px; font-family: 'Courier New', monospace; font-size: 19px; font-weight: 700; line-height: 35px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); background-size: 100% 35px; color: #000; min-height: 2000px; text-align: justify; white-space: pre-wrap; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; }
-        .item-arquivo { background: #f8fafc; border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; font-weight: bold; }
+        
+        .area-escrita { 
+            outline: none; padding: 0 20px; 
+            font-family: 'Courier New', Courier, monospace !important; 
+            font-size: 19px !important; font-weight: 700 !important; 
+            line-height: 35px !important; 
+            background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px);
+            background-size: 100% 35px; color: #000 !important;
+            min-height: 5250px; text-align: justify; white-space: pre-wrap;
+        }
+
+        #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
+        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
+        .pdf-controls { background: #1e293b; padding: 12px; display: flex; justify-content: space-between; color: white; align-items: center;}
+        iframe { width: 100%; flex: 1; border: none; background: white; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
+        .modal-body { background: white; width: 95%; max-width: 550px; padding: 25px; border-radius: 20px; color: #0f172a; overflow-y: auto; max-height: 85vh; }
+        
+        .item-arquivo { 
+            background: #f8fafc; border: 1px solid #eee; padding: 15px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .item-info { flex: 1; cursor: pointer; overflow: hidden; }
+        .item-acoes { display: flex; gap: 8px; margin-left: 10px; }
+        .btn-acao { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; color: white; font-weight: bold;}
+        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body class="dark-mode">
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE PMDF</span></div>
-    <div style="color:var(--gold); font-size:11px; font-weight:bold;">MODO: <span id="ex-display">OFFLINE</span></div>
+    <div style="color:var(--gold); font-size:11px; font-weight:bold;">SISTEMA: <span id="ex-display">AGUARDANDO...</span></div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" title="Nova Missão" onclick="window.novaMissao()"><i class="fas fa-plus-circle"></i></button>
-        <button class="btn-side" title="Gavetas" onclick="window.gerenciadorPasta()"><i class="fas fa-archive"></i></button>
-        <button class="btn-side" title="Salvar" onclick="window.salvarFluxo()"><i class="fas fa-save" style="color:#10b981"></i></button>
+        <button class="btn-side" data-label="NOVA MISSÃO" onclick="window.novaMissao()"><i class="fas fa-plus-circle"></i></button>
+        <button class="btn-side" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-archive"></i></button>
+        <button class="btn-side" data-label="VADE MECUM" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
+        <hr style="width:60%; opacity:0.1">
+        <button class="btn-side" data-label="SALVAR (DISKET)" onclick="window.salvarComEscolha()"><i class="fas fa-save" style="color:#10b981"></i></button>
+        <button class="btn-side" data-label="IMPRIMIR PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
     </aside>
 
-    <section class="editor-container">
+    <section class="editor-container" id="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomearNoTopo()">CLIQUE EM NOVA MISSÃO</div>
+            <div id="identificador-peca" onclick="window.renomearNoTopo()">CLIQUE EM NOVA MISSÃO...</div>
             <div class="toolbar-liberdade">
                 <div class="highlight-box">
-                    <div class="color-dot active" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', this)"></div>
-                    <div class="color-dot" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', this)"></div>
-                    <div class="color-dot" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', this)"></div>
-                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer;"><i class="fas fa-eraser"></i></button>
+                    <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
+                    <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
+                    <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
+                    <div class="color-dot" id="dot-purple" style="background:#e9d5ff;" onclick="window.setHighlightColor('#e9d5ff', 'dot-purple')"></div>
+                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer; color:#64748b; margin-left:5px;"><i class="fas fa-eraser"></i></button>
                 </div>
                 <button class="btn-lib" onclick="document.execCommand('undo')">Desfazer</button>
                 <button class="btn-lib" onclick="window.limparFolha()">Limpar Tudo</button>
@@ -73,19 +154,27 @@
             <div class="folha-grid" id="folha-total"></div>
         </div>
     </section>
+
+    <section id="pdf-viewer">
+        <div class="pdf-controls">
+            <span id="pdf-title">VADE MECUM</span>
+            <button onclick="window.fecharPDF()" style="background:var(--perigo); border:none; padding:5px 12px; color:white; border-radius:5px; cursor:pointer">FECHAR</button>
+        </div>
+        <iframe id="pdf-frame"></iframe>
+    </section>
 </main>
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:2px solid var(--gold)"></h2>
+        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:12px; background:#000; color:#fff; border-radius:10px; margin-top:10px; cursor:pointer;">VOLTAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer;">VOLTAR</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = { databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com" };
     const app = initializeApp(firebaseConfig);
@@ -97,119 +186,153 @@
     window.currentColor = '#fef08a';
 
     window.onload = () => {
-        let f = document.getElementById('folha-total');
-        let n = '<div class="num-lateral">';
-        for(let i=1; i<=60; i++) n += `<div class="linha-num">${i}</div>`;
-        f.innerHTML = n + '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
-        
+        montarFolha();
         const ed = document.getElementById('editor-principal');
-        ed.addEventListener('mouseup', () => { if(window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); });
+        ed.addEventListener('mouseup', () => { if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); });
+        ed.addEventListener('paste', (e) => { e.preventDefault(); const text = (e.originalEvent || e).clipboardData.getData('text/plain'); document.execCommand('insertText', false, text); });
     };
 
-    // NOVA MISSÃO COM VERIFICAÇÃO DE EXISTÊNCIA
-    window.novaMissao = async () => {
+    function montarFolha() {
+        const f = document.getElementById('folha-total');
+        let nums = '<div class="num-lateral">';
+        for(let i=1; i<=150; i++) nums += `<div class="linha-num">${i}</div>`;
+        nums += '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
+        f.innerHTML = nums;
+    }
+
+    // INTELIGÊNCIA OAB: ID PERSISTENTE PARA ATUALIZAÇÃO
+    window.novaMissao = () => {
         const n = prompt("Nome da Missão:", "");
-        if(!n) return;
-        
-        const slug = n.toUpperCase().replace(/\s+/g, '_');
-        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${slug}`));
-        
-        if(snap.exists()) {
-            if(confirm("Este arquivo já existe! Deseja carregar o conteúdo dele para continuar?")) {
-                window.carregarArquivo(slug);
-                return;
-            }
+        if(n) {
+            window.idAtual = "M" + Date.now();
+            window.pecaAtualNome = n.toUpperCase();
+            window.gavetaAtual = null; 
+            document.getElementById('editor-principal').innerHTML = "";
+            atualizarDisplay();
         }
-        
-        window.idAtual = slug;
-        window.pecaAtualNome = n.toUpperCase();
-        window.gavetaAtual = null;
-        document.getElementById('editor-principal').innerHTML = "";
-        atualizarDisplay();
     };
 
-    window.salvarFluxo = async () => {
-        if(!window.idAtual) { alert("Inicie uma Missão primeiro."); return; }
-        if(window.gavetaAtual) { await window.dbSave(window.gavetaAtual); return; }
+    window.renomearNoTopo = () => {
+        if(!window.idAtual) return;
+        const novo = prompt("Renomear:", window.pecaAtualNome);
+        if(novo) { window.pecaAtualNome = novo.toUpperCase(); atualizarDisplay(); }
+    };
+
+    window.salvarComEscolha = async () => {
+        if(!window.idAtual) { alert("Inicie uma 'Nova Missão' primeiro."); return; }
+        // Se já existe uma gaveta (arquivo carregado), salva direto (SOBRESCREVE)
+        if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
 
         const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "SALVAR EM:";
+        document.getElementById('modal-title').innerText = "ESCOLHA A GAVETA";
         c.innerHTML = `
-            <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #eee; cursor:pointer">GAVETA: REDAÇÃO</button>
-            <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #eee; cursor:pointer">GAVETA: QUESTÕES</button>
+            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO</div>
+            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES</div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
-    window.dbSave = async (gaveta) => {
+    window.executarSalvamento = async (gaveta) => {
         window.gavetaAtual = gaveta;
-        const ed = document.getElementById('editor-principal').innerHTML;
+        const ed = document.getElementById('editor-principal');
         await set(ref(db, `pmdf_v1/GAVETAS/${window.idAtual}`), {
-            id: window.idAtual,
-            gaveta: gaveta,
-            peca: window.pecaAtualNome,
-            data: new Date().toLocaleString('pt-BR'),
-            conteudo: ed
+            id: window.idAtual, gaveta: gaveta, peca: window.pecaAtualNome,
+            data: new Date().toLocaleString('pt-BR'), conteudo: ed.innerHTML
         });
         document.getElementById('universal-modal').style.display = 'none';
         atualizarDisplay();
-        alert("Sincronizado com Sucesso!");
+        alert(`SALVO EM: ${gaveta}`);
     };
 
     window.gerenciadorPasta = async () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
+        c.innerHTML = "Lendo...";
         document.getElementById('universal-modal').style.display = 'flex';
-        c.innerHTML = "Carregando...";
         
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
         if(snap.exists()) {
             c.innerHTML = "";
-            Object.values(snap.val()).forEach(d => {
-                const div = document.createElement('div');
-                div.className = 'item-arquivo';
-                div.innerHTML = `
-                    <div style="cursor:pointer" onclick="window.carregarArquivo('${d.id}')">
-                        <span class="tag" style="background:${d.gaveta === 'REDAÇÃO' ? '#fbbf24' : '#3b82f6'}">${d.gaveta}</span><br>
-                        <strong>${d.peca}</strong><br><small>${d.data}</small>
+            const dados = snap.val();
+            Object.keys(dados).reverse().forEach(key => {
+                const data = dados[key];
+                const item = document.createElement('div');
+                item.className = 'item-arquivo';
+                const tagCor = data.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
+                
+                item.innerHTML = `
+                    <div class="item-info" onclick="window.carregarArquivo('${key}')">
+                        <span class="tag" style="background:${tagCor}">${data.gaveta || 'S/G'}</span><br>
+                        <strong>${data.peca || 'SEM NOME'}</strong><br>
+                        <small>${data.data || ''}</small>
                     </div>
-                    <button onclick="window.excluirForce('${d.id}')" style="border:none; background:none; color:red; cursor:pointer"><i class="fas fa-trash"></i></button>
+                    <div class="item-acoes">
+                        <button class="btn-acao" style="background:#fee2e2; color:#ef4444" onclick="window.excluirArquivo('${key}')"><i class="fas fa-trash"></i></button>
+                    </div>
                 `;
-                c.appendChild(div);
+                c.appendChild(item);
             });
-        } else { c.innerHTML = "Gavetas vazias."; }
+        } else { c.innerHTML = "Vazio."; }
     };
 
-    window.carregarArquivo = async (id) => {
-        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${id}`));
-        const d = snap.val();
-        window.idAtual = d.id;
-        window.pecaAtualNome = d.peca;
-        window.gavetaAtual = d.gaveta;
-        document.getElementById('editor-principal').innerHTML = d.conteudo;
-        atualizarDisplay();
-        document.getElementById('universal-modal').style.display = 'none';
+    window.carregarArquivo = async (chave) => {
+        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${chave}`));
+        if(snap.exists()) {
+            const data = snap.val();
+            window.idAtual = chave; 
+            window.gavetaAtual = data.gaveta;
+            window.pecaAtualNome = data.peca;
+            document.getElementById('editor-principal').innerHTML = data.conteudo || "";
+            atualizarDisplay();
+            document.getElementById('universal-modal').style.display = 'none';
+        }
     };
 
-    window.excluirForce = async (id) => {
-        if(confirm("Apagar definitivamente?")) {
-            await remove(ref(db, `pmdf_v1/GAVETAS/${id}`));
+    window.excluirArquivo = async (chave) => {
+        if(confirm("EXCLUIR DEFINITIVAMENTE?")) {
+            await remove(ref(db, `pmdf_v1/GAVETAS/${chave}`));
+            if(window.idAtual === chave) { 
+                window.idAtual = null; window.gavetaAtual = null; 
+                document.getElementById('editor-principal').innerHTML = ""; 
+                atualizarDisplay(); 
+            }
             window.gerenciadorPasta();
         }
     };
 
-    window.setHighlightColor = (c, el) => {
-        window.currentColor = c;
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        el.classList.add('active');
+    window.abrirNucleoDuro = () => {
+        const c = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
+        const leis = [
+            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM'],
+            ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88']
+        ];
+        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
+        document.getElementById('universal-modal').style.display = 'flex';
     };
 
-    window.limparFormatacao = () => { document.execCommand('removeFormat'); document.execCommand('backColor', false, 'transparent'); };
-    window.limparFolha = () => { if(confirm("Limpar folha?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.abrirVade = (url, tit) => {
+        document.getElementById('pdf-frame').src = url;
+        document.getElementById('pdf-title').innerText = tit;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    window.setHighlightColor = (color, id) => {
+        window.currentColor = color;
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
+
+    window.limparFormatacao = () => { document.execCommand('removeFormat', false, null); document.execCommand('backColor', false, 'transparent'); };
+    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     
     function atualizarDisplay() {
         document.getElementById('ex-display').innerText = window.gavetaAtual || "EDITANDO";
-        document.getElementById('identificador-peca').innerText = window.pecaAtualNome;
+        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
     }
 </script>
 </body>
