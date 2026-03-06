@@ -246,8 +246,8 @@
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
-        
-        // Mantendo seus listeners originais sem alteração
+        if(document.getElementById('identificador-peca')) document.getElementById('identificador-peca').innerText = window.pecaAtualNome;
+
         setTimeout(() => {
             const ed = document.getElementById('editor-principal');
             if(ed) {
@@ -264,11 +264,10 @@
         }, 1000);
 
         await carregarRascunho();
-        await renderizarBarraRecentes(); // SOLICITADO: Barra de rolagem
+        await renderizarBarraRecentes(); 
         setInterval(salvarAutomatico, 30000);
     };
 
-    // SOLICITADO: Barra de arquivos com rolagem horizontal
     async function renderizarBarraRecentes() {
         const barra = document.getElementById('recentes-roll');
         if(!barra) return;
@@ -277,53 +276,76 @@
             const dados = snap.val();
             const ultimos = Object.keys(dados).map(k => ({ id: k, ...dados[k] })).reverse().slice(0, 10);
             barra.innerHTML = ultimos.map(item => `
-                <div class="file-chip" onclick="window.carregarTrabalho('${item.id}')" style="flex:0 0 auto; cursor:pointer; padding:5px 15px; background:#e2e8f0; border-radius:20px; font-size:12px; white-space:nowrap;">
+                <div class="file-chip" onclick="window.carregarTrabalho('${item.id}')" style="flex:0 0 auto; cursor:pointer; padding:5px 15px; background:#e2e8f0; border-radius:20px; font-size:12px; white-space:nowrap; margin-right:8px;">
                     📄 ${item.peca}
                 </div>
             `).join('');
         }
     }
 
-    // SOLICITADO: Abrir arquivo instantaneamente
     window.carregarTrabalho = async (id) => {
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
         if(snap.exists()){
             const data = snap.val();
             document.getElementById('editor-principal').innerHTML = data.conteudo;
             window.pecaAtualNome = data.peca;
+            localStorage.setItem('pecaAtualNome', data.peca);
             if(document.getElementById('identificador-peca')) document.getElementById('identificador-peca').innerText = data.peca;
             document.getElementById('universal-modal').style.display = 'none';
         }
     };
 
-    // SOLICITADO: Escolher pasta no salvamento e renomear
+    // REGRA SOLICITADA: SE EXISTE NOME IGUAL -> ATUALIZA. SE NÃO -> CRIA NOVO.
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "💾 SALVAR E ESCOLHER PASTA";
-        const nomeAtual = prompt("Confirme o nome do arquivo:", window.pecaAtualNome);
-        if(!nomeAtual) return;
-        window.pecaAtualNome = nomeAtual;
+        document.getElementById('modal-title').innerText = "💾 SALVAR TRABALHO";
+        
+        const nomeConfirmado = prompt("Nome do arquivo para salvar:", window.pecaAtualNome);
+        if(!nomeConfirmado) return;
+        window.pecaAtualNome = nomeConfirmado;
+        localStorage.setItem('pecaAtualNome', nomeConfirmado);
 
         content.innerHTML = `
-            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')"><span>SALVAR EM: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamento('TREINO')"><span>SALVAR EM: PEÇAS</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamento('TESES')"><span>SALVAR EM: TESES</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('QUESTÕES')"><span>SALVAR EM: QUESTÕES</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TREINO')"><span>SALVAR EM: PEÇAS</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TESES')"><span>SALVAR EM: TESES</span></div>
         `;
         modal.style.display = 'flex';
     };
 
-    window.executarSalvamento = async (pasta) => {
-        const id = Date.now();
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), {
-            exame: pasta, peca: window.pecaAtualNome, conteudo: document.getElementById('editor-principal').innerHTML
-        });
-        alert("Salvo!");
+    window.executarSalvamentoInteligente = async (pasta) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        let idParaUsar = Date.now(); // Default: novo
+        let existe = false;
+
+        if (snap.exists()) {
+            const dados = snap.val();
+            // Busca se existe arquivo com mesmo nome NA MESMA PASTA
+            const coincidencia = Object.keys(dados).find(k => 
+                dados[k].peca === window.pecaAtualNome && dados[k].exame === pasta
+            );
+            if (coincidencia) {
+                idParaUsar = coincidencia;
+                existe = true;
+            }
+        }
+
+        const payload = {
+            exame: pasta,
+            peca: window.pecaAtualNome,
+            conteudo: document.getElementById('editor-principal').innerHTML,
+            ultimaAlteracao: new Date().toLocaleString()
+        };
+
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), payload);
+        
+        alert(existe ? "Arquivo atualizado!" : "Novo arquivo criado!");
         renderizarBarraRecentes();
         document.getElementById('universal-modal').style.display = 'none';
     };
 
-    // SOLICITADO: Mover e Excluir dentro das gavetas
+    // GESTÃO DE GAVETAS (MOVER / EXCLUIR)
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "block";
@@ -336,9 +358,9 @@
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee";
                     div.innerHTML = `
-                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer">📄 ${item.peca}</span>
+                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; flex:1;">📄 ${item.peca}</span>
                         <div>
-                            <i class="fas fa-exchange-alt" onclick="window.moverTrabalho('${k}', '${tipo}')" style="margin-right:10px; color:blue; cursor:pointer"></i>
+                            <i class="fas fa-exchange-alt" onclick="window.moverTrabalho('${k}', '${tipo}')" style="margin-right:15px; color:blue; cursor:pointer"></i>
                             <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}')" style="color:red; cursor:pointer"></i>
                         </div>`;
                     content.appendChild(div);
@@ -356,14 +378,13 @@
     };
 
     window.excluirTrabalho = async (id) => {
-        if(confirm("Excluir?")) {
+        if(confirm("Excluir arquivo?")) {
             await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
             renderizarBarraRecentes();
-            document.getElementById('universal-modal').style.display = 'none';
+            window.gerenciadorPasta();
         }
     };
 
-    // Mantendo suas funções de PDF e Rascunho intocadas
     async function salvarAutomatico() { 
         const ed = document.getElementById('editor-principal'); 
         if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
