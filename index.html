@@ -126,25 +126,26 @@
         iframe { width: 100%; flex: 1; border: none; background: white; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; }
+        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; overflow-y: auto; max-height: 80vh; }
         .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
+        .tag-gaveta { font-size: 9px; padding: 3px 6px; border-radius: 4px; color: white; margin-right: 8px; }
     </style>
 </head>
 <body class="dark-mode">
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE PMDF</span></div>
-    <div style="color:var(--gold); font-size:11px; font-weight:bold;">SISTEMA: <span id="ex-display">REDAÇÃO</span></div>
+    <div style="color:var(--gold); font-size:11px; font-weight:bold;">ESTUDANDO: <span id="ex-display">REDAÇÃO</span></div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" data-label="REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-edit"></i></button>
-        <button class="btn-side" data-label="QUESTÕES" onclick="window.ativarModo('QUESTÕES')"><i class="fas fa-question-circle"></i></button>
+        <button class="btn-side" data-label="GAVETA REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-edit"></i></button>
+        <button class="btn-side" data-label="GAVETA QUESTÕES" onclick="window.ativarModo('QUESTÕES')"><i class="fas fa-question-circle"></i></button>
         <button class="btn-side" data-label="NÚCLEO DURO" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
-        <button class="btn-side" data-label="GAVETAS SALVAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" data-label="ABRIR GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
         <hr style="width:60%; opacity:0.1">
-        <button class="btn-side" data-label="SALVAR AGORA" onclick="window.finalizarPeca()"><i class="fas fa-save" style="color:#10b981"></i></button>
+        <button class="btn-side" data-label="SALVAR NA GAVETA" onclick="window.finalizarPeca()"><i class="fas fa-save" style="color:#10b981"></i></button>
         <button class="btn-side" data-label="GERAR PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
     </aside>
 
@@ -200,17 +201,8 @@
         montarFolha();
         atualizarDisplay();
         const ed = document.getElementById('editor-principal');
-        
-        ed.addEventListener('mouseup', () => {
-            if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor);
-        });
-
-        ed.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
-        });
-
+        ed.addEventListener('mouseup', () => { if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); });
+        ed.addEventListener('paste', (e) => { e.preventDefault(); const text = (e.originalEvent || e).clipboardData.getData('text/plain'); document.execCommand('insertText', false, text); });
         carregarRascunho();
         setInterval(salvarAutomatico, 30000);
     };
@@ -222,6 +214,51 @@
         nums += '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
         f.innerHTML = nums;
     }
+
+    // GAVETAS ORGANIZADAS POR TIPO
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        const id = Date.now();
+        const path = `pmdf_v1/GAVETAS/${window.modoAtual}/${id}`; // Caminho dinâmico por assunto
+        
+        await set(ref(db, path), {
+            tipo: window.modoAtual,
+            peca: `${window.pecaAtualNome} (${new Date().toLocaleString('pt-BR')})`,
+            conteudo: ed.innerHTML
+        });
+        alert(`MISSÃO SALVA NA GAVETA: ${window.modoAtual}`);
+    };
+
+    window.gerenciadorPasta = async () => {
+        const c = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
+        c.innerHTML = `
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                <button onclick="window.listarGaveta('REDAÇÃO')" style="flex:1; padding:10px; font-size:10px; border-radius:5px; border:none; background:var(--gold); color:black; font-weight:bold;">REDAÇÃO</button>
+                <button onclick="window.listarGaveta('QUESTÕES')" style="flex:1; padding:10px; font-size:10px; border-radius:5px; border:none; background:var(--questoes); color:white; font-weight:bold;">QUESTÕES</button>
+            </div>
+            <div id="lista-arquivos">Selecione uma gaveta acima.</div>
+        `;
+        document.getElementById('universal-modal').style.display = 'flex';
+    };
+
+    window.listarGaveta = async (tipo) => {
+        const lista = document.getElementById('lista-arquivos');
+        lista.innerHTML = "Abrindo gaveta...";
+        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${tipo}`));
+        
+        if(snap.exists()) {
+            lista.innerHTML = "";
+            Object.entries(snap.val()).reverse().forEach(([id, data]) => {
+                const btn = document.createElement('div');
+                btn.className = 'opt-btn';
+                const color = tipo === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
+                btn.innerHTML = `<span><span class="tag-gaveta" style="background:${color}">${tipo}</span> ${data.peca}</span>`;
+                btn.onclick = () => { document.getElementById('editor-principal').innerHTML = data.conteudo; document.getElementById('universal-modal').style.display = 'none'; };
+                lista.appendChild(btn);
+            });
+        } else { lista.innerHTML = `A gaveta de ${tipo} está vazia.`; }
+    };
 
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
@@ -261,33 +298,6 @@
             localStorage.setItem('pmdf_modo', m); localStorage.setItem('pmdf_nome', window.pecaAtualNome);
             atualizarDisplay();
         }
-    };
-
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        const id = Date.now();
-        await set(ref(db, `pmdf_v1/HISTORICO/${id}`), {
-            exame: window.modoAtual, peca: `${window.pecaAtualNome} (${new Date().toLocaleString()})`, conteudo: ed.innerHTML
-        });
-        alert("SALVO COM SUCESSO!");
-    };
-
-    window.gerenciadorPasta = async () => {
-        const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
-        c.innerHTML = "Buscando arquivos...";
-        document.getElementById('universal-modal').style.display = 'flex';
-        const snap = await get(ref(db, `pmdf_v1/HISTORICO`));
-        if(snap.exists()) {
-            c.innerHTML = "";
-            Object.entries(snap.val()).reverse().forEach(([id, data]) => {
-                const btn = document.createElement('div');
-                btn.className = 'opt-btn';
-                btn.innerHTML = `<span>[${data.exame}] ${data.peca}</span> <i class="fas fa-file-import"></i>`;
-                btn.onclick = () => { document.getElementById('editor-principal').innerHTML = data.conteudo; document.getElementById('universal-modal').style.display = 'none'; };
-                c.appendChild(btn);
-            });
-        } else { c.innerHTML = "Vazio."; }
     };
 
     function atualizarDisplay() {
