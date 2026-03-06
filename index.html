@@ -69,6 +69,7 @@
         #identificador-peca { 
             padding: 12px; background: #f8fafc; text-align: center; 
             font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--gold);
+            cursor: pointer;
         }
         
         .toolbar-liberdade { display: flex; background: #fff; align-items: center; border-radius: 0 0 12px 12px; }
@@ -109,9 +110,9 @@
             background: #f8fafc; border: 1px solid #eee; padding: 15px; border-radius: 12px; 
             margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
-        .item-info { flex: 1; cursor: pointer; }
-        .item-acoes { display: flex; gap: 8px; }
-        .btn-acao { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .item-info { flex: 1; cursor: pointer; overflow: hidden; }
+        .item-acoes { display: flex; gap: 8px; margin-left: 10px; }
+        .btn-acao { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
         .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; color: white; font-weight: bold;}
         .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; }
@@ -127,8 +128,8 @@
 <main>
     <aside class="sidebar">
         <button class="btn-side" data-label="NOVA MISSÃO" onclick="window.novaMissao()"><i class="fas fa-plus-circle"></i></button>
-        <button class="btn-side" data-label="VADE MECUM" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
         <button class="btn-side" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-archive"></i></button>
+        <button class="btn-side" data-label="VADE MECUM" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
         <hr style="width:60%; opacity:0.1">
         <button class="btn-side" data-label="SALVAR (DISKET)" onclick="window.salvarComEscolha()"><i class="fas fa-save" style="color:#10b981"></i></button>
         <button class="btn-side" data-label="IMPRIMIR PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
@@ -136,7 +137,7 @@
 
     <section class="editor-container" id="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-peca">CLIQUE EM NOVA MISSÃO PARA COMEÇAR</div>
+            <div id="identificador-peca" onclick="window.renomearNoTopo()">CLIQUE EM NOVA MISSÃO...</div>
             <div class="toolbar-liberdade">
                 <div class="highlight-box">
                     <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
@@ -210,6 +211,12 @@
         }
     };
 
+    window.renomearNoTopo = () => {
+        if(!window.idAtual) return;
+        const novo = prompt("Renomear:", window.pecaAtualNome);
+        if(novo) { window.pecaAtualNome = novo.toUpperCase(); atualizarDisplay(); }
+    };
+
     window.salvarComEscolha = async () => {
         if(!window.idAtual) { alert("Inicie uma 'Nova Missão' primeiro."); return; }
         if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
@@ -244,20 +251,25 @@
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
         if(snap.exists()) {
             c.innerHTML = "";
-            Object.values(snap.val()).reverse().forEach(data => {
+            const dados = snap.val();
+            // Lógica para lidar com IDs reais e chaves do Firebase
+            Object.keys(dados).reverse().forEach(key => {
+                const data = dados[key];
                 const item = document.createElement('div');
                 item.className = 'item-arquivo';
-                const tagCor = data.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
+                
+                const nomeMostra = data.peca || "ARQUIVO SEM NOME";
+                const gavetaMostra = data.gaveta || "SEM CATEGORIA";
+                const tagCor = gavetaMostra === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
                 
                 item.innerHTML = `
-                    <div class="item-info" onclick="window.carregarArquivo('${data.id}')">
-                        <span class="tag" style="background:${tagCor}">${data.gaveta}</span><br>
-                        <strong>${data.peca}</strong><br>
-                        <small>${data.data}</small>
+                    <div class="item-info" onclick="window.carregarArquivo('${key}')">
+                        <span class="tag" style="background:${tagCor}">${gavetaMostra}</span><br>
+                        <strong>${nomeMostra}</strong><br>
+                        <small>${data.data || 'Sem data'}</small>
                     </div>
                     <div class="item-acoes">
-                        <button class="btn-acao" style="background:#e2e8f0" title="Mudar Gaveta" onclick="window.transferirGaveta('${data.id}', '${data.gaveta}')"><i class="fas fa-exchange-alt"></i></button>
-                        <button class="btn-acao" style="background:#fee2e2; color:#ef4444" title="Excluir" onclick="window.excluirArquivo('${data.id}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn-acao" style="background:#fee2e2; color:#ef4444" title="EXCLUIR FORÇADO" onclick="window.excluirArquivo('${key}')"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 c.appendChild(item);
@@ -265,39 +277,38 @@
         } else { c.innerHTML = "Vazio."; }
     };
 
-    window.carregarArquivo = async (id) => {
-        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${id}`));
+    window.excluirArquivo = async (chave) => {
+        if(confirm("EXCLUIR DEFINITIVAMENTE? Se for um erro 'Undefined', ele será removido agora.")) {
+            try {
+                // Remove pela CHAVE do objeto, o que mata qualquer "undefined"
+                await remove(ref(db, `pmdf_v1/GAVETAS/${chave}`));
+                if(window.idAtual === chave) { 
+                    window.idAtual = null; window.pecaAtualNome = ""; 
+                    window.gavetaAtual = null; document.getElementById('editor-principal').innerHTML = ""; 
+                    atualizarDisplay(); 
+                }
+                window.gerenciadorPasta();
+            } catch (e) { alert("Erro ao deletar: " + e.message); }
+        }
+    };
+
+    window.carregarArquivo = async (chave) => {
+        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${chave}`));
         if(snap.exists()) {
             const data = snap.val();
-            window.idAtual = data.id;
-            window.gavetaAtual = data.gaveta;
-            window.pecaAtualNome = data.peca;
-            document.getElementById('editor-principal').innerHTML = data.conteudo;
+            window.idAtual = data.id || chave; // Fallback se o ID interno sumiu
+            window.gavetaAtual = data.gaveta || "REDAÇÃO";
+            window.pecaAtualNome = data.peca || "ARQUIVO RECUPERADO";
+            document.getElementById('editor-principal').innerHTML = data.conteudo || "";
             atualizarDisplay();
             document.getElementById('universal-modal').style.display = 'none';
-        }
-    };
-
-    window.transferirGaveta = async (id, atual) => {
-        const nova = atual === 'REDAÇÃO' ? 'QUESTÕES' : 'REDAÇÃO';
-        if(confirm(`Transferir este arquivo para a gaveta de ${nova}?`)) {
-            await update(ref(db, `pmdf_v1/GAVETAS/${id}`), { gaveta: nova });
-            window.gerenciadorPasta();
-        }
-    };
-
-    window.excluirArquivo = async (id) => {
-        if(confirm("EXCLUIR DEFINITIVAMENTE? Esta ação não pode ser desfeita.")) {
-            await remove(ref(db, `pmdf_v1/GAVETAS/${id}`));
-            if(window.idAtual === id) { window.idAtual = null; window.pecaAtualNome = ""; window.gavetaAtual = null; document.getElementById('editor-principal').innerHTML = ""; atualizarDisplay(); }
-            window.gerenciadorPasta();
         }
     };
 
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
-        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'],['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM'],['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88']];
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO'],['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM']];
         c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
         document.getElementById('universal-modal').style.display = 'flex';
     };
@@ -316,11 +327,11 @@
     };
 
     window.limparFormatacao = () => { document.execCommand('removeFormat', false, null); document.execCommand('backColor', false, 'transparent'); };
-    window.limparFolha = () => { if(confirm("Limpar toda a folha?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     
     function atualizarDisplay() {
-        document.getElementById('ex-display').innerText = window.gavetaAtual || "NOVO TREINO";
+        document.getElementById('ex-display').innerText = window.gavetaAtual || "INICIANDO...";
         document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
     }
 </script>
