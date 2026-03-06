@@ -80,7 +80,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px;
         }
 
-        /* IDENTIFICADOR RENOMEÁVEL */
         #identificador-peca { 
             padding: 15px; background: #f8fafc; text-align: center; 
             font-weight: 900; color: #020617; border-bottom: 3px solid var(--gold);
@@ -153,13 +152,6 @@
         <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i> <span>MENTORIA IA</span></button>
         <button class="btn-side" style="background:#475569;" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i> <span>PERGAMINHO</span></button>
         <button class="btn-side" style="background:#3b82f6;" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i> <span>MARTELO</span></button>
-        <hr style="width:100%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:#8b5cf6;" onclick="window.verPDF('LP')"><i class="fas fa-book"></i> <span>PROCESSO</span></button>
-        <button class="btn-side" style="background:#6366f1;" onclick="window.verPDF('LM')"><i class="fas fa-book-open"></i> <span>MATERIAL</span></button>
-        <hr style="width:100%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:#f97316;" onclick="window.verPDF('P')"><i class="fas fa-file-pdf"></i> <span>PEÇA PDF</span></button>
-        <button class="btn-side" style="background:#eab308;" onclick="window.verPDF('G')"><i class="fas fa-check-double"></i> <span>GABARITO</span></button>
-        <button class="btn-side" style="background:#000; border:1px solid var(--gold)" onclick="window.verPDF('V')"><i class="fas fa-gavel"></i> <span>VADE MECUM</span></button>
     </aside>
 
     <section class="editor-container" id="editor-container">
@@ -228,7 +220,7 @@
 
 <script type="module">
     import { db } from './firebase-config.js'; 
-    import { ref, get, set, remove, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
     window.db = db;
@@ -251,22 +243,6 @@
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         atualizarLabelPeca();
-
-        setTimeout(() => {
-            const ed = document.getElementById('editor-principal');
-            if(ed) {
-                ed.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        const html = ed.innerHTML;
-                        if(window.historicoUndo[window.historicoUndo.length - 1] !== html) {
-                            window.historicoUndo.push(html);
-                        }
-                    }, 800);
-                });
-            }
-        }, 1000);
-
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
     };
@@ -277,49 +253,47 @@
         localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
     }
 
-    // RENOMEAR O TRABALHO EM EDIÇÃO COM TOTAL LIBERDADE
     window.renomearTrabalhoAtivo = () => {
         const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") {
-            window.pecaAtualNome = novo.trim();
-            atualizarLabelPeca();
-        }
+        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
     };
 
-    // BIBLIOTECA
     window.abrirBibliotecaPDF = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📚 BIBLIOTECA ELITE";
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
+                <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
+    };
+
+    // MINHA PASTA - FILTRADA E RENOMEADA CONFORME SOLICITADO
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📂 MINHA PASTA";
         content.innerHTML = `
-            <p style="font-size:10px; font-weight:bold; color:#64748b; margin-bottom:10px;">DOCUMENTOS E APOSTAS</p>
-            ${window.LISTA_PDF_BIBLIOTECA.map(pdf => `
-                <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
-                    <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
-                </div>
-            `).join('')}
-            <p style="font-size:10px; font-weight:bold; color:#64748b; margin-top:20px; margin-bottom:10px;">MEUS ARQUIVOS SALVOS</p>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>PASTA: PEÇAS</span></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>PASTA: TESES</span></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('CADERNO')"><span>PASTA: CADERNO</span></div>
         `;
         modal.style.display = 'flex';
     };
 
-    window.gerenciadorPasta = () => window.abrirBibliotecaPDF();
-
-    // SALVAMENTO
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "💾 ONDE DESEJA SALVAR?";
+        document.getElementById('modal-title').innerText = "💾 SALVAR EM...";
         content.innerHTML = `
-            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold;">
-                Arquivo: ${window.pecaAtualNome}
+            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
+                ARQUIVO: ${window.pecaAtualNome}
             </div>
             <div class="opt-btn" onclick="window.executarSalvamentoInteligente('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TREINO')"><span>PASTA: PEÇAS</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('TESES')"><span>PASTA: TESES</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
+            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('CADERNO')"><span>PASTA: CADERNO</span></div>
         `;
         modal.style.display = 'flex';
     };
@@ -334,8 +308,26 @@
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
             exame: pasta, peca: window.pecaAtualNome, conteudo: document.getElementById('editor-principal').innerHTML
         });
-        alert("Trabalho Arquivado!");
+        alert("Salvo com sucesso!");
         document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    window.abrirGavetaEspecifica = async (tipo) => {
+        const content = document.getElementById('modal-content');
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
+        if (snap.exists()) {
+            Object.keys(snap.val()).forEach(k => {
+                const item = snap.val()[k];
+                if(item.exame === tipo) {
+                    const div = document.createElement('div');
+                    div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
+                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px;">📄 ${item.peca}</span>
+                        <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
+                    content.appendChild(div);
+                }
+            });
+        }
     };
 
     window.carregarTrabalho = async (id) => {
@@ -348,41 +340,16 @@
         }
     };
 
-    window.abrirGavetaEspecifica = async (tipo) => {
-        const content = document.getElementById('modal-content');
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        content.innerHTML = `<div onclick="window.abrirBibliotecaPDF()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
-        if (snap.exists()) {
-            Object.keys(snap.val()).forEach(k => {
-                const item = snap.val()[k];
-                if(item.exame === tipo) {
-                    const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
-                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px;">📄 ${item.peca}</span>
-                        <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
-                    content.appendChild(div);
-                }
-            });
-        }
-    };
-
-    window.excluirTrabalho = async (id) => {
-        if(confirm("Excluir definitivamente?")) { 
+    window.excluirTrabalho = async (id, tipo) => {
+        if(confirm("Excluir este arquivo?")) { 
             await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); 
-            window.abrirBibliotecaPDF(); 
+            window.abrirGavetaEspecifica(tipo); 
         }
     };
 
     async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
     async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
-    
-    window.abrirPDFDireto = (u, n) => { 
-        document.getElementById('pdf-title').innerText = n;
-        document.getElementById('pdf-frame').src = u; 
-        document.getElementById('pdf-viewer').classList.add('active'); 
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-    
+    window.abrirPDFDireto = (u, n) => { document.getElementById('pdf-title').innerText = n; document.getElementById('pdf-frame').src = u; document.getElementById('pdf-viewer').classList.add('active'); document.getElementById('universal-modal').style.display = 'none'; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.desfazer = () => { if(window.historicoUndo.length > 0) document.getElementById('editor-principal').innerHTML = window.historicoUndo.pop(); };
