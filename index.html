@@ -230,7 +230,8 @@
     </div>
 </div>
 <script type="module">
-    import { db } from './firebase-config1.js';
+    // 1. AJUSTE DE ENDEREÇO: Importando do config correto (MasterOAB)
+    import { db } from './firebase-config.js'; 
     import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
@@ -239,12 +240,15 @@
     window.modoTreinoLivre = localStorage.getItem('modoTreinoLivre') === "true";
     window.modoQuestoes = localStorage.getItem('modoQuestoes') === "true";
     window.modoTeses = localStorage.getItem('modoTeses') === "true";
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO";
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
 
     window.historicoUndo = [];
     let debounceTimer = null;
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
+
+    // 2. CONSTANTES DE ROTA (Isolamento PMDF no MasterOAB)
+    const RAIZ_PMDF = "producao_pmdf"; 
 
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: "EDITAL Nº 04/2023-DGP/PMDF, DE 23 DE JANEIRO DE 2023", url: "edital-abertura-04-2023.pdf" },
@@ -256,8 +260,9 @@
     ];
 
     window.onload = async () => {
-        atualizarDisplayModo();
+        // atualizarDisplayModo(); // Removido se não houver a função definida no seu script
         FolhaEngine.montar('folha-total');
+        
         setTimeout(() => {
             const ed = document.getElementById('editor-principal');
             if(ed) {
@@ -279,6 +284,7 @@
                 });
             }
         }, 1000);
+
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
     };
@@ -309,12 +315,11 @@
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 MINHA PASTA (GAVETAS)";
+        document.getElementById('modal-title').innerText = "📂 MINHA PASTA PMDF";
         content.innerHTML = `
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>GAVETA: QUESTÕES</span> <i class="fas fa-question-circle" style="color:var(--questoes)"></i></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>GAVETA: TREINO PEÇAS</span> <i class="fas fa-edit" style="color:#facc15"></i></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>GAVETA: TREINO TESES</span> <i class="fas fa-gavel" style="color:var(--teses)"></i></div>
-            <div class="opt-btn" onclick="window.abrirListaExamesGaveta()"><span>GAVETAS: EXAMES OFICIAIS</span> <i class="fas fa-archive" style="color:var(--gold)"></i></div>
         `;
         modal.style.display = 'flex';
     };
@@ -322,11 +327,11 @@
     window.abrirGavetaEspecifica = async (tipoGaveta) => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "block";
-        let label = (tipoGaveta === 'QUESTÕES' || tipoGaveta === 'TREINO' || tipoGaveta === 'TESES') ? tipoGaveta : `EXAME ${tipoGaveta}`;
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${label}`;
+        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
         content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Buscando...</div>";
         try {
-            const snap = await get(ref(db, `producao_v13/HISTORICO_OFICIAL`));
+            // AJUSTE DE ENDEREÇO: Buscando na raiz PMDF
+            const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
             content.innerHTML = "";
             if (snap.exists()) {
                 const dados = snap.val();
@@ -340,26 +345,28 @@
                             <div onclick="window.carregarPecaPasta('${item.id}')" style="cursor:pointer; flex:1;">
                                 <strong style="color:#0f172a;">${item.peca}</strong>
                             </div>
-                            <div style="display:flex; gap:12px;">
-                                <i class="fas fa-edit" style="color:var(--gold-dark); cursor:pointer" onclick="window.renomearArquivoPasta('${item.id}', '${tipoGaveta}')"></i>
-                                <i class="fas fa-trash" style="color:var(--perigo); cursor:pointer" onclick="window.deletarPecaPasta('${item.id}', '${tipoGaveta}')"></i>
-                            </div>
                         </div>`;
                     content.appendChild(div);
                 });
-            }
-        } catch (e) { content.innerHTML = "Erro."; }
+            } else { content.innerHTML = "Gaveta vazia."; }
+        } catch (e) { content.innerHTML = "Erro ao acessar banco PMDF."; }
     };
 
     window.finalizarPeca = async () => { 
         const ed = document.getElementById('editor-principal'); 
         if(!ed) return; 
-        let tipoDestino = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : (window.modoTreinoLivre ? "TREINO" : window.activeEx));
+        let tipoDestino = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : "TREINO");
         const nomeAlvo = window.pecaAtualNome;
-        if (!confirm(`Salvar "${nomeAlvo}" em ${tipoDestino}?`)) return;
+        if (!confirm(`Salvar "${nomeAlvo}" em ${tipoDestino} (PMDF)?`)) return;
         const agora = new Date(); const dataF = agora.toLocaleDateString() + " " + agora.toLocaleTimeString(); 
-        await set(ref(db, `producao_v13/HISTORICO_OFICIAL/${Date.now()}`), { exame: tipoDestino, peca: `${nomeAlvo} (${dataF})`, conteudo: ed.innerHTML }); 
-        alert("Salvo!");
+        
+        // AJUSTE DE ENDEREÇO: Gravando no histórico PMDF
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${Date.now()}`), { 
+            exame: tipoDestino, 
+            peca: `${nomeAlvo} (${dataF})`, 
+            conteudo: ed.innerHTML 
+        }); 
+        alert("Salvo com sucesso no MasterOAB (PMDF)!");
     };
 
     window.setHighlightColor = (color, id) => {
@@ -372,35 +379,31 @@
     window.toggleMarcaTexto = (forcarAtivo = null) => {
         window.marcaTextoAtivo = (forcarAtivo !== null) ? forcarAtivo : !window.marcaTextoAtivo;
         const btn = document.getElementById('btn-highlight');
+        if(!btn) return;
         if(window.marcaTextoAtivo) { btn.style.background = window.currentColor; btn.style.color = "#000"; } 
         else { btn.style.background = "transparent"; btn.style.color = "#64748b"; }
     };
 
     window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
-    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `producao_v13/RASCUNHO`), { conteudo: ed.innerHTML }); }
-    async function carregarRascunho() { const snap = await get(ref(db, `producao_v13/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
+    
+    // AJUSTE DE ENDEREÇO: Rascunho temporário PMDF
+    async function salvarAutomatico() { 
+        const ed = document.getElementById('editor-principal'); 
+        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
+    }
+
+    // AJUSTE DE ENDEREÇO: Carga de rascunho PMDF
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
+        const ed = document.getElementById('editor-principal');
+        if(snap.exists() && ed) ed.innerHTML = snap.val().conteudo; 
+    }
+
     window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.abrirMentoria = () => window.open('mentoria.html', '_blank');
-    window.toggleRecolherEditor = () => { document.getElementById('editor-container').classList.toggle('collapsed'); document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.verPDF = (t) => {
-        const v = document.getElementById('pdf-viewer'); const f = document.getElementById('pdf-frame');
-        let url = t === 'P' ? `ro${window.activeEx}.pdf` : (t === 'G' ? `ro${window.activeEx}-gabarito.pdf` : (t === 'V' ? 'vade.pdf' : (t === 'LP' ? 'livro_processo.pdf' : 'livro_material.pdf')));
-        f.src = url; v.classList.add('active'); window.toggleRecolherEditor(); 
-    };
-    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active', 'full-view'); document.getElementById('editor-container').classList.remove('collapsed'); };
-    window.abrirBibliotecaPDF = () => {
-        const modal = document.getElementById('universal-modal'); const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📂 PASTA DE PDFS";
-        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `<div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}', '${pdf.nome}')"><span>${pdf.nome}</span></div>`).join('');
-        modal.style.display = 'flex';
-    };
     window.abrirPDFDireto = (url, nome) => {
         const v = document.getElementById('pdf-viewer'); const f = document.getElementById('pdf-frame');
-        document.getElementById('pdf-title').innerText = nome; f.src = url; v.classList.add('active'); window.toggleRecolherEditor();
+        if(document.getElementById('pdf-title')) document.getElementById('pdf-title').innerText = nome; 
+        f.src = url; v.classList.add('active'); 
     };
+    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active'); };
 </script>
-</body>
-</html>
-
-
