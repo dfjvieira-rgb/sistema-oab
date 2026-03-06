@@ -276,22 +276,52 @@
         content.innerHTML = `
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('CADERNO')"><span>PASTA: CADERNO</span></div>
+            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span>📓 CADERNO DE MATÉRIAS</span></div>
         `;
         modal.style.display = 'flex';
+    };
+
+    // CIRURGIA: SUBPASTAS DO CADERNO
+    window.abrirSubPastasCaderno = () => {
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📓 MEU CADERNO";
+        const materias = [
+            "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", 
+            "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR",
+            "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"
+        ];
+        
+        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
+        
+        materias.forEach(mat => {
+            const div = document.createElement('div');
+            div.className = "opt-btn";
+            div.onclick = () => window.abrirGavetaEspecifica(mat);
+            div.innerHTML = `<span><i class="fas fa-book"></i> ${mat}</span> <i class="fas fa-chevron-right" style="opacity:0.3"></i>`;
+            content.appendChild(div);
+        });
     };
 
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "💾 SALVAR EM...";
+        
+        const pastasDestino = [
+            "QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", 
+            "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", 
+            "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"
+        ];
+        
         content.innerHTML = `
             <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
                 ARQUIVO: ${window.pecaAtualNome}
             </div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
-            <div class="opt-btn" onclick="window.executarSalvamentoInteligente('CADERNO')"><span>PASTA: CADERNO</span></div>
+            <div style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
+                ${pastasDestino.map(pasta => `
+                    <div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>
+                `).join('')}
+            </div>
         `;
         modal.style.display = 'flex';
     };
@@ -307,18 +337,24 @@
             conteudo: ed.innerHTML,
             data: new Date().toLocaleString()
         });
-        alert("Salvo com sucesso na pasta " + pasta);
+        alert("Salvo com sucesso em: " + pasta);
         document.getElementById('universal-modal').style.display = 'none';
     };
 
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
+        // Se for uma das matérias do caderno, o botão voltar deve retornar para o caderno
+        const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
+        
+        content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
+        
         if (snap.exists()) {
+            let temArquivo = false;
             Object.keys(snap.val()).forEach(k => {
                 const item = snap.val()[k];
                 if(item.exame === tipo) {
+                    temArquivo = true;
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
                     div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px;">📄 ${item.peca}</span>
@@ -326,8 +362,9 @@
                     content.appendChild(div);
                 }
             });
+            if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo em ${tipo}.</p>`;
         } else {
-            content.innerHTML += `<p style="text-align:center; opacity:0.5;">Nenhum arquivo nesta pasta.</p>`;
+            content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo nesta pasta.</p>`;
         }
     };
 
@@ -378,7 +415,6 @@
     window.setHighlightColor = (color, id) => {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        // Lógica de aplicação de cor via document.execCommand ou similar pode ser injetada aqui
     };
 </script>
 </body>
