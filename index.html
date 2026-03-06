@@ -143,6 +143,11 @@
     <aside class="sidebar" id="sidebar-main">
         <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
         <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
+        
+        <button class="btn-side" style="background:#ef4444; color:#fff" onclick="window.abrirVade()">
+            <i class="fas fa-book"></i> <span>VADE MECUM</span>
+        </button>
+
         <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
         <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
         <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
@@ -207,6 +212,7 @@
         <button class="fab-sub" style="background:#facc15; color:black" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
         <button class="fab-sub" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
         <button class="fab-sub" style="background:var(--gold); color:black" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
+        <button class="fab-sub" style="background:#ef4444; color:white" onclick="window.abrirVade()"><i class="fas fa-book"></i></button>
     </div>
 </main>
 
@@ -217,6 +223,8 @@
         <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">FECHAR</button>
     </div>
 </div>
+
+<script src="https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/vade.js"></script>
 
 <script type="module">
     import { db } from './firebase-config.js'; 
@@ -325,7 +333,6 @@
         modal.style.display = 'flex';
     };
 
-    // CIRURGIA: SALVAMENTO COM LOGICA DE ATUALIZAÇÃO (UPSERT)
     window.executarSalvamentoInteligente = async (pasta) => {
         const ed = document.getElementById('editor-principal');
         if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
@@ -333,21 +340,17 @@
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
         let idParaUsar = null;
 
-        // Verifica se já existe um arquivo com o MESMO NOME na MESMA PASTA
         if (snap.exists()) {
             const dados = snap.val();
             for (let id in dados) {
                 if (dados[id].peca === window.pecaAtualNome && dados[id].exame === pasta) {
-                    idParaUsar = id; // Encontrou o arquivo, vamos atualizar
+                    idParaUsar = id;
                     break;
                 }
             }
         }
 
-        // Se não encontrou, gera um novo ID baseado no timestamp
-        if (!idParaUsar) {
-            idParaUsar = Date.now();
-        }
+        if (!idParaUsar) idParaUsar = Date.now();
         
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
             exame: pasta, 
@@ -356,7 +359,7 @@
             data: new Date().toLocaleString()
         });
 
-        alert(idParaUsar.toString().length > 13 ? "Arquivo atualizado com sucesso!" : "Novo arquivo salvo com sucesso!");
+        alert("💾 Estudo Gravado!");
         document.getElementById('universal-modal').style.display = 'none';
     };
 
@@ -381,8 +384,6 @@
                 }
             });
             if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo em ${tipo}.</p>`;
-        } else {
-            content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo nesta pasta.</p>`;
         }
     };
 
@@ -397,10 +398,7 @@
     };
 
     window.excluirTrabalho = async (id, tipo) => {
-        if(confirm("Excluir este arquivo?")) { 
-            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); 
-            window.abrirGavetaEspecifica(tipo); 
-        }
+        if(confirm("Excluir?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); }
     };
 
     async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
@@ -414,19 +412,19 @@
     };
     
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
+    window.ativarTreinoLivre = () => { if(confirm("Novo?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
-    window.abrirExames = () => alert("Módulo de Exames OAB.");
-    window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
-    window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
-    window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
-    window.desfazer = () => alert("Função desfazer acionada.");
-    
-    window.toggleMarcaTexto = () => { alert("Selecione um texto para aplicar a cor escolhida."); };
+    // Funções extras
+    window.abrirExames = () => alert("Módulo OAB.");
+    window.ativarModoQuestoes = () => alert("Questões Ativas.");
+    window.ativarModoTeses = () => alert("Teses Ativas.");
+    window.injetarTeses = () => alert("Injetando...");
+    window.desfazer = () => alert("Desfeito.");
+    window.toggleMarcaTexto = () => { alert("Selecione o texto."); };
     window.setHighlightColor = (color, id) => {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -434,4 +432,3 @@
 </script>
 </body>
 </html>
-
