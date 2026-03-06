@@ -9,6 +9,7 @@
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --bg-paper: #cbd5e1; --sidebar-w: 70px;
+            --pauta: 35px;
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -49,27 +50,18 @@
             background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
         }
 
-        /* --- BLINDAGEM DO INDEX PARA CONVERSAR COM O ENGINE --- */
+        /* BLINDAGEM DO EDITOR */
         #folha-render-container {
-            width: 100%;
-            max-width: 850px;
-            margin-top: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            line-height: 0; 
+            width: 100%; max-width: 850px; margin-top: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); line-height: 0; 
         }
 
-        /* TRAVA MECÂNICA PARA NÃO CABER DUAS ESCRITAS */
         .area-editor * {
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 35px !important;
-            display: inline; 
+            margin: 0 !important; padding: 0 !important;
+            line-height: var(--pauta) !important; display: inline; 
         }
 
-        .area-editor br {
-            display: block !important;
-            content: "";
-        }
+        .area-editor br { display: block !important; content: ""; }
 
         #identificador-missao {
             width: 100%; max-width: 850px; background: white; padding: 12px;
@@ -77,7 +69,6 @@
             text-transform: uppercase; color: #000; cursor: pointer;
         }
 
-        /* TOOLBAR DE MARCA-TEXTO */
         .sticky-tools { 
             position: sticky; top: -20px; z-index: 1000; background: white; 
             width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
@@ -88,7 +79,6 @@
         .dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid #ddd; }
         .dot.active { border: 2px solid #000; transform: scale(1.1); }
 
-        /* MODAL E PDF */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 15px; color: #000; }
         
@@ -155,7 +145,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ENGINE SAGRADO - INTOCADO
+    // ENGINE SAGRADO - AGORA COM 300 LINHAS
     export const FolhaEngine = {
         montar: (containerId) => {
             const container = document.getElementById(containerId);
@@ -169,8 +159,7 @@
                     .folha-container { display: grid; grid-template-columns: 50px 1fr; background: #fff; font-family: 'Courier New', Courier, monospace; border: 2px solid #000; position: relative; }
                     .numeracao { background: #f1f5f9; border-right: 2px solid #000; user-select: none; }
                     .num-mecanico { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; border-bottom: 1px solid #cbd5e1; color: #1e293b; box-sizing: border-box; }
-                    .area-editor { outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; min-height: 5250px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; text-justify: inter-word; }
-                    .area-editor div, .area-editor p { margin: 0; padding: 0; line-height: 35px; }
+                    .area-editor { outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; min-height: 10500px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; }
                 `;
                 document.head.appendChild(style);
             }
@@ -178,7 +167,7 @@
             folha.className = 'folha-container';
             const numCol = document.createElement('div');
             numCol.className = 'numeracao';
-            for(let i=1; i<=150; i++) {
+            for(let i=1; i<=300; i++) {
                 const n = document.createElement('div'); n.className = 'num-mecanico'; n.innerText = i; numCol.appendChild(n);
             }
             const editor = document.createElement('div');
@@ -186,31 +175,34 @@
             folha.appendChild(numCol); folha.appendChild(editor); container.appendChild(folha);
             
             editor.addEventListener('keydown', (e) => {
-                if (e.key === 'Tab') {
-                    e.preventDefault();
-                    const sel = window.getSelection();
-                    const range = sel.getRangeAt(0);
-                    const tabNode = document.createTextNode("    ");
-                    range.insertNode(tabNode); range.setStartAfter(tabNode);
-                    sel.removeAllRanges(); sel.addRange(range);
-                }
                 if (e.key === 'Enter') { document.execCommand('insertLineBreak'); e.preventDefault(); }
-            });
-            editor.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const text = e.clipboardData.getData('text/plain');
-                document.execCommand('insertText', false, text);
             });
         }
     };
 
     window.idAtivo = null; window.gavetaAtiva = null; window.corM = '#fef08a';
 
+    // FUNÇÃO DE SANEAMENTO (ANTI-PESO)
+    window.sanitizarHTML = (htmlBruto) => {
+        const temp = document.createElement('div');
+        temp.innerHTML = htmlBruto;
+        const walker = document.createTreeWalker(temp, NodeFilter.SHOW_ELEMENT);
+        let n;
+        while (n = walker.nextNode()) {
+            n.removeAttribute('class'); n.removeAttribute('contenteditable');
+            if (n.style.length > 0) {
+                const bg = n.style.backgroundColor; n.removeAttribute('style');
+                if (bg) n.style.backgroundColor = bg;
+            }
+        }
+        temp.normalize();
+        return temp.innerHTML;
+    };
+
     window.onload = () => {
         FolhaEngine.montar('folha-render-container');
         document.execCommand('defaultParagraphSeparator', false, 'br');
-        const ed = document.getElementById('editor-principal');
-        ed.addEventListener('mouseup', () => {
+        document.getElementById('editor-principal').addEventListener('mouseup', () => {
             if(window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.corM);
         });
     };
@@ -224,49 +216,50 @@
     window.limparM = () => { document.execCommand('backColor', false, 'transparent'); };
 
     window.novaMissao = () => {
-        const n = prompt("NOME DA MISSÃO:");
+        const n = prompt("NOME DO EXERCÍCIO/COMENTÁRIO:");
         if(n){
             window.idAtivo = "PMDF_" + Date.now();
             window.gavetaAtiva = null;
             document.getElementById('identificador-missao').innerText = n.toUpperCase();
             document.getElementById('editor-principal').innerHTML = "";
-            document.getElementById('modo-display').innerText = "NOVA MISSÃO";
         }
     };
 
     window.salvarFluxo = () => {
-        if(!window.idAtivo) return alert("Inicie uma missão no +");
+        if(!window.idAtivo) return alert("Inicie no +");
         if(window.gavetaAtiva) return window.dbSave(window.gavetaAtiva);
         const c = document.getElementById('m-content');
-        document.getElementById('m-title').innerText = "GAVETA DE DESTINO";
+        document.getElementById('m-title').innerText = "GAVETA";
         c.innerHTML = `
-            <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px; cursor:pointer; font-weight:bold">GAVETA: REDAÇÃO</button>
-            <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px; cursor:pointer; font-weight:bold">GAVETA: QUESTÕES</button>
+            <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px;">GAVETA: REDAÇÃO</button>
+            <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px;">GAVETA: QUESTÕES</button>
         `;
         document.getElementById('modal-elite').style.display = 'flex';
     };
 
     window.dbSave = async (gaveta) => {
         window.gavetaAtiva = gaveta;
-        const refSave = ref(db, `pmdf_v1/GAVETAS/${window.idAtivo}`);
-        await set(refSave, {
-            id: window.idAtivo,
-            gaveta: gaveta,
+        const editor = document.getElementById('editor-principal');
+        const htmlOtimizado = window.sanitizarHTML(editor.innerHTML);
+        
+        await set(ref(db, `pmdf_v1/GAVETAS/${window.idAtivo}`), {
+            id: window.idAtivo, gaveta: gaveta,
             nome: document.getElementById('identificador-missao').innerText,
-            html: document.getElementById('editor-principal').innerHTML,
+            html: htmlOtimizado,
             data: new Date().toLocaleString('pt-BR')
         });
+        
         document.getElementById('modo-display').innerText = gaveta;
         document.getElementById('modal-elite').style.display = 'none';
-        alert("Sincronizado com a Gaveta!");
+        alert("Salvo e Otimizado!");
     };
 
     window.gerenciadorPasta = () => {
         const c = document.getElementById('m-content');
         document.getElementById('m-title').innerText = "📂 GAVETAS";
         c.innerHTML = `
-            <button onclick="window.listarGaveta('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px; cursor:pointer">REDAÇÕES</button>
-            <button onclick="window.listarGaveta('QUESTÕES')" style="width:100%; padding:15px; cursor:pointer">QUESTÕES</button>
+            <button onclick="window.listarGaveta('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px;">REDAÇÕES</button>
+            <button onclick="window.listarGaveta('QUESTÕES')" style="width:100%; padding:15px;">QUESTÕES</button>
         `;
         document.getElementById('modal-elite').style.display = 'flex';
     };
@@ -302,19 +295,14 @@
 
     window.abrirVade = () => {
         const c = document.getElementById('m-content');
-        document.getElementById('m-title').innerText = "⚖️ NÚCLEO DURO PMDF";
-        const leis = [
-            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'PENAL MILITAR'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'PROC. PENAL MILITAR']
-        ];
+        document.getElementById('m-title').innerText = "⚖️ VADE MECUM";
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM']];
         c.innerHTML = leis.map(l => `<div onclick="window.showPdf('${l[0]}','${l[1]}')" style="padding:10px; border:1px solid #ddd; margin-bottom:5px; cursor:pointer">${l[1]}</div>`).join('');
         document.getElementById('modal-elite').style.display = 'flex';
     };
 
     window.showPdf = (url, title) => {
         document.getElementById('pdf-frame').src = url;
-        document.getElementById('pdf-label').innerText = title;
         document.getElementById('pdf-side').classList.add('active');
         document.getElementById('modal-elite').style.display = 'none';
     };
