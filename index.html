@@ -233,7 +233,7 @@
 <script type="module">
     // 1. IMPORTAÇÕES E CONFIGURAÇÕES
     import { db } from './firebase-config.js'; 
-    import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { ref, get, set, remove, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
     window.db = db;
@@ -241,8 +241,6 @@
 
     // Estado Global
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
-    window.modoQuestoes = false;
-    window.modoTeses = false;
     window.historicoUndo = [];
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
@@ -251,7 +249,10 @@
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         
-        // Listeners do Editor
+        // Atualiza o nome exibido no topo (se houver o elemento)
+        const displayNome = document.getElementById('identificador-peca');
+        if(displayNome) displayNome.innerText = window.pecaAtualNome;
+
         setTimeout(() => {
             const ed = document.getElementById('editor-principal');
             if(ed) {
@@ -264,104 +265,62 @@
                         }
                     }, 800);
                 });
-                ed.addEventListener('mouseup', () => {
-                    if(window.marcaTextoAtivo) {
-                        const selection = window.getSelection();
-                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
-                    }
-                });
             }
         }, 1000);
 
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
-        document.getElementById('ex-display').innerText = "PMDF ELITE";
+        if(document.getElementById('ex-display')) document.getElementById('ex-display').innerText = "PMDF ELITE";
     };
 
     // ==========================================
-    // LIGAÇÃO DOS BOTÕES (SIDEBAR & MOBILE HUB)
+    // 1. RENOMEAÇÃO DINÂMICA
     // ==========================================
-
-    // Botão: EXAMES OAB (Ícone List)
-    window.abrirExames = () => alert("Módulo de Exames OAB em manutenção para PMDF.");
-
-    // Botão: NOVO TREINO (Ícone Edit)
-    window.ativarTreinoLivre = () => {
-        if(confirm("Iniciar novo treino do zero?")) {
-            window.limparFolha();
-            window.modoQuestoes = false;
-            window.modoTeses = false;
-            document.getElementById('ex-display').innerText = "TREINO LIVRE";
+    window.renomearTreino = () => {
+        const novoNome = prompt("Digite o novo nome para este trabalho:", window.pecaAtualNome);
+        if (novoNome && novoNome.trim() !== "") {
+            window.pecaAtualNome = novoNome.trim();
+            localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+            const display = document.getElementById('identificador-peca');
+            if(display) display.innerText = window.pecaAtualNome;
         }
     };
 
-    // Botão: QUESTÕES (Ícone Question)
-    window.ativarModoQuestoes = () => {
-        window.modoQuestoes = true;
-        window.modoTeses = false;
-        document.getElementById('ex-display').innerText = "QUESTÕES";
-        alert("Modo Questões Ativo.");
-    };
-
-    // Botão: TREINO TESES (Ícone Gavel)
-    window.ativarModoTeses = () => {
-        window.modoTeses = true;
-        window.modoQuestoes = false;
-        document.getElementById('ex-display').innerText = "TESES";
-        alert("Modo Teses Ativo.");
-    };
-
-    // Botão: PASTA DE PDFS (Ícone Folder)
-    window.abrirBibliotecaPDF = () => {
+    // ==========================================
+    // 2. SALVAMENTO CIRÚRGICO (ESCOLHA DE PASTA)
+    // ==========================================
+    window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📂 BIBLIOTECA PMDF";
-        const pdfs = [
-            { n: "EDITAL PMDF 2023", u: "edital-abertura-04-2023.pdf" },
-            { n: "LINHA DO TEMPO - PEÇAS", u: "LINHA DO TEMPO - Identificação de Peças_231123_182636.pdf" },
-            { n: "TESES OAB TRABALHO", u: "TESES-----OAB--SEGUNDA--FASE--TRABALHO.pdf" }
-        ];
-        content.innerHTML = pdfs.map(p => `
-            <div class="opt-btn" onclick="window.abrirPDFDireto('${p.u}','${p.n}')">
-                <span>${p.n}</span> <i class="fas fa-file-pdf"></i>
-            </div>`).join('');
-        modal.style.display = 'flex';
-    };
-
-    // Botão: MENTORIA IA (Ícone Robot)
-    window.abrirMentoria = () => alert("Mentoria IA: Envie seu texto para análise.");
-
-    // Botão: PERGAMINHO (Ícone Scroll) - ESTRUTURAS
-    window.abrirPergaminho = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📜 ESTRUTURAS DE PEÇAS";
+        document.getElementById('modal-title').innerText = "💾 ONDE DESEJA SALVAR?";
+        
         content.innerHTML = `
-            <div class="opt-btn" onclick="alert('Injetando estrutura de HC...')"><span>HABEAS CORPUS MILITAR</span></div>
-            <div class="opt-btn" onclick="alert('Injetando estrutura de RA...')"><span>RESPOSTA À ACUSAÇÃO (CPPM)</span></div>
+            <div style="margin-bottom:15px; text-align:center;">
+                <small>Trabalho: <b>${window.pecaAtualNome}</b></small>
+            </div>
+            <div class="opt-btn" onclick="window.confirmarSalvamento('QUESTÕES')"><span>PASTA: QUESTÕES</span> <i class="fas fa-question-circle"></i></div>
+            <div class="opt-btn" onclick="window.confirmarSalvamento('TREINO')"><span>PASTA: PEÇAS</span> <i class="fas fa-edit"></i></div>
+            <div class="opt-btn" onclick="window.confirmarSalvamento('TESES')"><span>PASTA: TESES</span> <i class="fas fa-gavel"></i></div>
         `;
         modal.style.display = 'flex';
     };
 
-    // Botão: MARTELO (Ícone Hammer)
-    window.injetarTeses = () => alert("Selecione uma tese no Vade para injetar.");
-
-    // Botões de Livros e Vade (LP, LM, P, G, V)
-    window.verPDF = (tipo) => {
-        const links = {
-            'V': 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm',
-            'LP': 'livro-processo.pdf',
-            'LM': 'livro-material.pdf',
-            'P': 'peca-exame.pdf',
-            'G': 'gabarito-exame.pdf'
-        };
-        window.abrirPDFDireto(links[tipo] || '#', `DOC: ${tipo}`);
+    window.confirmarSalvamento = async (pastaAlvo) => {
+        const ed = document.getElementById('editor-principal');
+        const idUnico = Date.now();
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idUnico}`), {
+            exame: pastaAlvo,
+            peca: window.pecaAtualNome,
+            conteudo: ed.innerHTML,
+            data: new Date().toLocaleString()
+        });
+        alert(`Salvo com sucesso em ${pastaAlvo}!`);
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
     // ==========================================
-    // SISTEMA DE GAVETAS E PERSISTÊNCIA (FIREBASE)
+    // 3. GESTÃO DE GAVETAS (MOVER E EXCLUIR)
     // ==========================================
-
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -378,33 +337,72 @@
     window.abrirGavetaEspecifica = async (tipoGaveta) => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-back-btn').style.display = "block";
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
-        content.innerHTML = "Buscando...";
+        document.getElementById('modal-title').innerText = `📂 ${tipoGaveta}`;
+        content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Carregando...</div>";
+
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
         if (snap.exists()) {
             content.innerHTML = "";
             const dados = snap.val();
-            Object.keys(dados).forEach(k => {
-                if(dados[k].exame === tipoGaveta) {
-                    const div = document.createElement('div');
-                    div.className = "opt-btn";
-                    div.innerHTML = `<span>${dados[k].peca}</span>`;
-                    div.onclick = () => { document.getElementById('editor-principal').innerHTML = dados[k].conteudo; };
-                    content.appendChild(div);
-                }
+            const itens = Object.keys(dados)
+                .map(k => ({ id: k, ...dados[k] }))
+                .filter(i => i.exame === tipoGaveta);
+
+            if(itens.length === 0) { content.innerHTML = "<p style='text-align:center; padding:20px;'>Nenhum arquivo nesta pasta.</p>"; return; }
+
+            itens.reverse().forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:#fff; border:1px solid #e2e8f0; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px;";
+                card.innerHTML = `
+                    <div style="font-weight:bold; color:#1e293b; font-size:14px;">${item.peca}</div>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:8px;">
+                        <button onclick="window.carregarTrabalho('${item.id}')" style="background:#0f172a; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer; font-size:12px;">ABRIR</button>
+                        <button onclick="window.moverTrabalho('${item.id}', '${item.exame}')" style="background:#6366f1; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;" title="Mover"><i class="fas fa-exchange-alt"></i></button>
+                        <button onclick="window.excluirTrabalho('${item.id}')" style="background:#ef4444; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                content.appendChild(card);
             });
         } else { content.innerHTML = "Vazio."; }
     };
 
-    window.finalizarPeca = async () => { 
-        const ed = document.getElementById('editor-principal'); 
-        let tipo = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : "TREINO");
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${Date.now()}`), { 
-            exame: tipo, peca: `${window.pecaAtualNome} (${new Date().toLocaleString()})`, conteudo: ed.innerHTML 
-        }); 
-        alert("Salvo com sucesso!");
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            document.getElementById('editor-principal').innerHTML = snap.val().conteudo;
+            window.pecaAtualNome = snap.val().peca;
+            localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+            const display = document.getElementById('identificador-peca');
+            if(display) display.innerText = window.pecaAtualNome;
+            document.getElementById('universal-modal').style.display = 'none';
+        }
     };
 
+    window.excluirTrabalho = async (id) => {
+        if(confirm("Deseja apagar este trabalho permanentemente?")) {
+            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+            alert("Removido com sucesso.");
+            window.gerenciadorPasta(); 
+        }
+    };
+
+    window.moverTrabalho = async (id, pastaAtual) => {
+        const selecao = prompt(`Mover de ${pastaAtual} para:\n1. QUESTÕES\n2. TREINO\n3. TESES`);
+        let novaPasta = "";
+        if(selecao === "1") novaPasta = "QUESTÕES";
+        else if(selecao === "2") novaPasta = "TREINO";
+        else if(selecao === "3") novaPasta = "TESES";
+
+        if(novaPasta && novaPasta !== pastaAtual) {
+            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: novaPasta });
+            alert(`Movido para ${novaPasta}`);
+            window.gerenciadorPasta();
+        }
+    };
+
+    // ==========================================
+    // UTILITÁRIOS E PERSISTÊNCIA BÁSICA
+    // ==========================================
     async function salvarAutomatico() { 
         const ed = document.getElementById('editor-principal'); 
         if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
@@ -415,9 +413,6 @@
         if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
     }
 
-    // ==========================================
-    // UTILITÁRIOS DE INTERFACE
-    // ==========================================
     window.abrirPDFDireto = (url, nome) => {
         if (url.startsWith('http')) { window.open(url, '_blank'); return; }
         document.getElementById('pdf-title').innerText = nome;
@@ -430,15 +425,4 @@
     window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.desfazer = () => { if(window.historicoUndo.length > 0) document.getElementById('editor-principal').innerHTML = window.historicoUndo.pop(); };
     window.toggleRecolherEditor = () => document.getElementById('editor-container').classList.toggle('collapsed');
-    window.toggleMarcaTexto = (f = null) => {
-        window.marcaTextoAtivo = (f !== null) ? f : !window.marcaTextoAtivo;
-        document.getElementById('btn-highlight').style.background = window.marcaTextoAtivo ? window.currentColor : 'transparent';
-    };
-    window.setHighlightColor = (c, id) => {
-        window.currentColor = c;
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        window.toggleMarcaTexto(true);
-    };
 </script>
-
