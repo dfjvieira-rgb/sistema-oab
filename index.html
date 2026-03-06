@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JOAQUIM ELITE 2026 - PMDF MASTER</title>
+    <title>JOAQUIM ELITE 2026 - PMDF ULTRA</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -96,7 +96,7 @@
         <button class="sandwich-btn" onclick="window.toggleSidebar()"><i class="fas fa-bars"></i></button>
         <div class="logo">JOAQUIM <span>ELITE 2026</span></div>
     </div>
-    <div style="color:var(--gold); font-size:12px; font-weight:bold;">SISTEMA: <span id="modo-display">FOLHA MASTER</span></div>
+    <div style="color:var(--gold); font-size:12px; font-weight:bold;">SISTEMA: <span id="modo-display">FOLHA ULTRA</span></div>
 </header>
 
 <main>
@@ -111,7 +111,7 @@
 
     <section class="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-missao" onclick="window.renomear()">NOVA MISSÃO PMDF</div>
+            <div id="identificador-missao" onclick="window.renomear()">MISSÃO 3000 LINHAS</div>
             <div class="toolbar-marcador">
                 <div class="colors">
                     <div class="dot active" id="d1" style="background:#fef08a;" onclick="window.setM('#fef08a','d1')"></div>
@@ -151,7 +151,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ENGINE EXPANDIDA PARA 1000 LINHAS COM BLINDAGEM DE PAUTA
     export const FolhaEngine = {
         montar: (containerId) => {
             const container = document.getElementById(containerId);
@@ -162,17 +161,17 @@
                 const style = document.createElement('style');
                 style.id = styleId;
                 style.innerHTML = `
-                    .folha-container { display: grid; grid-template-columns: 50px 1fr; background: #fff; font-family: 'Courier New', Courier, monospace; border: 2px solid #000; position: relative; }
+                    .folha-container { display: grid; grid-template-columns: 60px 1fr; background: #fff; font-family: 'Courier New', Courier, monospace; border: 2px solid #000; position: relative; }
                     .numeracao { background: #f1f5f9; border-right: 2px solid #000; user-select: none; }
                     .num-mecanico { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; border-bottom: 1px solid #cbd5e1; color: #1e293b; box-sizing: border-box; }
                     .area-editor { 
                         outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; 
                         line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; 
-                        min-height: 35000px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); 
+                        min-height: 105000px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); 
                         background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; 
                     }
                     @media (max-width: 768px) {
-                        .folha-container { grid-template-columns: 45px 1fr; }
+                        .folha-container { grid-template-columns: 50px 1fr; }
                         .area-editor { font-size: 17px !important; padding: 0 10px !important; }
                     }
                 `;
@@ -183,8 +182,8 @@
             const numCol = document.createElement('div');
             numCol.className = 'numeracao';
             
-            // LOOP DE 1000 LINHAS
-            for(let i=1; i<=1000; i++) {
+            // 3000 LINHAS
+            for(let i=1; i<=3000; i++) {
                 const n = document.createElement('div'); n.className = 'num-mecanico'; n.innerText = i; numCol.appendChild(n);
             }
             
@@ -285,7 +284,7 @@
         });
         document.getElementById('modo-display').innerText = gaveta;
         document.getElementById('modal-elite').style.display = 'none';
-        alert("Salvo!");
+        alert("Salvo com sucesso!");
     };
 
     window.gerenciadorPasta = () => {
@@ -307,9 +306,9 @@
             const itens = Object.values(snap.val()).filter(i => i.gaveta === tipo);
             itens.reverse().forEach(it => {
                 const d = document.createElement('div');
-                d.style = "padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between";
+                d.style = "padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center";
                 d.innerHTML = `<span onclick="window.loadIt('${it.id}')" style="cursor:pointer"><b>${it.nome}</b></span>
-                               <i class="fas fa-trash" onclick="window.delIt('${it.id}','${tipo}')" style="color:red; cursor:pointer"></i>`;
+                               <i class="fas fa-trash" onclick="window.delIt('${it.id}','${tipo}')" style="color:red; cursor:pointer; padding:10px"></i>`;
                 c.appendChild(d);
             });
         }
@@ -326,13 +325,13 @@
         if(window.innerWidth <= 768) window.toggleSidebar();
     };
 
-    window.delIt = async (id, tipo) => { if(confirm("Apagar?")) { await remove(ref(db, `pmdf_v1/GAVETAS/${id}`)); window.listarGaveta(tipo); } };
+    window.delIt = async (id, tipo) => { if(confirm("Apagar permanentemente?")) { await remove(ref(db, `pmdf_v1/GAVETAS/${id}`)); window.listarGaveta(tipo); } };
 
     window.abrirVade = () => {
         const c = document.getElementById('m-content');
         document.getElementById('m-title').innerText = "⚖️ VADE MECUM";
-        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM']];
-        c.innerHTML = leis.map(l => `<div onclick="window.showPdf('${l[0]}','${l[1]}')" style="padding:10px; border:1px solid #ddd; margin-bottom:5px; cursor:pointer">${l[1]}</div>`).join('');
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM']];
+        c.innerHTML = leis.map(l => `<div onclick="window.showPdf('${l[0]}','${l[1]}')" style="padding:10px; border:1px solid #ddd; margin-bottom:5px; cursor:pointer; border-radius:5px">${l[1]}</div>`).join('');
         document.getElementById('modal-elite').style.display = 'flex';
     };
 
