@@ -93,17 +93,17 @@
         .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
         .color-dot.active { border-color: #000; }
 
-        .paper { width: 100%; max-width: 850px; background: white; min-height: 1500px; position: relative; }
+        .paper { width: 100%; max-width: 850px; background: white; min-height: 2000px; position: relative; }
 
         #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
         #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
         #pdf-viewer.full-view { width: 100% !important; }
 
-        .pdf-controls { background: #1e293b; padding: 12px; display: flex; justify-content: space-between; color: white; }
+        .pdf-controls { background: #1e293b; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: bold;}
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; }
-        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; }
+        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
 
         #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
         .fab-main { width: 65px; height: 65px; border-radius: 50%; background: var(--gold); border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
@@ -113,6 +113,7 @@
         @media (max-width: 768px) {
             .sidebar { display: none; }
             #mobile-hub { display: flex; }
+            #pdf-viewer.active { width: 100%; position: absolute; z-index: 9000; }
         }
     </style>
 </head>
@@ -120,16 +121,16 @@
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE - PMDF</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">PMDF</span></div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">SISTEMA: <span id="ex-display">PMDF</span></div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirVade()"><i class="fas fa-balance-scale"></i></button>
-        <button class="btn-side" style="background:var(--questoes)" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
-        <button class="btn-side" style="background:var(--teses)" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
-        <button class="btn-side" style="background:#10b981;" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
-        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
+        <button class="btn-side" style="background:#000; border:1px solid var(--gold)" title="Vade Mecum PMDF" onclick="window.abrirVade()"><i class="fas fa-balance-scale"></i></button>
+        <button class="btn-side" style="background:var(--questoes)" title="Questões" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
+        <button class="btn-side" style="background:var(--teses)" title="Dissertativas" onclick="window.ativarModoTeses()"><i class="fas fa-edit"></i></button>
+        <button class="btn-side" style="background:#10b981;" title="Salvar Treino" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" style="background:var(--mentoria);" title="Mentoria IA" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
     </aside>
 
     <section class="editor-container" id="editor-container">
@@ -143,17 +144,18 @@
                     <button class="btn-lib" id="btn-highlight" onclick="window.toggleMarcaTexto()"><i class="fas fa-highlighter"></i></button>
                 </div>
                 <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i></button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i></button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
             </div>
         </div>
         <div class="paper">
-            <div id="folha-total"></div> </div>
+            <div id="folha-total"></div> 
+        </div>
     </section>
 
     <section id="pdf-viewer">
         <div class="pdf-controls">
-            <span id="pdf-title">VADE MECUM PMDF</span>
-            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:5px 10px; border-radius:4px; font-weight:bold;">X</button>
+            <span id="pdf-title">EDITAL PMDF</span>
+            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer;">X</button>
         </div>
         <iframe id="pdf-frame"></iframe>
     </section>
@@ -167,14 +169,14 @@
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)">⚖️ VADE MECUM PMDF</h2>
+        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)">⚖️ NÚCLEO DURO PMDF</h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">VOLTAR</button>
     </div>
 </div>
 
 <script type="module">
-    import { db } from './firebase-config1.js';
+    import { db } from './firebase-config1.js'; 
     import { ref, get, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
@@ -184,18 +186,27 @@
     window.currentColor = '#fef08a';
     window.historicoUndo = [];
 
-    // --- LEIS NÚCLEO DURO PMDF ---
+    // --- LOGICA NÚCLEO DURO PMDF ---
     window.abrirVade = () => {
         const modal = document.getElementById('universal-modal');
         const c = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
+        
         const leis = [
-            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM (PENAL MILITAR)'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM (PROCESSO MILITAR)'],
-            ['https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm', 'ABUSO DE AUTORIDADE'],
-            ['https://www.planalto.gov.br/ccivil_03/leis/l9455.htm', 'LEI DE TORTURA']
+            ['edital-abertura-04-2023.pdf', '📄 EDITAL PMDF 2023'],
+            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', '🛡️ ESTATUTO PMDF (L. 7289)'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', '⚔️ CÓD. PENAL MILITAR'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', '⚖️ PROC. PENAL MILITAR'],
+            ['https://www.planalto.gov.br/ccivil_03/leis/l6450.htm', '🏛️ LOB PMDF (L. 6450)'],
+            ['https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm', '🚫 ABUSO AUTORIDADE'],
+            ['https://www.planalto.gov.br/ccivil_03/leis/l9455.htm', '⚠️ LEI DE TORTURA']
         ];
-        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.showPdf('${l[0]}','${l[1]}')"><span>${l[1]}</span> <i class="fas fa-file-pdf"></i></div>`).join('');
+        
+        c.innerHTML = leis.map(l => `
+            <div class="opt-btn" onclick="window.showPdf('${l[0]}','${l[1]}')">
+                <span>${l[1]}</span> <i class="fas fa-external-link-alt" style="color:var(--gold)"></i>
+            </div>
+        `).join('');
         modal.style.display = 'flex';
     };
 
@@ -208,7 +219,6 @@
 
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
 
-    // --- SALVAMENTO FIREBASE (CONFIG1.JS) ---
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
         if(!ed) return;
@@ -218,21 +228,25 @@
                 conteudo: ed.innerHTML,
                 data: new Date().toLocaleString()
             });
-            alert("Salvo na Gaveta PMDF!");
-        } catch(e) { alert("Erro ao salvar no Firebase."); }
+            alert("✅ Treino salvo no Histórico PMDF!");
+        } catch(e) { alert("❌ Erro no Firebase (config1.js)"); }
     };
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         const snap = await get(ref(db, `producao_v13/RASCUNHO_PMDF`));
-        if(snap.exists()) setTimeout(() => document.getElementById('editor-principal').innerHTML = snap.val().conteudo, 1000);
+        if(snap.exists()) {
+            setTimeout(() => {
+                const ed = document.getElementById('editor-principal');
+                if(ed) ed.innerHTML = snap.val().conteudo;
+            }, 1000);
+        }
         setInterval(async () => {
             const ed = document.getElementById('editor-principal');
             if(ed) await set(ref(db, `producao_v13/RASCUNHO_PMDF`), { conteudo: ed.innerHTML });
         }, 30000);
     };
 
-    // --- FUNÇÕES DA ESTRUTURA BLINDADA ---
     window.toggleMarcaTexto = () => {
         window.marcaTextoAtivo = !window.marcaTextoAtivo;
         document.getElementById('btn-highlight').style.background = window.marcaTextoAtivo ? window.currentColor : 'transparent';
@@ -244,13 +258,20 @@
         document.getElementById(id).classList.add('active');
     };
 
-    window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
-    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.renomearTreino = () => { const n = prompt("Nome do treino:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n; document.getElementById('identificador-peca').innerText = n; } };
+    window.desfazer = () => { 
+        const ed = document.getElementById('editor-principal'); 
+        if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); 
+    };
+
+    window.limparFolha = () => { if(confirm("Limpar Folha?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.renomearTreino = () => { 
+        const n = prompt("Nome do Treino:", window.pecaAtualNome); 
+        if(n) { window.pecaAtualNome = n; document.getElementById('identificador-peca').innerText = n; } 
+    };
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.abrirMentoria = () => window.open('mentoria.html', '_blank');
     window.ativarModoQuestoes = () => { window.pecaAtualNome = "QUESTÕES PMDF"; window.renomearTreino(); };
-    window.ativarModoTeses = () => { window.pecaAtualNome = "TREINO DISSERTATIVO"; window.renomearTreino(); };
+    window.ativarModoTeses = () => { window.pecaAtualNome = "DISSERTATIVO PMDF"; window.renomearTreino(); };
 
 </script>
 </body>
