@@ -139,6 +139,9 @@
     const app = initializeApp(config);
     const db = getDatabase(app);
 
+    // REFERÊNCIA ÚNICA PARA PMDF (DIFERENTE DO v13_master)
+    const RAIZ_MENTORIA = 'v13_pmdf';
+
     let currentTab = 'qp';
     let editId = null;
     let cache = {};
@@ -191,12 +194,12 @@
         const r = document.getElementById('inp-r').value;
         if(!t || !c) return alert("Preencha título e conteúdo.");
         const dados = { t, c, r: r || "", cat: currentTab, ts: serverTimestamp() };
-        if(editId) { set(ref(db, `v13_master/${editId}`), dados); editId = null; }
-        else { push(ref(db, 'v13_master'), dados); }
+        if(editId) { set(ref(db, `${RAIZ_MENTORIA}/${editId}`), dados); editId = null; }
+        else { push(ref(db, RAIZ_MENTORIA), dados); }
         document.getElementById('inp-t').value = ""; document.getElementById('inp-c').value = ""; document.getElementById('inp-r').value = "";
     };
 
-    onValue(ref(db, 'v13_master'), (snap) => { cache = snap.val() || {}; render(); });
+    onValue(ref(db, RAIZ_MENTORIA), (snap) => { cache = snap.val() || {}; render(); });
 
     function render() {
         const f = document.getElementById('feed-v13');
@@ -223,7 +226,7 @@
         });
     }
 
-    window.apagar = (id) => { if(confirm("Deletar da Memória PMDF?")) remove(ref(db, `v13_master/${id}`)); };
+    window.apagar = (id) => { if(confirm("Deletar da Memória PMDF?")) remove(ref(db, `${RAIZ_MENTORIA}/${id}`)); };
     window.editar = (id) => {
         const it = cache[id]; editId = id;
         document.getElementById('inp-t').value = it.t;
@@ -237,7 +240,7 @@
             { t: "Princípio da Legalidade", c: "Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.", r: "Art. 5º, II, CF/88.", cat: "leis" },
             { t: "Hierarquia Militar", c: "Baseada na disciplina e subordinação.", r: "Conceito Chave PMDF.", cat: "nc" }
         ];
-        q.forEach(i => push(ref(db, 'v13_master'), { ...i, ts: serverTimestamp() }));
+        q.forEach(i => push(ref(db, RAIZ_MENTORIA), { ...i, ts: serverTimestamp() }));
         showTab('leis');
     };
 
