@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ARSENAL PMDF 2026 | NÚCLEO DURO</title>
+    <title>ARSENAL PMDF 2026</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
+            --primary: #020617; --gold: #fbbf24; 
             --pmdf-blue: #1e3a8a; --pmdf-green: #064e3b; 
             --bg-paper: #cbd5e1; --sidebar-w: 70px;
-            --perigo: #ef4444; --sucesso: #10b981; --teses: #f97316; --questoes: #3b82f6;
+            --perigo: #ef4444; --sucesso: #10b981;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
             font-family: 'Inter', sans-serif; background: var(--primary); 
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
         header { 
@@ -27,15 +27,16 @@
             align-items: center; border-bottom: 3px solid var(--gold); z-index: 5000;
         }
 
-        .logo { font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; }
+        .logo { font-size: 1.1rem; font-weight: 900; color: white; }
         .logo span { color: var(--gold); }
 
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        main { display: flex; flex: 1; overflow: hidden; }
         
+        /* SIDEBAR PMDF */
         .sidebar { 
             width: var(--sidebar-w); background: #020617; display: flex; 
             flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; 
+            border-right: 1px solid rgba(255,255,255,0.1);
         }
 
         .btn-side { 
@@ -45,20 +46,15 @@
             position: relative;
         }
         .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        .btn-side i { font-size: 1.2rem; }
         
         .btn-side::after {
             content: attr(data-label); position: absolute; left: 60px; background: #000; 
             color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 10px;
             white-space: nowrap; opacity: 0; pointer-events: none; border: 1px solid var(--gold);
-            z-index: 9999;
         }
-        .btn-side:hover::after { opacity: 1; left: 70px; }
+        .btn-side:hover::after { opacity: 1; }
 
-        .editor-container { 
-            flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); 
-            overflow-y: auto; align-items: center; padding: 20px 10px; 
-        }
+        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px; }
 
         .sticky-tools { 
             position: sticky; top: -20px; z-index: 1000; background: white; 
@@ -68,20 +64,22 @@
 
         #identificador-peca { 
             padding: 12px; background: #f8fafc; text-align: center; 
-            font-weight: 900; color: #0f172a; border-bottom: 3px solid var(--pmdf-blue);
-            cursor: pointer; text-transform: uppercase; font-size: 13px;
+            font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--pmdf-blue);
+            cursor: pointer; text-transform: uppercase; font-size: 12px;
         }
         
         .toolbar-mecanica { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
         .btn-tool { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; color: #64748b; }
 
+        /* MARCA-TEXTO FUNCIONAL */
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 10px; gap: 8px; border-right: 1px solid #ddd; }
-        .color-dot { width: 22px; height: 22px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
-        .color-dot.active { border-color: #000; transform: scale(1.1); }
+        .color-dot { width: 22px; height: 22px; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; }
+        .color-dot.active { border: 2px solid #000; transform: scale(1.1); }
 
-        .paper-core { width: 100%; max-width: 850px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 50px; }
+        /* FOLHA ENGINE 150 */
+        .paper-core { width: 100%; max-width: 850px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .folha-grid { display: grid; grid-template-columns: 45px 1fr; position: relative; }
-        .num-lateral { background: #f1f5f9; border-right: 2px solid #1e3a8a; user-select: none; }
+        .num-lateral { background: #f1f5f9; border-right: 2px solid var(--pmdf-blue); user-select: none; }
         .linha-num { 
             height: 35px; display: flex; align-items: center; justify-content: center; 
             font-size: 11px; font-weight: 900; border-bottom: 1px solid #cbd5e1; color: #1e3a8a; 
@@ -93,30 +91,28 @@
             background-size: 100% 35px; text-align: justify; word-wrap: break-word;
         }
 
-        #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
-        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 15px; color: #000; }
-        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center;}
+        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 12px; color: #000; }
+        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">ARSENAL <span>PMDF 2026</span></div>
-    <div style="font-size: 10px; font-weight: bold; color: var(--gold);">GAVETA ATIVA: <span id="modo-display">REDAÇÃO</span></div>
+    <div class="logo">ARSENAL <span>PMDF</span></div>
+    <div id="status-gaveta" style="font-size: 11px; font-weight: bold; color: var(--gold); border: 1px solid var(--gold); padding: 4px 10px; border-radius: 20px;">GAVETA: REDAÇÃO</div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--pmdf-blue);" data-label="BATALHÕES (SIMULADOS)" onclick="window.abrirBatalhoes()"><i class="fas fa-shield-alt"></i></button>
-        <button class="btn-side" style="background:var(--pmdf-green);" data-label="NOVA REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-pen-nib"></i></button>
-        <button class="btn-side" style="background:var(--questoes);" data-label="QG DE QUESTÕES" onclick="window.ativarModo('QUESTÕES')"><i class="fas fa-crosshairs"></i></button>
-        <button class="btn-side" style="background:var(--teses);" data-label="DOUTRINA MILITAR" onclick="window.ativarModo('DOUTRINA')"><i class="fas fa-book"></i></button>
-        <hr style="width:70%; opacity:0.2;">
-        <button class="btn-side" style="background:#475569;" data-label="MINHA PASTA (GAVETAS)" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
-        <button class="btn-side" style="background:var(--sucesso);" data-label="SALVAR NA GAVETA" onclick="window.finalizarPeca()"><i class="fas fa-save"></i></button>
-        <button class="btn-side" style="background:var(--perigo);" data-label="PDF DISKETTE" onclick="window.gerarPDF()"><i class="fas fa-floppy-disk"></i></button>
+        <button class="btn-side" style="background:var(--pmdf-green);" data-label="TREINAR REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-file-alt"></i></button>
+        <button class="btn-side" style="background:var(--pmdf-blue);" data-label="DISCURSIVAS (QUESTÕES)" onclick="window.ativarModo('DISCURSIVAS')"><i class="fas fa-list-ol"></i></button>
+        <button class="btn-side" style="background:#f97316;" data-label="DOUTRINA E LEIS" onclick="window.ativarModo('DOUTRINA')"><i class="fas fa-book-open"></i></button>
+        <button class="btn-side" style="background:#6366f1;" data-label="SIMULADOS (BATALHÃO)" onclick="window.abrirSimulados()"><i class="fas fa-shield-alt"></i></button>
+        <hr style="width:70%; opacity:0.1;">
+        <button class="btn-side" style="background:#475569;" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" style="background:var(--sucesso);" data-label="SALVAR AGORA" onclick="window.finalizarMissao()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" style="background:var(--perigo);" data-label="GERAR PDF" onclick="window.print()"><i class="fas fa-floppy-disk"></i></button>
     </aside>
 
     <section class="editor-container">
@@ -126,12 +122,11 @@
                 <div class="highlight-box">
                     <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
                     <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
-                    <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
-                    <div class="color-dot" style="background:#fff; border:1px solid #ccc; display:flex; align-items:center; justify-content:center;" onclick="window.setHighlightColor('transparent', '')"><i class="fas fa-slash" style="font-size:8px; color:red"></i></div>
+                    <div class="color-dot" style="background:#fff;" onclick="window.setHighlightColor('transparent', '')"><i class="fas fa-eraser" style="font-size:10px; padding:5px"></i></div>
                 </div>
-                <button class="btn-tool" onclick="document.execCommand('undo')"><i class="fas fa-undo"></i></button>
+                <button class="btn-tool" onclick="document.execCommand('undo')">DESFAZER</button>
                 <button class="btn-tool" onclick="window.limparFolha()">LIMPAR</button>
-                <button class="btn-tool" style="background:var(--pmdf-blue); color:white" onclick="window.abrirArsenalLeis()"><i class="fas fa-gavel"></i> ARSENAL LEIS</button>
+                <button class="btn-tool" style="background:var(--pmdf-blue); color:white" onclick="window.abrirVade()">VADE PMDF</button>
             </div>
         </div>
 
@@ -139,28 +134,19 @@
             <div class="folha-grid" id="folha-render"></div>
         </div>
     </section>
-
-    <section id="pdf-viewer">
-        <div style="background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--gold);">
-            <small id="pdf-title" style="font-weight: bold; color: var(--gold);">VADE MECUM PMDF</small>
-            <button onclick="window.togglePDF()" style="background:var(--perigo); border:none; color:white; padding:5px 10px; cursor:pointer">X</button>
-        </div>
-        <iframe id="pdf-frame" src="about:blank" style="flex:1; border:none;"></iframe>
-    </section>
 </main>
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <button id="modal-back-btn" onclick="window.gerenciadorPasta()" style="display:none; background:none; border:none; color:var(--pmdf-blue); font-weight:bold; cursor:pointer; margin-bottom:10px;"><i class="fas fa-arrow-left"></i> VOLTAR</button>
-        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:3px solid var(--pmdf-blue); font-size: 18px;"></h2>
+        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:3px solid var(--pmdf-blue);"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:12px; background:#000; color:#fff; border:none; margin-top:15px; cursor:pointer; font-weight:bold; border-radius:8px;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border:none; margin-top:15px; border-radius:8px; cursor:pointer;">FECHAR</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
@@ -172,18 +158,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.modoAtual = localStorage.getItem('pmdf_modo') || "REDAÇÃO";
-    window.pecaAtualNome = localStorage.getItem('pmdf_pecaNome') || "NOVA MISSÃO";
+    window.modoAtual = "REDAÇÃO";
+    window.missaoNome = "NOVO TREINO";
     window.currentColor = '#fef08a';
 
-    function bootFolha() {
+    function initFolha() {
         const target = document.getElementById('folha-render');
-        let numHTML = '<div class="num-lateral">';
-        for(let i=1; i<=150; i++) numHTML += `<div class="linha-num">${i}</div>`;
-        numHTML += '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
-        target.innerHTML = numHTML;
+        let html = '<div class="num-lateral">';
+        for(let i=1; i<=150; i++) html += `<div class="linha-num">${i}</div>`;
+        html += '</div><div class="area-escrita" id="editor" contenteditable="true" spellcheck="false"></div>';
+        target.innerHTML = html;
 
-        document.getElementById('editor-principal').addEventListener('mouseup', () => {
+        document.getElementById('editor').addEventListener('mouseup', () => {
             if(window.currentColor !== 'transparent') {
                 const sel = window.getSelection();
                 if(sel.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
@@ -191,53 +177,66 @@
         });
     }
 
-    window.onload = async () => {
-        bootFolha();
-        atualizarUI();
-        const snap = await get(ref(db, `pmdf_v1/RASCUNHO`));
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().html;
-        setInterval(async () => {
-            const html = document.getElementById('editor-principal').innerHTML;
-            set(ref(db, `pmdf_v1/RASCUNHO`), { html, ts: Date.now() });
-        }, 20000);
+    window.onload = () => {
+        initFolha();
+        atualizarHeader();
     };
 
-    // --- LÓGICA DE GAVETAS ESTILO OAB ---
+    window.ativarModo = (modo) => {
+        const n = prompt(`NOME DO TREINO EM [${modo}]:`, "Missão do dia");
+        if(n) {
+            window.modoAtual = modo;
+            window.missaoNome = n.toUpperCase();
+            document.getElementById('editor').innerHTML = "";
+            atualizarHeader();
+        }
+    };
+
+    window.finalizarMissao = async () => {
+        const html = document.getElementById('editor').innerHTML;
+        const id = Date.now();
+        if(!confirm(`Salvar na gaveta ${window.modoAtual}?`)) return;
+
+        await set(ref(db, `pmdf_v1/HISTORICO/${id}`), {
+            titulo: window.missaoNome,
+            gaveta: window.modoAtual,
+            data: new Date().toLocaleString('pt-BR'),
+            html: html
+        });
+        alert("MISSÃO SALVA!");
+    };
+
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 MINHA PASTA (GAVETAS)";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>GAVETA: REDAÇÕES</span> <i class="fas fa-pen-nib" style="color:var(--pmdf-green)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>GAVETA: QUESTÕES</span> <i class="fas fa-crosshairs" style="color:var(--questoes)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('DOUTRINA')"><span>GAVETA: DOUTRINA/TESES</span> <i class="fas fa-book" style="color:var(--teses)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('BATALHÃO')"><span>GAVETA: SIMULADOS</span> <i class="fas fa-shield-alt" style="color:var(--pmdf-blue)"></i></div>
-        `;
+        document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
         modal.style.display = 'flex';
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.verGaveta('REDAÇÃO')">GAVETA DE REDAÇÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('DISCURSIVAS')">GAVETA DE QUESTÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('DOUTRINA')">GAVETA DE DOUTRINA <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('SIMULADOS')">GAVETA DE SIMULADOS <i class="fas fa-chevron-right"></i></div>
+        `;
     };
 
-    window.abrirGavetaEspecifica = async (gaveta) => {
+    window.verGaveta = async (gaveta) => {
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "block";
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${gaveta}`;
-        content.innerHTML = "Buscando missões...";
-
+        content.innerHTML = "Acessando arquivos...";
         const snap = await get(ref(db, `pmdf_v1/HISTORICO`));
         content.innerHTML = "";
-        if(snap.exists()){
-            const dados = Object.values(snap.val()).filter(i => i.gaveta === gaveta);
-            if(dados.length === 0) { content.innerHTML = "Gaveta vazia."; return; }
-            
-            dados.reverse().forEach(item => {
+        
+        if(snap.exists()) {
+            const itens = Object.values(snap.val()).filter(i => i.gaveta === gaveta);
+            if(itens.length === 0) content.innerHTML = "Nenhum arquivo nesta gaveta.";
+            itens.reverse().forEach(item => {
                 const d = document.createElement('div');
-                d.className = "opt-btn";
-                d.innerHTML = `<div><b>${item.titulo}</b><br><small>${item.data}</small></div> <i class="fas fa-file-import"></i>`;
+                d.className = 'opt-btn';
+                d.innerHTML = `<div><b>${item.titulo}</b><br><small>${item.data}</small></div>`;
                 d.onclick = () => {
-                    document.getElementById('editor-principal').innerHTML = item.html;
-                    window.pecaAtualNome = item.titulo;
+                    document.getElementById('editor').innerHTML = item.html;
+                    window.missaoNome = item.titulo;
                     window.modoAtual = item.gaveta;
-                    atualizarUI();
+                    atualizarHeader();
                     document.getElementById('universal-modal').style.display = 'none';
                 };
                 content.appendChild(d);
@@ -245,72 +244,26 @@
         }
     };
 
-    window.finalizarPeca = async () => {
-        const html = document.getElementById('editor-principal').innerHTML;
-        const id = Date.now();
-        if(!confirm(`Salvar "${window.pecaAtualNome}" na gaveta ${window.modoAtual}?`)) return;
-
-        await set(ref(db, `pmdf_v1/HISTORICO/${id}`), {
-            id, titulo: window.pecaAtualNome, gaveta: window.modoAtual, 
-            data: new Date().toLocaleString('pt-BR'), html: html
-        });
-        alert("MISSÃO SALVA NA GAVETA " + window.modoAtual);
+    window.abrirSimulados = () => {
+        window.modoAtual = "SIMULADOS";
+        window.missaoNome = "SIMULADO BATALHÃO";
+        atualizarHeader();
+        alert("Modo SIMULADO ativado. Prepare-se para o combate.");
     };
-
-    // --- BATALHÕES E MODO ---
-    window.abrirBatalhoes = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "🛡️ BATALHÕES DE TREINO";
-        modal.style.display = 'flex';
-        content.innerHTML = "";
-        ["BATALHÃO RODOVIÁRIO", "BATALHÃO DE CHOQUE", "ROTAM (ELITE)", "BOPE (SIMULADO FINAL)"].forEach(bat => {
-            const b = document.createElement('div');
-            b.className = 'opt-btn';
-            b.innerText = bat;
-            b.onclick = () => { window.ativarModo('BATALHÃO', bat); modal.style.display='none'; };
-            content.appendChild(b);
-        });
-    };
-
-    window.ativarModo = (modo, nomeManual = null) => {
-        const n = nomeManual || prompt(`NOME DA MISSÃO (${modo}):`, "NOVO TREINO");
-        if(n) {
-            window.modoAtual = modo;
-            window.pecaAtualNome = n.toUpperCase();
-            localStorage.setItem('pmdf_modo', modo);
-            localStorage.setItem('pmdf_pecaNome', window.pecaAtualNome);
-            atualizarUI();
-            document.getElementById('editor-principal').innerHTML = "";
-        }
-    };
-
-    window.abrirArsenalLeis = () => {
-        window.loadPDF('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF');
-    };
-
-    window.loadPDF = (url, nome) => {
-        document.getElementById('pdf-frame').src = url;
-        document.getElementById('pdf-title').innerText = nome;
-        document.getElementById('pdf-viewer').classList.add('active');
-    };
-
-    function atualizarUI() {
-        document.getElementById('identificador-peca').innerText = `MISSÃO: ${window.pecaAtualNome}`;
-        document.getElementById('modo-display').innerText = window.modoAtual;
-    }
 
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         if(id) document.getElementById(id).classList.add('active');
     };
-    
-    window.togglePDF = () => document.getElementById('pdf-viewer').classList.toggle('active');
-    window.renomear = () => { const n = prompt("RENOMEAR:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n.toUpperCase(); atualizarUI(); }};
-    window.limparFolha = () => { if(confirm("Limpar folha?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.gerarPDF = () => { window.print(); };
 
+    function atualizarHeader() {
+        document.getElementById('identificador-peca').innerText = `MISSÃO: ${window.missaoNome}`;
+        document.getElementById('status-gaveta').innerText = `GAVETA: ${window.modoAtual}`;
+    }
+
+    window.limparFolha = () => { if(confirm("Apagar tudo?")) document.getElementById('editor').innerHTML = ""; };
+    window.renomear = () => { const n = prompt("Novo nome:", window.missaoNome); if(n) { window.missaoNome = n.toUpperCase(); atualizarHeader(); }};
 </script>
 </body>
 </html>
