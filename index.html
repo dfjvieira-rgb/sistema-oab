@@ -27,12 +27,7 @@
             border-bottom: 2px solid var(--gold); z-index: 5000;
         }
 
-        /* BOTÃO SANDUÍCHE */
-        .sandwich-btn {
-            background: none; border: none; color: var(--gold);
-            font-size: 1.5rem; cursor: pointer; display: flex; align-items: center;
-        }
-
+        .sandwich-btn { background: none; border: none; color: var(--gold); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; }
         .logo { font-size: 1.2rem; font-weight: 900; color: white; }
         .logo span { color: var(--gold); }
 
@@ -43,11 +38,9 @@
             width: var(--sidebar-w); background: #1e293b; 
             display: flex; flex-direction: column; align-items: center;
             gap: 12px; padding: 15px 0; border-right: 1px solid rgba(255,255,255,0.1);
-            transition: transform 0.3s ease;
-            z-index: 4000;
+            transition: transform 0.3s ease; z-index: 4000;
         }
 
-        /* ESTADO OCULTO SIDEBAR NO MOBILE */
         @media (max-width: 768px) {
             .sidebar { position: absolute; height: 100%; left: 0; transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
@@ -66,11 +59,13 @@
             background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
         }
 
+        /* BLINDAGEM DO CONTAINER */
         #folha-render-container {
             width: 100%; max-width: 850px; margin-top: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); line-height: 0; 
         }
 
+        /* INTELIGÊNCIA DE LINHA DO CÓDIGO ANTERIOR */
         .area-editor * { margin: 0 !important; padding: 0 !important; line-height: var(--pauta) !important; display: inline; }
         .area-editor br { display: block !important; content: ""; }
 
@@ -159,7 +154,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ENGINE MANTIDA EXATAMENTE COMO VOCÊ QUER
+    // ENGINE COM A INTELIGÊNCIA DE BLINDAGEM (TAB, ENTER BR E 300 LINHAS)
     export const FolhaEngine = {
         montar: (containerId) => {
             const container = document.getElementById(containerId);
@@ -173,7 +168,16 @@
                     .folha-container { display: grid; grid-template-columns: 50px 1fr; background: #fff; font-family: 'Courier New', Courier, monospace; border: 2px solid #000; position: relative; }
                     .numeracao { background: #f1f5f9; border-right: 2px solid #000; user-select: none; }
                     .num-mecanico { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; border-bottom: 1px solid #cbd5e1; color: #1e293b; box-sizing: border-box; }
-                    .area-editor { outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; min-height: 10500px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; }
+                    .area-editor { 
+                        outline: none; font-size: 19px !important; font-weight: 700 !important; color: #000 !important; 
+                        line-height: 35px !important; padding: 0 20px !important; white-space: pre-wrap; word-wrap: break-word; 
+                        min-height: 10500px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); 
+                        background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; 
+                    }
+                    @media (max-width: 768px) {
+                        .folha-container { grid-template-columns: 40px 1fr; }
+                        .area-editor { font-size: 17px !important; padding: 0 10px !important; }
+                    }
                 `;
                 document.head.appendChild(style);
             }
@@ -188,19 +192,34 @@
             editor.className = 'area-editor'; editor.id = 'editor-principal'; editor.contentEditable = "true"; editor.spellcheck = false;
             folha.appendChild(numCol); folha.appendChild(editor); container.appendChild(folha);
             
+            // LÓGICA DE TECLAS DO CÓDIGO INTELIGENTE
             editor.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { document.execCommand('insertLineBreak'); e.preventDefault(); }
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const sel = window.getSelection();
+                    const range = sel.getRangeAt(0);
+                    const tabNode = document.createTextNode("    ");
+                    range.insertNode(tabNode);
+                    range.setStartAfter(tabNode);
+                    sel.removeAllRanges(); sel.addRange(range);
+                }
+                if (e.key === 'Enter') {
+                    document.execCommand('insertLineBreak');
+                    e.preventDefault();
+                }
+            });
+
+            editor.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
             });
         }
     };
 
-    window.toggleSidebar = () => {
-        document.getElementById('sidebar-main').classList.toggle('active');
-    };
-
+    window.toggleSidebar = () => document.getElementById('sidebar-main').classList.toggle('active');
     window.idAtivo = null; window.gavetaAtiva = null; window.corM = '#fef08a';
 
-    // SANEAMENTO QUE MANTÉM A ESTRUTURA SEM CRIAR ESPAÇOS
     window.sanitizarHTML = (htmlBruto) => {
         const temp = document.createElement('div');
         temp.innerHTML = htmlBruto;
@@ -231,10 +250,10 @@
         document.getElementById(id).classList.add('active');
     };
 
-    window.limparM = () => { document.execCommand('backColor', false, 'transparent'); };
+    window.limparM = () => document.execCommand('backColor', false, 'transparent');
 
     window.novaMissao = () => {
-        const n = prompt("NOME DO EXERCÍCIO/COMENTÁRIO:");
+        const n = prompt("NOME DO TREINO:");
         if(n){
             window.idAtivo = "PMDF_" + Date.now();
             window.gavetaAtiva = null;
@@ -250,8 +269,8 @@
         const c = document.getElementById('m-content');
         document.getElementById('m-title').innerText = "GAVETA";
         c.innerHTML = `
-            <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px;">GAVETA: REDAÇÃO</button>
-            <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px;">GAVETA: QUESTÕES</button>
+            <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px;">REDAÇÃO</button>
+            <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px;">QUESTÕES</button>
         `;
         document.getElementById('modal-elite').style.display = 'flex';
     };
@@ -260,14 +279,11 @@
         window.gavetaAtiva = gaveta;
         const editor = document.getElementById('editor-principal');
         const htmlOtimizado = window.sanitizarHTML(editor.innerHTML);
-        
         await set(ref(db, `pmdf_v1/GAVETAS/${window.idAtivo}`), {
             id: window.idAtivo, gaveta: gaveta,
             nome: document.getElementById('identificador-missao').innerText,
-            html: htmlOtimizado,
-            data: new Date().toLocaleString('pt-BR')
+            html: htmlOtimizado, data: new Date().toLocaleString('pt-BR')
         });
-        
         document.getElementById('modo-display').innerText = gaveta;
         document.getElementById('modal-elite').style.display = 'none';
         alert("Salvo!");
