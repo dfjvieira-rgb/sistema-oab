@@ -103,9 +103,18 @@
         iframe { width: 100%; flex: 1; border: none; background: white; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; overflow-y: auto; max-height: 85vh; }
-        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; text-align: left;}
-        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; color: white;}
+        .modal-body { background: white; width: 95%; max-width: 550px; padding: 25px; border-radius: 20px; color: #0f172a; overflow-y: auto; max-height: 85vh; }
+        
+        .item-arquivo { 
+            background: #f8fafc; border: 1px solid #eee; padding: 15px; border-radius: 12px; 
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .item-info { flex: 1; cursor: pointer; }
+        .item-acoes { display: flex; gap: 8px; }
+        .btn-acao { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; color: white; font-weight: bold;}
+        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; }
     </style>
 </head>
 <body class="dark-mode">
@@ -164,7 +173,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = { databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com" };
     const app = initializeApp(firebaseConfig);
@@ -191,7 +200,7 @@
     }
 
     window.novaMissao = () => {
-        const n = prompt("Nome da Missão (Ex: Redação 01 ou Questão CPM):", "");
+        const n = prompt("Nome da Missão:", "");
         if(n) {
             window.idAtual = "M" + Date.now();
             window.pecaAtualNome = n.toUpperCase();
@@ -203,19 +212,13 @@
 
     window.salvarComEscolha = async () => {
         if(!window.idAtual) { alert("Inicie uma 'Nova Missão' primeiro."); return; }
-        
-        // Se já tem gaveta definida (veio do histórico), salva direto
-        if(window.gavetaAtual) {
-            await window.executarSalvamento(window.gavetaAtual);
-            return;
-        }
+        if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
 
-        // Se é novo, pergunta onde salvar
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "ESCOLHA A GAVETA";
         c.innerHTML = `
-            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO <i class="fas fa-edit"></i></div>
-            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES <i class="fas fa-tasks"></i></div>
+            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO</div>
+            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES</div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
@@ -223,58 +226,79 @@
     window.executarSalvamento = async (gaveta) => {
         window.gavetaAtual = gaveta;
         const ed = document.getElementById('editor-principal');
-        const path = `pmdf_v1/GAVETAS/${window.idAtual}`;
-        
-        await set(ref(db, path), {
-            id: window.idAtual,
-            gaveta: gaveta,
-            peca: window.pecaAtualNome,
-            data: new Date().toLocaleString('pt-BR'),
-            conteudo: ed.innerHTML
+        await set(ref(db, `pmdf_v1/GAVETAS/${window.idAtual}`), {
+            id: window.idAtual, gaveta: gaveta, peca: window.pecaAtualNome,
+            data: new Date().toLocaleString('pt-BR'), conteudo: ed.innerHTML
         });
-        
         document.getElementById('universal-modal').style.display = 'none';
         atualizarDisplay();
-        alert(`SALVO COM SUCESSO EM: ${gaveta}`);
+        alert(`SALVO EM: ${gaveta}`);
     };
 
     window.gerenciadorPasta = async () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
-        c.innerHTML = "Lendo arquivos...";
+        c.innerHTML = "Lendo...";
         document.getElementById('universal-modal').style.display = 'flex';
         
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
         if(snap.exists()) {
             c.innerHTML = "";
             Object.values(snap.val()).reverse().forEach(data => {
-                const btn = document.createElement('div');
-                btn.className = 'opt-btn';
-                const color = data.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
-                btn.innerHTML = `<div><span class="tag" style="background:${color}">${data.gaveta}</span><br>${data.peca}<br><small>${data.data}</small></div> <i class="fas fa-chevron-right"></i>`;
-                btn.onclick = () => {
-                    window.idAtual = data.id;
-                    window.gavetaAtual = data.gaveta;
-                    window.pecaAtualNome = data.peca;
-                    document.getElementById('editor-principal').innerHTML = data.conteudo;
-                    atualizarDisplay();
-                    document.getElementById('universal-modal').style.display = 'none';
-                };
-                c.appendChild(btn);
+                const item = document.createElement('div');
+                item.className = 'item-arquivo';
+                const tagCor = data.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
+                
+                item.innerHTML = `
+                    <div class="item-info" onclick="window.carregarArquivo('${data.id}')">
+                        <span class="tag" style="background:${tagCor}">${data.gaveta}</span><br>
+                        <strong>${data.peca}</strong><br>
+                        <small>${data.data}</small>
+                    </div>
+                    <div class="item-acoes">
+                        <button class="btn-acao" style="background:#e2e8f0" title="Mudar Gaveta" onclick="window.transferirGaveta('${data.id}', '${data.gaveta}')"><i class="fas fa-exchange-alt"></i></button>
+                        <button class="btn-acao" style="background:#fee2e2; color:#ef4444" title="Excluir" onclick="window.excluirArquivo('${data.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                c.appendChild(item);
             });
-        } else { c.innerHTML = "Gavetas vazias."; }
+        } else { c.innerHTML = "Vazio."; }
+    };
+
+    window.carregarArquivo = async (id) => {
+        const snap = await get(ref(db, `pmdf_v1/GAVETAS/${id}`));
+        if(snap.exists()) {
+            const data = snap.val();
+            window.idAtual = data.id;
+            window.gavetaAtual = data.gaveta;
+            window.pecaAtualNome = data.peca;
+            document.getElementById('editor-principal').innerHTML = data.conteudo;
+            atualizarDisplay();
+            document.getElementById('universal-modal').style.display = 'none';
+        }
+    };
+
+    window.transferirGaveta = async (id, atual) => {
+        const nova = atual === 'REDAÇÃO' ? 'QUESTÕES' : 'REDAÇÃO';
+        if(confirm(`Transferir este arquivo para a gaveta de ${nova}?`)) {
+            await update(ref(db, `pmdf_v1/GAVETAS/${id}`), { gaveta: nova });
+            window.gerenciadorPasta();
+        }
+    };
+
+    window.excluirArquivo = async (id) => {
+        if(confirm("EXCLUIR DEFINITIVAMENTE? Esta ação não pode ser desfeita.")) {
+            await remove(ref(db, `pmdf_v1/GAVETAS/${id}`));
+            if(window.idAtual === id) { window.idAtual = null; window.pecaAtualNome = ""; window.gavetaAtual = null; document.getElementById('editor-principal').innerHTML = ""; atualizarDisplay(); }
+            window.gerenciadorPasta();
+        }
     };
 
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
-        const leis = [
-            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'PENAL MILITAR'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM MILITAR'],
-            ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88']
-        ];
-        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]} <i class="fas fa-external-link-alt"></i></div>`).join('');
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'],['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM'],['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88']];
+        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
@@ -296,8 +320,8 @@
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     
     function atualizarDisplay() {
-        document.getElementById('ex-display').innerText = window.gavetaAtual || "EM EDIÇÃO";
-        document.getElementById('identificador-peca').innerText = window.pecaAtualNome;
+        document.getElementById('ex-display').innerText = window.gavetaAtual || "NOVO TREINO";
+        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
     }
 </script>
 </body>
