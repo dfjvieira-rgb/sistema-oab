@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ALISSON ELITE 2026 - PMDF EDITION</title>
+    <title>JOAQUIM ELITE 2026 - PMDF EDITION</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -107,7 +107,7 @@
 <body class="dark-mode">
 
 <header>
-    <div class="logo">ALISSON <span>ELITE PMDF</span></div>
+    <div class="logo">JOAQUIM <span>ELITE PMDF</span></div>
     <div style="color:var(--gold); font-size:10px; font-weight:bold;">SISTEMA BLINDADO</div>
 </header>
 
@@ -159,183 +159,162 @@
         <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:10px; background:#000; color:#fff; margin-top:10px; cursor:pointer;">FECHAR</button>
     </div>
 </div>
-    
+
 <script type="module">
-    // 1. AJUSTE DE ENDEREÇO: Importando do config correto (MasterOAB)
+    // IMPORTAÇÃO DO FIREBASE MASTER OAB BLINDADO
     import { db } from './firebase-config.js'; 
     import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
 
     window.db = db;
-    window.activeEx = localStorage.getItem('activeEx') || "44";
-    window.modoTreinoLivre = localStorage.getItem('modoTreinoLivre') === "true";
-    window.modoQuestoes = localStorage.getItem('modoQuestoes') === "true";
-    window.modoTeses = localStorage.getItem('modoTeses') === "true";
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
-
     window.historicoUndo = [];
     let debounceTimer = null;
     window.marcaTextoAtivo = false;
     window.currentColor = '#fef08a';
 
-    // 2. CONSTANTES DE ROTA (Isolamento PMDF no MasterOAB)
-    const RAIZ_PMDF = "producao_pmdf"; 
-
+    // BIBLIOTECA FOCADA PMDF
     window.LISTA_PDF_BIBLIOTECA = [
-        { nome: "EDITAL Nº 04/2023-DGP/PMDF, DE 23 DE JANEIRO DE 2023", url: "edital-abertura-04-2023.pdf" },
-        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
-        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO - Identificação de Peças_231123_182636.pdf" },
-        { nome: "TESES OAB 2ª FASE", url: "TESES-----OAB--SEGUNDA--FASE--TRABALHO.pdf" },
-        { nome: "REVISÃO DE PEÇAS - RALIN", url: "raulin.pdf" },
-        { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
+        { nome: "EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
+        { nome: "ESTATUTO PMDF", url: "https://www.planalto.gov.br/ccivil_03/leis/l7289.htm" },
+        { nome: "CÓDIGO PENAL MILITAR", url: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" }
     ];
 
     window.onload = async () => {
-        // atualizarDisplayModo(); // Removido se não houver a função definida no seu script
+        // 1. Monta a Folha primeiro
         FolhaEngine.montar('folha-total');
         
-        setTimeout(() => {
+        // 2. Aguarda um breve momento para o DOM estabilizar
+        setTimeout(async () => {
             const ed = document.getElementById('editor-principal');
             if(ed) {
+                // Listener para histórico de desfazer
                 ed.addEventListener('input', () => {
                     clearTimeout(debounceTimer);
                     debounceTimer = setTimeout(() => {
-                        const html = ed.innerHTML;
-                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
-                            window.historicoUndo.push(html);
-                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
-                        }
+                        window.historicoUndo.push(ed.innerHTML);
+                        if(window.historicoUndo.length > 30) window.historicoUndo.shift();
                     }, 800);
                 });
+
+                // Listener para marca-texto
                 ed.addEventListener('mouseup', () => {
                     if(window.marcaTextoAtivo) {
-                        const selection = window.getSelection();
-                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
+                        const sel = window.getSelection();
+                        if (sel.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
                     }
                 });
             }
-        }, 1000);
+            // Carrega o rascunho do caminho PMDF
+            await carregarRascunho();
+        }, 500);
 
-        await carregarRascunho();
+        // Backup automático a cada 30 segundos no banco PMDF
         setInterval(salvarAutomatico, 30000);
     };
+
+    // --- FUNÇÕES DE BANCO DE DADOS (RAIZ producao_pmdf) ---
+
+    async function salvarAutomatico() {
+        const ed = document.getElementById('editor-principal');
+        if(ed) {
+            await set(ref(db, `producao_pmdf/RASCUNHO`), { 
+                conteudo: ed.innerHTML,
+                timestamp: Date.now() 
+            });
+        }
+    }
+
+    async function carregarRascunho() {
+        const snap = await get(ref(db, `producao_pmdf/RASCUNHO`));
+        const ed = document.getElementById('editor-principal');
+        if(snap.exists() && ed) ed.innerHTML = snap.val().conteudo;
+    }
+
+    window.finalizarPeca = async () => { 
+        const ed = document.getElementById('editor-principal'); 
+        if(!ed) return; 
+        if (!confirm(`Deseja salvar esta peça na Gaveta PMDF?`)) return;
+        
+        const agora = new Date();
+        const dataF = agora.toLocaleDateString() + " " + agora.toLocaleTimeString(); 
+        
+        await set(ref(db, `producao_pmdf/HISTORICO_OFICIAL/${Date.now()}`), { 
+            peca: `${window.pecaAtualNome} (${dataF})`, 
+            conteudo: ed.innerHTML 
+        }); 
+        alert("Salvo na Gaveta PMDF!");
+    };
+
+    // --- INTERFACE E UTILITÁRIOS ---
 
     window.abrirNucleoDuroPMDF = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
         document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
-        const leis = [
-            { n: '📄 EDITAL PMDF 2023', u: 'edital-abertura-04-2023.pdf' },
-            { n: '🛡️ ESTATUTO PMDF (L. 7289)', u: 'https://www.planalto.gov.br/ccivil_03/leis/l7289.htm' },
-            { n: '⚔️ CÓD. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm' },
-            { n: '⚖️ PROC. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm' },
-            { n: '🏛️ LOB PMDF (L. 6450)', u: 'https://www.planalto.gov.br/ccivil_03/leis/l6450.htm' },
-            { n: '🚫 ABUSO AUTORIDADE', u: 'https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm' },
-            { n: '⚠️ LEI DE TORTURA', u: 'https://www.planalto.gov.br/ccivil_03/leis/l9455.htm' }
-        ];
-        content.innerHTML = leis.map(l => `
-            <div class="opt-btn" onclick="window.abrirPDFDireto('${l.u}','${l.n}')">
-                <span>${l.n}</span> <i class="fas fa-external-link-alt" style="color:var(--gold)"></i>
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(l => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${l.url}','${l.nome}')">
+                <span>${l.nome}</span> <i class="fas fa-external-link-alt"></i>
             </div>
         `).join('');
         modal.style.display = 'flex';
     };
 
-    window.gerenciadorPasta = () => {
+    window.gerenciadorPasta = async () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "none";
-        document.getElementById('modal-title').innerText = "📂 MINHA PASTA PMDF";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>GAVETA: QUESTÕES</span> <i class="fas fa-question-circle" style="color:var(--questoes)"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>GAVETA: TREINO PEÇAS</span> <i class="fas fa-edit" style="color:#facc15"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>GAVETA: TREINO TESES</span> <i class="fas fa-gavel" style="color:var(--teses)"></i></div>
-        `;
+        document.getElementById('modal-title').innerText = "📂 GAVETA PMDF";
+        content.innerHTML = "Carregando...";
         modal.style.display = 'flex';
-    };
 
-    window.abrirGavetaEspecifica = async (tipoGaveta) => {
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-back-btn').style.display = "block";
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipoGaveta}`;
-        content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Buscando...</div>";
-        try {
-            // AJUSTE DE ENDEREÇO: Buscando na raiz PMDF
-            const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        const snap = await get(ref(db, `producao_pmdf/HISTORICO_OFICIAL`));
+        if(snap.exists()){
             content.innerHTML = "";
-            if (snap.exists()) {
-                const dados = snap.val();
-                const filtrados = Object.keys(dados).map(k => ({ id: k, ...dados[k] })).filter(item => String(item.exame) === String(tipoGaveta));
-                if(filtrados.length === 0) { content.innerHTML = "Gaveta vazia."; return; }
-                filtrados.reverse().forEach(item => {
-                    const div = document.createElement('div');
-                    div.style.cssText = "padding:12px; border-bottom:1px solid #eee; display:flex; flex-direction:column; background:#fff; margin-bottom:8px; border-radius:8px;";
-                    div.innerHTML = `
-                        <div style="display:flex; justify-content:space-between;">
-                            <div onclick="window.carregarPecaPasta('${item.id}')" style="cursor:pointer; flex:1;">
-                                <strong style="color:#0f172a;">${item.peca}</strong>
-                            </div>
-                        </div>`;
-                    content.appendChild(div);
-                });
-            } else { content.innerHTML = "Gaveta vazia."; }
-        } catch (e) { content.innerHTML = "Erro ao acessar banco PMDF."; }
-    };
-
-    window.finalizarPeca = async () => { 
-        const ed = document.getElementById('editor-principal'); 
-        if(!ed) return; 
-        let tipoDestino = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : "TREINO");
-        const nomeAlvo = window.pecaAtualNome;
-        if (!confirm(`Salvar "${nomeAlvo}" em ${tipoDestino} (PMDF)?`)) return;
-        const agora = new Date(); const dataF = agora.toLocaleDateString() + " " + agora.toLocaleTimeString(); 
-        
-        // AJUSTE DE ENDEREÇO: Gravando no histórico PMDF
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${Date.now()}`), { 
-            exame: tipoDestino, 
-            peca: `${nomeAlvo} (${dataF})`, 
-            conteudo: ed.innerHTML 
-        }); 
-        alert("Salvo com sucesso no MasterOAB (PMDF)!");
+            const dados = snap.val();
+            Object.keys(dados).reverse().forEach(id => {
+                const item = dados[id];
+                const div = document.createElement('div');
+                div.className = "opt-btn";
+                div.innerHTML = `<span>${item.peca}</span> <i class="fas fa-chevron-right"></i>`;
+                div.onclick = () => {
+                    document.getElementById('editor-principal').innerHTML = item.conteudo;
+                    modal.style.display = 'none';
+                };
+                content.appendChild(div);
+            });
+        } else {
+            content.innerHTML = "Gaveta vazia.";
+        }
     };
 
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(!window.marcaTextoAtivo) window.toggleMarcaTexto(true);
+        window.marcaTextoAtivo = true;
     };
 
-    window.toggleMarcaTexto = (forcarAtivo = null) => {
-        window.marcaTextoAtivo = (forcarAtivo !== null) ? forcarAtivo : !window.marcaTextoAtivo;
-        const btn = document.getElementById('btn-highlight');
-        if(!btn) return;
-        if(window.marcaTextoAtivo) { btn.style.background = window.currentColor; btn.style.color = "#000"; } 
-        else { btn.style.background = "transparent"; btn.style.color = "#64748b"; }
+    window.toggleMarcaTexto = () => {
+        window.marcaTextoAtivo = !window.marcaTextoAtivo;
+        document.getElementById('btn-highlight').style.background = window.marcaTextoAtivo ? window.currentColor : "transparent";
     };
 
-    window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
-    
-    // AJUSTE DE ENDEREÇO: Rascunho temporário PMDF
-    async function salvarAutomatico() { 
+    window.desfazer = () => { 
         const ed = document.getElementById('editor-principal'); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
-    }
-
-    // AJUSTE DE ENDEREÇO: Carga de rascunho PMDF
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
-        const ed = document.getElementById('editor-principal');
-        if(snap.exists() && ed) ed.innerHTML = snap.val().conteudo; 
-    }
-
-    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.abrirPDFDireto = (url, nome) => {
-        const v = document.getElementById('pdf-viewer'); const f = document.getElementById('pdf-frame');
-        if(document.getElementById('pdf-title')) document.getElementById('pdf-title').innerText = nome; 
-        f.src = url; v.classList.add('active'); 
+        if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); 
     };
-    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active'); };
-</script>
 
+    window.abrirPDFDireto = (url, nome) => {
+        const v = document.getElementById('pdf-viewer');
+        const f = document.getElementById('pdf-frame');
+        document.getElementById('pdf-title').innerText = nome;
+        f.src = url;
+        v.classList.add('active');
+    };
+
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
+
+</script>
+</body>
+</html>
