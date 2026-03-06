@@ -229,3 +229,176 @@
         <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">FECHAR</button>
     </div>
 </div>
+<script type="module">
+    import { db } from './firebase-config1.js';
+    import { ref, get, set, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { FolhaEngine } from './folha-engine.js';
+
+    window.db = db;
+    window.activeEx = localStorage.getItem('activeEx') || "44";
+    window.modoTreinoLivre = localStorage.getItem('modoTreinoLivre') === "true";
+    window.modoQuestoes = localStorage.getItem('modoQuestoes') === "true";
+    window.modoTeses = localStorage.getItem('modoTeses') === "true";
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO";
+
+    window.historicoUndo = [];
+    let debounceTimer = null;
+    window.marcaTextoAtivo = false;
+    window.currentColor = '#fef08a';
+
+    window.LISTA_PDF_BIBLIOTECA = [
+        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
+        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
+        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO - Identificação de Peças_231123_182636.pdf" },
+        { nome: "TESES OAB 2ª FASE", url: "TESES-----OAB--SEGUNDA--FASE--TRABALHO.pdf" },
+        { nome: "REVISÃO DE PEÇAS - RALIN", url: "raulin.pdf" },
+        { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
+    ];
+
+    window.onload = async () => {
+        atualizarDisplayModo();
+        FolhaEngine.montar('folha-total');
+        setTimeout(() => {
+            const ed = document.getElementById('editor-principal');
+            if(ed) {
+                ed.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        const html = ed.innerHTML;
+                        if(window.historicoUndo[window.historicoUndo.length -1] !== html) {
+                            window.historicoUndo.push(html);
+                            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
+                        }
+                    }, 800);
+                });
+                ed.addEventListener('mouseup', () => {
+                    if(window.marcaTextoAtivo) {
+                        const selection = window.getSelection();
+                        if (selection.toString().length > 0) document.execCommand('backColor', false, window.currentColor);
+                    }
+                });
+            }
+        }, 1000);
+        await carregarRascunho();
+        setInterval(salvarAutomatico, 30000);
+    };
+
+    window.abrirNucleoDuroPMDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-back-btn').style.display = "none";
+        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
+        const leis = [
+            { n: '📄 EDITAL PMDF 2023', u: 'edital-abertura-04-2023.pdf' },
+            { n: '🛡️ ESTATUTO PMDF (L. 7289)', u: 'https://www.planalto.gov.br/ccivil_03/leis/l7289.htm' },
+            { n: '⚔️ CÓD. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm' },
+            { n: '⚖️ PROC. PENAL MILITAR', u: 'https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm' },
+            { n: '🏛️ LOB PMDF (L. 6450)', u: 'https://www.planalto.gov.br/ccivil_03/leis/l6450.htm' },
+            { n: '🚫 ABUSO AUTORIDADE', u: 'https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13869.htm' },
+            { n: '⚠️ LEI DE TORTURA', u: 'https://www.planalto.gov.br/ccivil_03/leis/l9455.htm' }
+        ];
+        content.innerHTML = leis.map(l => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${l.u}','${l.n}')">
+                <span>${l.n}</span> <i class="fas fa-external-link-alt" style="color:var(--gold)"></i>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
+    };
+
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-back-btn').style.display = "none";
+        document.getElementById('modal-title').innerText = "📂 MINHA PASTA (GAVETAS)";
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>GAVETA: QUESTÕES</span> <i class="fas fa-question-circle" style="color:var(--questoes)"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TREINO')"><span>GAVETA: TREINO PEÇAS</span> <i class="fas fa-edit" style="color:#facc15"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('TESES')"><span>GAVETA: TREINO TESES</span> <i class="fas fa-gavel" style="color:var(--teses)"></i></div>
+            <div class="opt-btn" onclick="window.abrirListaExamesGaveta()"><span>GAVETAS: EXAMES OFICIAIS</span> <i class="fas fa-archive" style="color:var(--gold)"></i></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.abrirGavetaEspecifica = async (tipoGaveta) => {
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-back-btn').style.display = "block";
+        let label = (tipoGaveta === 'QUESTÕES' || tipoGaveta === 'TREINO' || tipoGaveta === 'TESES') ? tipoGaveta : `EXAME ${tipoGaveta}`;
+        document.getElementById('modal-title').innerText = `📂 GAVETA: ${label}`;
+        content.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-spinner fa-spin'></i> Buscando...</div>";
+        try {
+            const snap = await get(ref(db, `producao_v13/HISTORICO_OFICIAL`));
+            content.innerHTML = "";
+            if (snap.exists()) {
+                const dados = snap.val();
+                const filtrados = Object.keys(dados).map(k => ({ id: k, ...dados[k] })).filter(item => String(item.exame) === String(tipoGaveta));
+                if(filtrados.length === 0) { content.innerHTML = "Gaveta vazia."; return; }
+                filtrados.reverse().forEach(item => {
+                    const div = document.createElement('div');
+                    div.style.cssText = "padding:12px; border-bottom:1px solid #eee; display:flex; flex-direction:column; background:#fff; margin-bottom:8px; border-radius:8px;";
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between;">
+                            <div onclick="window.carregarPecaPasta('${item.id}')" style="cursor:pointer; flex:1;">
+                                <strong style="color:#0f172a;">${item.peca}</strong>
+                            </div>
+                            <div style="display:flex; gap:12px;">
+                                <i class="fas fa-edit" style="color:var(--gold-dark); cursor:pointer" onclick="window.renomearArquivoPasta('${item.id}', '${tipoGaveta}')"></i>
+                                <i class="fas fa-trash" style="color:var(--perigo); cursor:pointer" onclick="window.deletarPecaPasta('${item.id}', '${tipoGaveta}')"></i>
+                            </div>
+                        </div>`;
+                    content.appendChild(div);
+                });
+            }
+        } catch (e) { content.innerHTML = "Erro."; }
+    };
+
+    window.finalizarPeca = async () => { 
+        const ed = document.getElementById('editor-principal'); 
+        if(!ed) return; 
+        let tipoDestino = window.modoQuestoes ? "QUESTÕES" : (window.modoTeses ? "TESES" : (window.modoTreinoLivre ? "TREINO" : window.activeEx));
+        const nomeAlvo = window.pecaAtualNome;
+        if (!confirm(`Salvar "${nomeAlvo}" em ${tipoDestino}?`)) return;
+        const agora = new Date(); const dataF = agora.toLocaleDateString() + " " + agora.toLocaleTimeString(); 
+        await set(ref(db, `producao_v13/HISTORICO_OFICIAL/${Date.now()}`), { exame: tipoDestino, peca: `${nomeAlvo} (${dataF})`, conteudo: ed.innerHTML }); 
+        alert("Salvo!");
+    };
+
+    window.setHighlightColor = (color, id) => {
+        window.currentColor = color;
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(!window.marcaTextoAtivo) window.toggleMarcaTexto(true);
+    };
+
+    window.toggleMarcaTexto = (forcarAtivo = null) => {
+        window.marcaTextoAtivo = (forcarAtivo !== null) ? forcarAtivo : !window.marcaTextoAtivo;
+        const btn = document.getElementById('btn-highlight');
+        if(window.marcaTextoAtivo) { btn.style.background = window.currentColor; btn.style.color = "#000"; } 
+        else { btn.style.background = "transparent"; btn.style.color = "#64748b"; }
+    };
+
+    window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
+    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `producao_v13/RASCUNHO`), { conteudo: ed.innerHTML }); }
+    async function carregarRascunho() { const snap = await get(ref(db, `producao_v13/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
+    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
+    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.abrirMentoria = () => window.open('mentoria.html', '_blank');
+    window.toggleRecolherEditor = () => { document.getElementById('editor-container').classList.toggle('collapsed'); document.getElementById('pdf-viewer').classList.toggle('full-view'); };
+    window.verPDF = (t) => {
+        const v = document.getElementById('pdf-viewer'); const f = document.getElementById('pdf-frame');
+        let url = t === 'P' ? `ro${window.activeEx}.pdf` : (t === 'G' ? `ro${window.activeEx}-gabarito.pdf` : (t === 'V' ? 'vade.pdf' : (t === 'LP' ? 'livro_processo.pdf' : 'livro_material.pdf')));
+        f.src = url; v.classList.add('active'); window.toggleRecolherEditor(); 
+    };
+    window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active', 'full-view'); document.getElementById('editor-container').classList.remove('collapsed'); };
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('universal-modal'); const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📂 PASTA DE PDFS";
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `<div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}', '${pdf.nome}')"><span>${pdf.nome}</span></div>`).join('');
+        modal.style.display = 'flex';
+    };
+    window.abrirPDFDireto = (url, nome) => {
+        const v = document.getElementById('pdf-viewer'); const f = document.getElementById('pdf-frame');
+        document.getElementById('pdf-title').innerText = nome; f.src = url; v.classList.add('active'); window.toggleRecolherEditor();
+    };
+</script>
+</body>
+</html>
