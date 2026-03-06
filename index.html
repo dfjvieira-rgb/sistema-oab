@@ -281,7 +281,6 @@
         modal.style.display = 'flex';
     };
 
-    // CIRURGIA: SUBPASTAS DO CADERNO
     window.abrirSubPastasCaderno = () => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📓 MEU CADERNO";
@@ -326,25 +325,44 @@
         modal.style.display = 'flex';
     };
 
+    // CIRURGIA: SALVAMENTO COM LOGICA DE ATUALIZAÇÃO (UPSERT)
     window.executarSalvamentoInteligente = async (pasta) => {
         const ed = document.getElementById('editor-principal');
         if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
         
-        const idParaUsar = Date.now();
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        let idParaUsar = null;
+
+        // Verifica se já existe um arquivo com o MESMO NOME na MESMA PASTA
+        if (snap.exists()) {
+            const dados = snap.val();
+            for (let id in dados) {
+                if (dados[id].peca === window.pecaAtualNome && dados[id].exame === pasta) {
+                    idParaUsar = id; // Encontrou o arquivo, vamos atualizar
+                    break;
+                }
+            }
+        }
+
+        // Se não encontrou, gera um novo ID baseado no timestamp
+        if (!idParaUsar) {
+            idParaUsar = Date.now();
+        }
+        
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
             exame: pasta, 
             peca: window.pecaAtualNome, 
             conteudo: ed.innerHTML,
             data: new Date().toLocaleString()
         });
-        alert("Salvo com sucesso em: " + pasta);
+
+        alert(idParaUsar.toString().length > 13 ? "Arquivo atualizado com sucesso!" : "Novo arquivo salvo com sucesso!");
         document.getElementById('universal-modal').style.display = 'none';
     };
 
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        // Se for uma das matérias do caderno, o botão voltar deve retornar para o caderno
         const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
         
         content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
@@ -385,7 +403,6 @@
         }
     };
 
-    // FUNÇÕES DE SUPORTE
     async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
     async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
     
@@ -403,14 +420,12 @@
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
-    // PLACEHOLDERS PARA BOTÕES ADICIONAIS
     window.abrirExames = () => alert("Módulo de Exames OAB.");
     window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
     window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
     window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
     window.desfazer = () => alert("Função desfazer acionada.");
     
-    // MARCA TEXTO
     window.toggleMarcaTexto = () => { alert("Selecione um texto para aplicar a cor escolhida."); };
     window.setHighlightColor = (color, id) => {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
@@ -419,3 +434,4 @@
 </script>
 </body>
 </html>
+
