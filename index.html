@@ -14,15 +14,14 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* HEADER E MENU SANDUÍCHE */
         header { 
             background: var(--primary); height: 60px; padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 2px solid var(--gold); z-index: 10000;
         }
-        .btn-menu { background: none; border: none; color: var(--gold); font-size: 1.5rem; cursor: pointer; display: block; }
+        .btn-menu { background: none; border: none; color: var(--gold); font-size: 1.5rem; cursor: pointer; }
 
-        /* SIDEBAR RETRÁTIL (SANDUÍCHE) */
+        /* SIDEBAR SANDUÍCHE */
         .sidebar { 
             position: fixed; left: -260px; top: 0; height: 100%; width: var(--sidebar-w); 
             background: #1e293b; z-index: 9999; transition: 0.3s; padding: 80px 20px;
@@ -34,20 +33,45 @@
             display: flex; align-items: center; gap: 10px; color: white; 
             cursor: pointer; background: rgba(255,255,255,0.05); font-weight: bold;
         }
-        .btn-side i { color: var(--gold); width: 20px; }
+        .btn-side i { color: var(--gold); }
 
-        /* ÁREA DA FOLHA */
+        /* EDITOR MOBILE FRIENDLY */
         main { flex: 1; display: flex; position: relative; overflow: hidden; }
         .editor-container { 
             flex: 1; background: var(--bg-paper); overflow-y: auto; 
             display: flex; flex-direction: column; align-items: center; padding: 10px;
         }
 
-        #folha-render-container { width: 100%; max-width: 850px; line-height: 0; }
-        .area-editor * { margin: 0 !important; padding: 0 !important; line-height: var(--pauta) !important; display: inline; }
-        .area-editor br { display: block !important; content: ""; }
+        #folha-render-container { width: 100%; max-width: 850px; line-height: 0; background: white; }
 
-        /* TOOLBAR FLUTUANTE */
+        /* CSS DE PRECISÃO - O ASSENTO DA LINHA */
+        .area-editor { 
+            outline: none; 
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 19px !important; 
+            font-weight: 700 !important; 
+            color: #000 !important; 
+            line-height: var(--pauta) !important; 
+            padding: 0 15px !important; 
+            min-height: 10500px; /* 300 linhas */
+            background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px) !important;
+            background-size: 100% var(--pauta) !important;
+            background-repeat: repeat-y;
+            background-position: 0 -1px;
+            text-align: justify;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* FORÇA O TEXTO A FICAR NA LINHA SEM PULAR OU CRIAR BLOCOS */
+        .area-editor div, .area-editor p { 
+            display: block !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            line-height: var(--pauta) !important; 
+            min-height: var(--pauta) !important;
+        }
+
         .floating-tools {
             width: 100%; max-width: 850px; background: white; padding: 10px;
             display: flex; justify-content: space-around; align-items: center;
@@ -56,38 +80,33 @@
         .dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
         .dot.active { border: 2px solid #000; transform: scale(1.1); }
 
-        /* NÚCLEO DURO (DRAWER) */
         #pdf-drawer { 
             position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; 
             background: white; z-index: 11000; transition: 0.4s; 
             display: flex; flex-direction: column; border-radius: 20px 20px 0 0;
         }
         #pdf-drawer.active { bottom: 0; }
-        .pdf-header { background: #0f172a; color: white; padding: 15px; display: flex; justify-content: space-between; border-radius: 20px 20px 0 0; }
+        .pdf-header { background: #0f172a; color: white; padding: 15px; display: flex; justify-content: space-between; }
 
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; }
         .overlay.active { display: block; }
-
-        @media (max-width: 768px) {
-            .area-editor { font-size: 16px !important; padding: 0 10px !important; }
-        }
     </style>
 </head>
 <body>
 
 <header>
     <button class="btn-menu" onclick="window.toggleMenu()"><i class="fas fa-bars"></i></button>
-    <div style="color:white; font-weight:900; font-size: 0.9rem;">JOAQUIM <span style="color:var(--gold)">ELITE</span></div>
-    <div id="modo-display" style="color:var(--gold); font-size:10px; font-weight:bold;">STANDBY</div>
+    <div style="color:white; font-weight:900;">JOAQUIM <span style="color:var(--gold)">ELITE</span></div>
+    <div id="modo-display" style="color:var(--gold); font-size:10px; font-weight:bold;">PMDF 2026</div>
 </header>
 
 <div class="overlay" id="overlay" onclick="window.toggleMenu()"></div>
 
 <aside class="sidebar" id="sidebar">
     <button class="btn-side" onclick="window.novaMissao()"><i class="fas fa-plus"></i> NOVA MISSÃO</button>
-    <button class="btn-side" onclick="window.gerenciadorPasta()"><i class="fas fa-folder"></i> GAVETAS</button>
+    <button class="btn-side" onclick="window.gerenciadorPasta()"><i class="fas fa-archive"></i> GAVETAS</button>
     <button class="btn-side" onclick="window.abrirVade()"><i class="fas fa-gavel"></i> NÚCLEO DURO</button>
-    <button class="btn-side" onclick="window.salvarFluxo()" style="background: #10b981;"><i class="fas fa-save" style="color:white"></i> SALVAR AGORA</button>
+    <button class="btn-side" onclick="window.salvarFluxo()" style="background: #10b981;"><i class="fas fa-save"></i> SALVAR</button>
 </aside>
 
 <main>
@@ -100,24 +119,20 @@
                 <button onclick="window.limparM()" style="background:none; border:none;"><i class="fas fa-eraser"></i></button>
             </div>
         </div>
-        
         <div id="folha-render-container"></div>
     </section>
 </main>
 
 <div id="pdf-drawer">
-    <div class="pdf-header">
-        <span id="pdf-label">VADE MECUM</span>
-        <button onclick="window.fecharVade()" style="color:white; background:none; border:none; font-size:1.2rem;">X</button>
-    </div>
+    <div class="pdf-header"><span id="pdf-label">VADE MECUM</span><button onclick="window.fecharVade()">X</button></div>
     <iframe id="pdf-frame" style="width:100%; flex:1; border:none;"></iframe>
 </div>
 
 <div class="overlay" id="modal-overlay" style="z-index: 12000;">
-    <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:90%; max-width:400px; padding:20px; border-radius:15px; color:#000;">
-        <h3 id="m-title" style="margin-bottom:15px; border-bottom:2px solid var(--gold)"></h3>
-        <div id="m-content" style="max-height:300px; overflow-y:auto;"></div>
-        <button onclick="window.closeModal()" style="width:100%; margin-top:15px; padding:10px; background:#000; color:#fff; border:none; border-radius:8px;">VOLTAR</button>
+    <div style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; width:90%; max-width:400px; padding:20px; border-radius:15px;">
+        <h3 id="m-title" style="margin-bottom:10px; border-bottom:2px solid var(--gold)"></h3>
+        <div id="m-content"></div>
+        <button onclick="window.closeModal()" style="width:100%; margin-top:10px; padding:10px; background:#000; color:#fff; border-radius:8px;">VOLTAR</button>
     </div>
 </div>
 
@@ -132,13 +147,11 @@
     export const FolhaEngine = {
         montar: (containerId) => {
             const container = document.getElementById(containerId);
-            container.innerHTML = "";
             const style = document.createElement('style');
             style.innerHTML = `
-                .folha-container { display: grid; grid-template-columns: 40px 1fr; background: #fff; border: 1px solid #000; position: relative; }
+                .folha-container { display: grid; grid-template-columns: 45px 1fr; background: #fff; border: 1px solid #000; position: relative; }
                 .numeracao { background: #f8fafc; border-right: 1px solid #000; user-select: none; }
-                .num-mecanico { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; border-bottom: 1px solid #e2e8f0; color: #64748b; }
-                .area-editor { outline: none; font-size: 18px !important; font-weight: 700 !important; color: #000 !important; line-height: 35px !important; padding: 0 15px !important; white-space: pre-wrap; word-wrap: break-word; min-height: 10500px; background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px); background-size: 100% 35px; background-repeat: repeat-y; background-position: 0 -1px; text-align: justify; }
+                .num-mecanico { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; border-bottom: 1px solid #e2e8f0; color: #64748b; }
             `;
             document.head.appendChild(style);
 
@@ -152,22 +165,24 @@
             const editor = document.createElement('div');
             editor.className = 'area-editor'; editor.id = 'editor-principal'; editor.contentEditable = "true"; editor.spellcheck = false;
             folha.appendChild(numCol); folha.appendChild(editor); container.appendChild(folha);
-
-            editor.addEventListener('keydown', (e) => { if (e.key === 'Enter') { document.execCommand('insertLineBreak'); e.preventDefault(); } });
         }
     };
 
     window.idAtivo = null; window.gavetaAtiva = null; window.corM = '#fef08a';
 
-    // LIMPEZA ANTIFANTASMA: Remove spans inúteis e previne pulo de linha
+    // LIMPEZA CIRÚRGICA: Mantém a pauta mas remove o lixo pesado
     window.sanitizar = (h) => {
         const t = document.createElement('div'); t.innerHTML = h;
-        t.querySelectorAll('div, p').forEach(el => {
-            const br = document.createElement('br');
-            el.replaceWith(...el.childNodes, br);
+        t.querySelectorAll('*').forEach(el => {
+            el.removeAttribute('class');
+            el.removeAttribute('contenteditable');
+            if(el.tagName === 'DIV' || el.tagName === 'P') {
+                el.style.display = 'block';
+                el.style.margin = '0';
+                el.style.lineHeight = '35px';
+            }
         });
-        t.normalize();
-        return t.innerHTML.replace(/<div>|<\/div>|<p>|<\/p>/g, ""); 
+        return t.innerHTML;
     };
 
     window.toggleMenu = () => {
@@ -187,6 +202,7 @@
         const n = prompt("NOME:");
         if(n){
             window.idAtivo = "PMDF_" + Date.now();
+            window.gavetaAtiva = null;
             document.getElementById('identificador-missao').innerText = n.toUpperCase();
             document.getElementById('editor-principal').innerHTML = "";
             window.toggleMenu();
@@ -194,9 +210,9 @@
     };
 
     window.salvarFluxo = () => {
-        if(!window.idAtivo) return alert("Inicie no +");
+        if(!window.idAtivo) return alert("Clique em + Nova Missão");
         if(window.gavetaAtiva) return window.dbSave(window.gavetaAtiva);
-        window.showModal("ESCOLHA A GAVETA", `
+        window.showModal("GAVETA DE DESTINO", `
             <button onclick="window.dbSave('REDAÇÃO')" style="width:100%; padding:15px; margin-bottom:10px;">REDAÇÃO</button>
             <button onclick="window.dbSave('QUESTÕES')" style="width:100%; padding:15px;">QUESTÕES</button>
         `);
@@ -212,7 +228,7 @@
         });
         document.getElementById('modo-display').innerText = gaveta;
         window.closeModal();
-        alert("Salvo!");
+        alert("Sincronizado!");
     };
 
     window.gerenciadorPasta = () => {
@@ -226,15 +242,14 @@
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
         let h = "";
         if(snap.exists()){
-            const itens = Object.values(snap.val()).filter(i => i.gaveta === tipo);
-            itens.reverse().forEach(it => {
+            Object.values(snap.val()).filter(i => i.gaveta === tipo).reverse().forEach(it => {
                 h += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between">
                         <span onclick="window.load('${it.id}')" style="cursor:pointer">${it.nome}</span>
-                        <i class="fas fa-trash" onclick="window.del('${it.id}','${tipo}')" style="color:red;"></i>
+                        <i class="fas fa-trash" onclick="window.del('${it.id}','${tipo}')" style="color:red; cursor:pointer"></i>
                       </div>`;
             });
         }
-        window.showModal(`GAVETA: ${tipo}`, h || "Vazio");
+        window.showModal(`GAVETA: ${tipo}`, h || "Vazia");
     };
 
     window.load = async (id) => {
@@ -250,14 +265,13 @@
     window.del = async (id, t) => { if(confirm("Apagar?")) { await remove(ref(db, `pmdf_v1/GAVETAS/${id}`)); window.listar(t); } };
 
     window.abrirVade = () => {
-        const h = `<div onclick="window.v('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm','ESTATUTO')" style="padding:15px; border:1px solid #ddd; margin-bottom:5px;">ESTATUTO PMDF</div>
-                   <div onclick="window.v('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm','CPM')" style="padding:15px; border:1px solid #ddd;">CÓDIGO PENAL MILITAR</div>`;
+        const h = `<div onclick="window.v('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm','ESTATUTO')" style="padding:10px; border:1px solid #ddd; margin-bottom:5px;">ESTATUTO PMDF</div>
+                   <div onclick="window.v('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm','CPM')" style="padding:10px; border:1px solid #ddd;">CPM</div>`;
         window.showModal("NÚCLEO DURO", h);
     };
 
     window.v = (u, t) => {
         document.getElementById('pdf-frame').src = u;
-        document.getElementById('pdf-label').innerText = t;
         document.getElementById('pdf-drawer').classList.add('active');
         window.closeModal();
     };
@@ -273,10 +287,7 @@
 
     window.onload = () => {
         FolhaEngine.montar('folha-render-container');
-        document.execCommand('defaultParagraphSeparator', false, 'br');
-        document.getElementById('editor-principal').addEventListener('mouseup', () => {
-            if(window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.corM);
-        });
+        document.execCommand('defaultParagraphSeparator', false, 'div'); // Troquei para DIV para garantir o bloco de 35px
     };
 </script>
 </body>
