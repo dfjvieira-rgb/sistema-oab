@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ARSENAL PMDF 2026</title>
+    <title>NÚCLEO DURO PMDF 2026</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -16,10 +16,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body { 
-            font-family: 'Inter', sans-serif; background: var(--primary); 
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         header { 
             background: linear-gradient(90deg, #020617 0%, var(--pmdf-blue) 100%); 
@@ -30,9 +27,8 @@
         .logo { font-size: 1.1rem; font-weight: 900; color: white; }
         .logo span { color: var(--gold); }
 
-        main { display: flex; flex: 1; overflow: hidden; }
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        /* SIDEBAR PMDF */
         .sidebar { 
             width: var(--sidebar-w); background: #020617; display: flex; 
             flex-direction: column; align-items: center; gap: 12px; padding: 15px 0; 
@@ -46,11 +42,11 @@
             position: relative;
         }
         .btn-side:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
-        
         .btn-side::after {
             content: attr(data-label); position: absolute; left: 60px; background: #000; 
             color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 10px;
             white-space: nowrap; opacity: 0; pointer-events: none; border: 1px solid var(--gold);
+            z-index: 10000;
         }
         .btn-side:hover::after { opacity: 1; }
 
@@ -62,7 +58,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        #identificador-peca { 
+        #identificador-missao { 
             padding: 12px; background: #f8fafc; text-align: center; 
             font-weight: 900; color: #0f172a; border-bottom: 2px solid var(--pmdf-blue);
             cursor: pointer; text-transform: uppercase; font-size: 12px;
@@ -71,13 +67,11 @@
         .toolbar-mecanica { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
         .btn-tool { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; color: #64748b; }
 
-        /* MARCA-TEXTO FUNCIONAL */
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 10px; gap: 8px; border-right: 1px solid #ddd; }
         .color-dot { width: 22px; height: 22px; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; }
         .color-dot.active { border: 2px solid #000; transform: scale(1.1); }
 
-        /* FOLHA ENGINE 150 */
-        .paper-core { width: 100%; max-width: 850px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .paper-core { width: 100%; max-width: 850px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 50px;}
         .folha-grid { display: grid; grid-template-columns: 45px 1fr; position: relative; }
         .num-lateral { background: #f1f5f9; border-right: 2px solid var(--pmdf-blue); user-select: none; }
         .linha-num { 
@@ -91,42 +85,46 @@
             background-size: 100% 35px; text-align: justify; word-wrap: break-word;
         }
 
+        #pdf-viewer { width: 0; background: #1e293b; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
+        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; }
         .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 12px; color: #000; }
-        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; }
+        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        
+        @media (max-width: 768px) { #pdf-viewer.active { width: 100%; position: absolute; z-index: 9000; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">ARSENAL <span>PMDF</span></div>
-    <div id="status-gaveta" style="font-size: 11px; font-weight: bold; color: var(--gold); border: 1px solid var(--gold); padding: 4px 10px; border-radius: 20px;">GAVETA: REDAÇÃO</div>
+    <div class="logo">NÚCLEO DURO <span>PMDF</span></div>
+    <div id="status-gaveta" style="font-size: 10px; font-weight: bold; color: var(--gold); border: 1px solid var(--gold); padding: 4px 10px; border-radius: 20px;">GAVETA: REDAÇÃO</div>
 </header>
 
 <main>
     <aside class="sidebar">
-        <button class="btn-side" style="background:var(--pmdf-green);" data-label="TREINAR REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-file-alt"></i></button>
-        <button class="btn-side" style="background:var(--pmdf-blue);" data-label="DISCURSIVAS (QUESTÕES)" onclick="window.ativarModo('DISCURSIVAS')"><i class="fas fa-list-ol"></i></button>
-        <button class="btn-side" style="background:#f97316;" data-label="DOUTRINA E LEIS" onclick="window.ativarModo('DOUTRINA')"><i class="fas fa-book-open"></i></button>
+        <button class="btn-side" style="background:var(--pmdf-green);" data-label="TREINAR REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-file-signature"></i></button>
+        <button class="btn-side" style="background:var(--pmdf-blue);" data-label="DISCURSIVAS (QUESTÕES)" onclick="window.ativarModo('DISCURSIVAS')"><i class="fas fa-crosshairs"></i></button>
+        <button class="btn-side" style="background:#f97316;" data-label="DOUTRINA / TESES" onclick="window.ativarModo('DOUTRINA')"><i class="fas fa-brain"></i></button>
         <button class="btn-side" style="background:#6366f1;" data-label="SIMULADOS (BATALHÃO)" onclick="window.abrirSimulados()"><i class="fas fa-shield-alt"></i></button>
         <hr style="width:70%; opacity:0.1;">
-        <button class="btn-side" style="background:#475569;" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
-        <button class="btn-side" style="background:var(--sucesso);" data-label="SALVAR AGORA" onclick="window.finalizarMissao()"><i class="fas fa-save"></i></button>
-        <button class="btn-side" style="background:var(--perigo);" data-label="GERAR PDF" onclick="window.print()"><i class="fas fa-floppy-disk"></i></button>
+        <button class="btn-side" style="background:#475569;" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-box-archive"></i></button>
+        <button class="btn-side" style="background:var(--sucesso);" data-label="SALVAR MISSÃO" onclick="window.finalizarMissao()"><i class="fas fa-save"></i></button>
+        <button class="btn-side" style="background:var(--perigo);" data-label="DISKETTE PDF" onclick="window.gerarPDF()"><i class="fas fa-floppy-disk"></i></button>
     </aside>
 
     <section class="editor-container">
         <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomear()">MISSÃO: NOVO TREINO</div>
+            <div id="identificador-missao" onclick="window.renomear()">MISSÃO: AGUARDANDO COMANDO...</div>
             <div class="toolbar-mecanica">
                 <div class="highlight-box">
                     <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
                     <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
                     <div class="color-dot" style="background:#fff;" onclick="window.setHighlightColor('transparent', '')"><i class="fas fa-eraser" style="font-size:10px; padding:5px"></i></div>
                 </div>
-                <button class="btn-tool" onclick="document.execCommand('undo')">DESFAZER</button>
+                <button class="btn-tool" onclick="document.execCommand('undo')"><i class="fas fa-undo"></i></button>
                 <button class="btn-tool" onclick="window.limparFolha()">LIMPAR</button>
-                <button class="btn-tool" style="background:var(--pmdf-blue); color:white" onclick="window.abrirVade()">VADE PMDF</button>
+                <button class="btn-tool" style="background:var(--pmdf-blue); color:white" onclick="window.abrirNucleoLeis()"><i class="fas fa-gavel"></i> NÚCLEO DURO LEIS</button>
             </div>
         </div>
 
@@ -134,13 +132,21 @@
             <div class="folha-grid" id="folha-render"></div>
         </div>
     </section>
+
+    <section id="pdf-viewer">
+        <div style="background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--gold);">
+            <small id="pdf-title" style="font-weight: bold; color: var(--gold); text-transform:uppercase;"></small>
+            <button onclick="window.togglePDF()" style="background:var(--perigo); border:none; color:white; padding:5px 10px; cursor:pointer; font-weight:bold;">X</button>
+        </div>
+        <iframe id="pdf-frame" src="about:blank" style="flex:1; border:none;"></iframe>
+    </section>
 </main>
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:3px solid var(--pmdf-blue);"></h2>
+        <h2 id="modal-title" style="margin-bottom:15px; border-bottom:3px solid var(--pmdf-blue); font-size:18px;"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border:none; margin-top:15px; border-radius:8px; cursor:pointer;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border:none; margin-top:15px; border-radius:8px; cursor:pointer; font-weight:bold;">RETORNAR</button>
     </div>
 </div>
 
@@ -159,7 +165,7 @@
     const db = getDatabase(app);
 
     window.modoAtual = "REDAÇÃO";
-    window.missaoNome = "NOVO TREINO";
+    window.missaoNome = "TREINO INICIAL";
     window.currentColor = '#fef08a';
 
     function initFolha() {
@@ -177,33 +183,36 @@
         });
     }
 
-    window.onload = () => {
-        initFolha();
-        atualizarHeader();
+    window.onload = () => { initFolha(); atualizarHeader(); };
+
+    // --- LEGISLAÇÃO NÚCLEO DURO ---
+    window.abrirNucleoLeis = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO DE LEIS";
+        modal.style.display = 'flex';
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.loadPDF('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'Estatuto PMDF')">L. 7.289/84 (ESTATUTO PMDF)</div>
+            <div class="opt-btn" onclick="window.loadPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'Código Penal Militar')">CP MILITAR (DL 1.001)</div>
+            <div class="opt-btn" onclick="window.loadPDF('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'Proc. Penal Militar')">CPPM (DL 1.002)</div>
+            <div class="opt-btn" onclick="window.loadPDF('https://www.sinj.df.gov.br/sinj/Norma/51761/Lei_Org_nica_do_Distrito_Federal_LODF.html', 'LODF')">LODF (ORGÂNICA)</div>
+            <div class="opt-btn" onclick="window.loadPDF('https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2009/lei/l12086.htm', 'Lei 12.086/09')">L. 12.086 (PROMOÇÃO)</div>
+        `;
     };
 
-    window.ativarModo = (modo) => {
-        const n = prompt(`NOME DO TREINO EM [${modo}]:`, "Missão do dia");
-        if(n) {
-            window.modoAtual = modo;
-            window.missaoNome = n.toUpperCase();
-            document.getElementById('editor').innerHTML = "";
-            atualizarHeader();
-        }
+    window.loadPDF = (url, nome) => {
+        document.getElementById('pdf-frame').src = url;
+        document.getElementById('pdf-title').innerText = nome;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
     window.finalizarMissao = async () => {
         const html = document.getElementById('editor').innerHTML;
         const id = Date.now();
-        if(!confirm(`Salvar na gaveta ${window.modoAtual}?`)) return;
-
-        await set(ref(db, `pmdf_v1/HISTORICO/${id}`), {
-            titulo: window.missaoNome,
-            gaveta: window.modoAtual,
-            data: new Date().toLocaleString('pt-BR'),
-            html: html
-        });
-        alert("MISSÃO SALVA!");
+        if(!confirm(`SALVAR NA GAVETA: ${window.modoAtual}?`)) return;
+        await set(ref(db, `pmdf_v1/HISTORICO/${id}`), { titulo: window.missaoNome, gaveta: window.modoAtual, data: new Date().toLocaleString('pt-BR'), html: html });
+        alert("MISSÃO SALVA COM SUCESSO!");
     };
 
     window.gerenciadorPasta = () => {
@@ -212,22 +221,20 @@
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
         modal.style.display = 'flex';
         content.innerHTML = `
-            <div class="opt-btn" onclick="window.verGaveta('REDAÇÃO')">GAVETA DE REDAÇÕES <i class="fas fa-chevron-right"></i></div>
-            <div class="opt-btn" onclick="window.verGaveta('DISCURSIVAS')">GAVETA DE QUESTÕES <i class="fas fa-chevron-right"></i></div>
-            <div class="opt-btn" onclick="window.verGaveta('DOUTRINA')">GAVETA DE DOUTRINA <i class="fas fa-chevron-right"></i></div>
-            <div class="opt-btn" onclick="window.verGaveta('SIMULADOS')">GAVETA DE SIMULADOS <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('REDAÇÃO')">GAVETA: REDAÇÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('DISCURSIVAS')">GAVETA: QUESTÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('DOUTRINA')">GAVETA: DOUTRINA <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.verGaveta('SIMULADOS')">GAVETA: SIMULADOS <i class="fas fa-chevron-right"></i></div>
         `;
     };
 
     window.verGaveta = async (gaveta) => {
         const content = document.getElementById('modal-content');
-        content.innerHTML = "Acessando arquivos...";
         const snap = await get(ref(db, `pmdf_v1/HISTORICO`));
         content.innerHTML = "";
-        
         if(snap.exists()) {
             const itens = Object.values(snap.val()).filter(i => i.gaveta === gaveta);
-            if(itens.length === 0) content.innerHTML = "Nenhum arquivo nesta gaveta.";
+            if(itens.length === 0) content.innerHTML = "Nenhuma missão nesta gaveta.";
             itens.reverse().forEach(item => {
                 const d = document.createElement('div');
                 d.className = 'opt-btn';
@@ -244,11 +251,21 @@
         }
     };
 
+    window.ativarModo = (modo) => {
+        const n = prompt(`NOME DA MISSÃO [${modo}]:`, "Treino do dia");
+        if(n) {
+            window.modoAtual = modo;
+            window.missaoNome = n.toUpperCase();
+            document.getElementById('editor').innerHTML = "";
+            atualizarHeader();
+        }
+    };
+
     window.abrirSimulados = () => {
         window.modoAtual = "SIMULADOS";
         window.missaoNome = "SIMULADO BATALHÃO";
         atualizarHeader();
-        alert("Modo SIMULADO ativado. Prepare-se para o combate.");
+        alert("MODO BATALHÃO ATIVADO.");
     };
 
     window.setHighlightColor = (color, id) => {
@@ -258,12 +275,14 @@
     };
 
     function atualizarHeader() {
-        document.getElementById('identificador-peca').innerText = `MISSÃO: ${window.missaoNome}`;
+        document.getElementById('identificador-missao').innerText = `MISSÃO: ${window.missaoNome}`;
         document.getElementById('status-gaveta').innerText = `GAVETA: ${window.modoAtual}`;
     }
 
-    window.limparFolha = () => { if(confirm("Apagar tudo?")) document.getElementById('editor').innerHTML = ""; };
+    window.togglePDF = () => document.getElementById('pdf-viewer').classList.toggle('active');
+    window.limparFolha = () => { if(confirm("Apagar?")) document.getElementById('editor').innerHTML = ""; };
     window.renomear = () => { const n = prompt("Novo nome:", window.missaoNome); if(n) { window.missaoNome = n.toUpperCase(); atualizarHeader(); }};
+    window.gerarPDF = () => { window.print(); };
 </script>
 </body>
 </html>
