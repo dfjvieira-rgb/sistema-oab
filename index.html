@@ -13,6 +13,7 @@
             --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
             --glass: rgba(30, 41, 59, 0.7);
             --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
+            --vade: #065f46; /* Verde escuro para o Vade Mecum */
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -144,10 +145,8 @@
         <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
         <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
         
-        <button class="btn-side" style="background:#ef4444; color:#fff" onclick="window.abrirVade()">
-            <i class="fas fa-book"></i> <span>VADE MECUM</span>
-        </button>
-
+        <button class="btn-side" style="background:var(--vade); color:#fff" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i> <span>VADE MECUM</span></button>
+        
         <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
         <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
         <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
@@ -206,13 +205,13 @@
 
     <div id="mobile-hub">
         <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket" id="rocket-icon"></i></button>
+        <button class="fab-sub" style="background:var(--vade); color:white" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i></button>
         <button class="fab-sub" style="background:var(--biblioteca); color:white" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
         <button class="fab-sub" style="background:var(--teses); color:white" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
         <button class="fab-sub" style="background:var(--questoes); color:white" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
         <button class="fab-sub" style="background:#facc15; color:black" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
         <button class="fab-sub" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
         <button class="fab-sub" style="background:var(--gold); color:black" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
-        <button class="fab-sub" style="background:#ef4444; color:white" onclick="window.abrirVade()"><i class="fas fa-book"></i></button>
     </div>
 </main>
 
@@ -224,12 +223,15 @@
     </div>
 </div>
 
-<script src="https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/vade.js"></script>
+<script src="vade.js" type="module"></script>
 
 <script type="module">
     import { db } from './firebase-config.js'; 
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
+    
+    // Importamos o motor do Vade Mecum se necessário, ou as funções de lei
+    import { VadeMotor } from './vade.js';
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf"; 
@@ -245,13 +247,35 @@
     ];
 
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
-    window.historicoUndo = [];
-
+    
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         atualizarLabelPeca();
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
+    };
+
+    // FUNÇÃO PARA CHAMAR O VADE MECUM (NÚCLEO DURO)
+    window.abrirVadeMecum = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM - NÚCLEO DURO";
+        
+        // Chamada para renderizar o conteúdo vindo do vade.js
+        if (window.renderizarVadeHTML) {
+            content.innerHTML = window.renderizarVadeHTML();
+        } else {
+            content.innerHTML = `<p style="text-align:center; padding:20px;">Carregando leis e artigos...</p>`;
+            // Simulação de busca no objeto de leis se disponível
+            setTimeout(() => {
+                if(typeof VadeMotor !== 'undefined') {
+                   VadeMotor.abrir(content);
+                } else {
+                   content.innerHTML = "Erro: vade.js não carregado ou vazio.";
+                }
+            }, 500);
+        }
+        modal.style.display = 'flex';
     };
 
     function atualizarLabelPeca() {
@@ -350,7 +374,9 @@
             }
         }
 
-        if (!idParaUsar) idParaUsar = Date.now();
+        if (!idParaUsar) {
+            idParaUsar = Date.now();
+        }
         
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
             exame: pasta, 
@@ -359,7 +385,7 @@
             data: new Date().toLocaleString()
         });
 
-        alert("💾 Estudo Gravado!");
+        alert("Arquivo salvo com sucesso na pasta " + pasta);
         document.getElementById('universal-modal').style.display = 'none';
     };
 
@@ -384,6 +410,8 @@
                 }
             });
             if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo em ${tipo}.</p>`;
+        } else {
+            content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Nenhum arquivo nesta pasta.</p>`;
         }
     };
 
@@ -397,10 +425,6 @@
         }
     };
 
-    window.excluirTrabalho = async (id, tipo) => {
-        if(confirm("Excluir?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); }
-    };
-
     async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
     async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
     
@@ -412,23 +436,18 @@
     };
     
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.ativarTreinoLivre = () => { if(confirm("Novo?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
+    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
 
-    // Funções extras
-    window.abrirExames = () => alert("Módulo OAB.");
-    window.ativarModoQuestoes = () => alert("Questões Ativas.");
-    window.ativarModoTeses = () => alert("Teses Ativas.");
-    window.injetarTeses = () => alert("Injetando...");
-    window.desfazer = () => alert("Desfeito.");
-    window.toggleMarcaTexto = () => { alert("Selecione o texto."); };
-    window.setHighlightColor = (color, id) => {
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
+    // Placeholders para funções futuras
+    window.abrirExames = () => alert("Módulo de Exames OAB.");
+    window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
+    window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
+    window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
+    window.desfazer = () => alert("Função desfazer acionada.");
 </script>
 </body>
 </html>
