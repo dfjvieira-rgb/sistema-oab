@@ -12,6 +12,8 @@
             --bg-paper: #cbd5e1; --paper-color: #ffffff; 
             --sidebar-w: 70px; --perigo: #ef4444;
             --questoes: #3b82f6; --teses: #f97316;
+            /* AJUSTE FINO DA LINHA OAB */
+            --linha-altura: 35.2px; 
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -48,12 +50,7 @@
             position: relative;
         }
         .btn-side i { font-size: 1.2rem; color: var(--gold); }
-        .btn-side::after {
-            content: attr(data-label); position: absolute; left: 60px; background: #000; color: #fff;
-            padding: 6px 12px; border-radius: 6px; font-size: 10px; white-space: nowrap; opacity: 0; 
-            pointer-events: none; transition: 0.2s; z-index: 6000; border: 1px solid var(--gold);
-        }
-        .btn-side:hover::after { opacity: 1; left: 75px; }
+        .btn-side:hover { background: rgba(251, 191, 36, 0.2); }
 
         .editor-container { 
             flex: 1; display: flex; flex-direction: column; 
@@ -83,19 +80,39 @@
         .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .color-dot.active { border-color: #000; transform: scale(1.2); }
 
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; }
-        .folha-grid { display: grid; grid-template-columns: 45px 1fr; }
-        .num-lateral { background: #f8fafc; border-right: 2px solid #cbd5e1; }
-        .linha-num { height: 35px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-bottom: 1px solid #f1f5f9; color: #94a3b8; }
+        /* --- CORREÇÃO DA FOLHA ESTILO OAB ORIGINAL --- */
+        .paper { 
+            width: 100%; max-width: 850px; background: white; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5300px; 
+            position: relative;
+        }
+        .folha-grid { display: grid; grid-template-columns: 50px 1fr; position: relative; }
+        
+        .num-lateral { 
+            background: #f8fafc; border-right: 2px solid #000; 
+            user-select: none;
+        }
+        .linha-num { 
+            height: var(--linha-altura); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 12px; font-weight: 900; 
+            color: #000; border-bottom: 1px solid #e2e8f0;
+        }
         
         .area-escrita { 
-            outline: none; padding: 0 20px; 
+            outline: none; padding: 0 15px; 
+            /* TIPOGRAFIA CORRIGIDA PARA NÃO CORRER */
             font-family: 'Courier New', Courier, monospace !important; 
-            font-size: 19px !important; font-weight: 700 !important; 
-            line-height: 35px !important; 
-            background-image: linear-gradient(to bottom, transparent 34px, #e2e8f0 34px);
-            background-size: 100% 35px; color: #000 !important;
-            min-height: 5250px; text-align: justify; white-space: pre-wrap;
+            font-size: 20px !important; 
+            font-weight: 700 !important; 
+            line-height: var(--linha-altura) !important; 
+            color: #1a1a1a !important;
+            
+            /* LINHAS DE FUNDO ALINHADAS */
+            background-image: linear-gradient(#fff 97%, #e2e8f0 3%);
+            background-size: 100% var(--linha-altura);
+            text-align: justify; white-space: pre-wrap;
+            min-height: 5300px;
         }
 
         #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
@@ -110,11 +127,7 @@
             background: #f8fafc; border: 1px solid #eee; padding: 15px; border-radius: 12px; 
             margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
-        .item-info { flex: 1; cursor: pointer; overflow: hidden; }
-        .item-acoes { display: flex; gap: 8px; margin-left: 10px; }
-        .btn-acao { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
-        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; color: white; font-weight: bold;}
+        .item-info { flex: 1; cursor: pointer; }
         .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;}
     </style>
 </head>
@@ -122,7 +135,7 @@
 
 <header>
     <div class="logo">JOAQUIM <span>ELITE PMDF</span></div>
-    <div style="color:var(--gold); font-size:11px; font-weight:bold;">MODO: <span id="ex-display">EM ESPERA</span></div>
+    <div style="color:var(--gold); font-size:11px; font-weight:bold;">MODO: <span id="ex-display">AGUARDANDO</span></div>
 </header>
 
 <main>
@@ -131,11 +144,11 @@
         <button class="btn-side" data-label="MINHAS GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-archive"></i></button>
         <button class="btn-side" data-label="NÚCLEO DURO" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
         <hr style="width:60%; opacity:0.1">
-        <button class="btn-side" data-label="SALVAR (DISKET)" onclick="window.salvarComEscolha()"><i class="fas fa-save" style="color:#10b981"></i></button>
-        <button class="btn-side" data-label="IMPRIMIR PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
+        <button class="btn-side" data-label="SALVAR" onclick="window.salvarComEscolha()"><i class="fas fa-save" style="color:#10b981"></i></button>
+        <button class="btn-side" data-label="PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
     </aside>
 
-    <section class="editor-container" id="editor-container">
+    <section class="editor-container">
         <div class="sticky-tools">
             <div id="identificador-peca" onclick="window.renomearNoTopo()">CLIQUE EM NOVA MISSÃO...</div>
             <div class="toolbar-liberdade">
@@ -143,11 +156,10 @@
                     <div class="color-dot active" id="dot-yellow" style="background:#fef08a;" onclick="window.setHighlightColor('#fef08a', 'dot-yellow')"></div>
                     <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
                     <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
-                    <div class="color-dot" id="dot-purple" style="background:#e9d5ff;" onclick="window.setHighlightColor('#e9d5ff', 'dot-purple')"></div>
-                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer; color:#64748b; margin-left:5px;"><i class="fas fa-eraser"></i></button>
+                    <button onclick="window.limparFormatacao()" style="background:none; border:none; cursor:pointer;"><i class="fas fa-eraser"></i></button>
                 </div>
                 <button class="btn-lib" onclick="document.execCommand('undo')">Desfazer</button>
-                <button class="btn-lib" onclick="window.limparFolha()">Limpar Tudo</button>
+                <button class="btn-lib" onclick="window.limparFolha()">Limpar</button>
             </div>
         </div>
         <div class="paper">
@@ -158,7 +170,7 @@
     <section id="pdf-viewer">
         <div class="pdf-controls">
             <span id="pdf-title">VADE MECUM</span>
-            <button onclick="window.fecharPDF()" style="background:var(--perigo); border:none; padding:5px 12px; color:white; border-radius:5px; cursor:pointer">FECHAR</button>
+            <button onclick="window.fecharPDF()" style="background:var(--perigo); border:none; padding:5px; color:white; cursor:pointer">FECHAR</button>
         </div>
         <iframe id="pdf-frame"></iframe>
     </section>
@@ -166,9 +178,9 @@
 
 <div class="modal" id="universal-modal">
     <div class="modal-body">
-        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
+        <h2 id="modal-title" style="margin-bottom:20px;"></h2>
         <div id="modal-content"></div>
-        <button id="btn-voltar-modal" onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer;">VOLTAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer;">FECHAR</button>
     </div>
 </div>
 
@@ -202,26 +214,25 @@
     }
 
     window.novaMissao = () => {
-        const n = prompt("Nome da Missão (Redação ou Questão):", "");
+        const n = prompt("Nome do Treino:", "");
         if(n) {
             window.idAtual = "ID_" + Date.now();
             window.pecaAtualNome = n.toUpperCase();
             window.gavetaAtual = null; 
             document.getElementById('editor-principal').innerHTML = "";
             atualizarDisplay();
-            alert("Nova missão iniciada! Escolha a gaveta ao salvar no Disquete.");
         }
     };
 
     window.salvarComEscolha = async () => {
-        if(!window.idAtual) { alert("Crie uma 'Nova Missão' primeiro."); return; }
+        if(!window.idAtual) { alert("Inicie uma Missão."); return; }
         if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
 
         const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "PARA QUAL GAVETA?";
+        document.getElementById('modal-title').innerText = "GAVETA DE DESTINO";
         c.innerHTML = `
-            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO <i class="fas fa-pen-nib"></i></div>
-            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES <i class="fas fa-question-circle"></i></div>
+            <div class="opt-btn" onclick="window.executarSalvamento('REDAÇÃO')">GAVETA: REDAÇÃO</div>
+            <div class="opt-btn" onclick="window.executarSalvamento('QUESTÕES')">GAVETA: QUESTÕES</div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
@@ -237,60 +248,38 @@
         });
         document.getElementById('universal-modal').style.display = 'none';
         atualizarDisplay();
-        alert(`SALVO COM SUCESSO EM ${gaveta}!`);
     };
 
-    // --- GERENCIADOR DE GAVETAS ISOLADAS ---
     window.gerenciadorPasta = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
         c.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')" style="border-left: 8px solid var(--gold)">ABRIR GAVETA: REDAÇÃO <i class="fas fa-chevron-right"></i></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')" style="border-left: 8px solid var(--questoes)">ABRIR GAVETA: QUESTÕES <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')">GAVETA: REDAÇÃO <i class="fas fa-chevron-right"></i></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')">GAVETA: QUESTÕES <i class="fas fa-chevron-right"></i></div>
         `;
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
     window.abrirGavetaEspecifica = async (tipo) => {
         const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = `📂 GAVETA: ${tipo}`;
-        c.innerHTML = "<div style='padding:20px; text-align:center'><i class='fas fa-spinner fa-spin'></i> Acessando gaveta...</div>";
-        
+        document.getElementById('modal-title').innerText = `GAVETA: ${tipo}`;
+        c.innerHTML = "Carregando...";
         const snap = await get(ref(db, `pmdf_v1/GAVETAS`));
-        if(snap.exists()) {
-            const dados = snap.val();
-            // FILTRAGEM REAL: Só mostra o que for do tipo clicado
-            const filtrados = Object.keys(dados)
-                .map(k => dados[k])
-                .filter(item => item.gaveta === tipo);
-
-            if(filtrados.length === 0) {
-                c.innerHTML = `<p style="padding:20px; text-align:center">Nenhum arquivo na gaveta de ${tipo}.</p>`;
-            } else {
-                c.innerHTML = "";
-                filtrados.reverse().forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'item-arquivo';
-                    div.innerHTML = `
-                        <div class="item-info" onclick="window.carregarArquivo('${item.id}')">
-                            <strong>${item.peca}</strong><br>
-                            <small>${item.data}</small>
-                        </div>
-                        <div class="item-acoes">
-                            <button class="btn-acao" style="background:#fee2e2; color:#ef4444" onclick="window.excluirArquivo('${item.id}', '${tipo}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                    c.appendChild(div);
-                });
-            }
-        } else { c.innerHTML = "Banco de dados vazio."; }
-        
-        // Botão para voltar para a seleção de gavetas
-        const btnVoltar = document.createElement('button');
-        btnVoltar.innerText = "VOLTAR PARA GAVETAS";
-        btnVoltar.style.cssText = "width:100%; padding:15px; background:var(--gold); border:none; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px";
-        btnVoltar.onclick = () => window.gerenciadorPasta();
-        c.appendChild(btnVoltar);
+        if(snap.exists()){
+            const filtrados = Object.values(snap.val()).filter(i => i.gaveta === tipo);
+            c.innerHTML = filtrados.length ? "" : "Gaveta vazia.";
+            filtrados.reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-arquivo';
+                div.innerHTML = `
+                    <div class="item-info" onclick="window.carregarArquivo('${item.id}')">
+                        <strong>${item.peca}</strong><br><small>${item.data}</small>
+                    </div>
+                    <button class="btn-side" style="background:#fee2e2; color:#ef4444" onclick="window.excluirArquivo('${item.id}', '${tipo}')"><i class="fas fa-trash"></i></button>
+                `;
+                c.appendChild(div);
+            });
+        }
     };
 
     window.carregarArquivo = async (chave) => {
@@ -306,27 +295,18 @@
         }
     };
 
-    window.excluirArquivo = async (chave, tipoVolta) => {
-        if(confirm("Apagar da gaveta permanentemente?")) {
+    window.excluirArquivo = async (chave, tipo) => {
+        if(confirm("Excluir?")) {
             await remove(ref(db, `pmdf_v1/GAVETAS/${chave}`));
-            if(window.idAtual === chave) { window.idAtual = null; window.gavetaAtual = null; }
-            window.abrirGavetaEspecifica(tipoVolta);
+            window.abrirGavetaEspecifica(tipo);
         }
     };
 
-    // --- NÚCLEO DURO (LEIS PMDF) ---
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
-        const leis = [
-            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF (L. 7.289)'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CÓDIGO PENAL MILITAR'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'PROC. PENAL MILITAR'],
-            ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CONSTITUIÇÃO FEDERAL'],
-            ['https://www.planalto.gov.br/ccivil_03/leis/l4898.htm', 'ABUSO DE AUTORIDADE'],
-            ['https://www.planalto.gov.br/ccivil_03/leis/l9474.htm', 'ESTATUTO DO DESARMAMENTO']
-        ];
-        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]} <i class="fas fa-external-link-alt"></i></div>`).join('');
+        const leis = [['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'], ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM']];
+        c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
@@ -337,26 +317,15 @@
         document.getElementById('universal-modal').style.display = 'none';
     };
 
-    window.renomearNoTopo = () => {
-        if(!window.idAtual) return;
-        const novo = prompt("Novo nome:", window.pecaAtualNome);
-        if(novo) { window.pecaAtualNome = novo.toUpperCase(); atualizarDisplay(); }
+    window.atualizarDisplay = () => {
+        document.getElementById('ex-display').innerText = window.gavetaAtual || "EDIÇÃO";
+        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "NOVA MISSÃO";
     };
 
-    window.setHighlightColor = (color, id) => {
-        window.currentColor = color;
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    };
-
+    window.setHighlightColor = (color, id) => { window.currentColor = color; document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active')); document.getElementById(id).classList.add('active'); };
     window.limparFormatacao = () => { document.execCommand('removeFormat', false, null); document.execCommand('backColor', false, 'transparent'); };
     window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    
-    function atualizarDisplay() {
-        document.getElementById('ex-display').innerText = window.gavetaAtual || "EM EDIÇÃO";
-        document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
-    }
 </script>
 </body>
 </html>
