@@ -174,12 +174,13 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = { databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com" };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // --- ESTADOS GLOBAIS BLINDADOS ---
     window.idAtual = null; 
     window.gavetaAtual = null;
     window.pecaAtualNome = "";
@@ -188,8 +189,9 @@
     window.onload = () => {
         montarFolha();
         const ed = document.getElementById('editor-principal');
-        ed.addEventListener('mouseup', () => { if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); });
-        ed.addEventListener('paste', (e) => { e.preventDefault(); const text = (e.originalEvent || e).clipboardData.getData('text/plain'); document.execCommand('insertText', false, text); });
+        ed.addEventListener('mouseup', () => { 
+            if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); 
+        });
     };
 
     function montarFolha() {
@@ -200,28 +202,28 @@
         f.innerHTML = nums;
     }
 
-    // INTELIGÊNCIA OAB: ID PERSISTENTE PARA ATUALIZAÇÃO
+    // 1. INÍCIO DA MISSÃO (Gera ID que será mantido até o fim para evitar duplicatas)
     window.novaMissao = () => {
         const n = prompt("Nome da Missão:", "");
         if(n) {
-            window.idAtual = "M" + Date.now();
+            window.idAtual = "MISSÃO_" + Date.now();
             window.pecaAtualNome = n.toUpperCase();
             window.gavetaAtual = null; 
             document.getElementById('editor-principal').innerHTML = "";
             atualizarDisplay();
+            alert("Missão iniciada. Escreva e clique no Disquete para salvar.");
         }
     };
 
-    window.renomearNoTopo = () => {
-        if(!window.idAtual) return;
-        const novo = prompt("Renomear:", window.pecaAtualNome);
-        if(novo) { window.pecaAtualNome = novo.toUpperCase(); atualizarDisplay(); }
-    };
-
+    // 2. LOGICA DE SALVAMENTO OAB (Sobrescreve o mesmo ID)
     window.salvarComEscolha = async () => {
         if(!window.idAtual) { alert("Inicie uma 'Nova Missão' primeiro."); return; }
-        // Se já existe uma gaveta (arquivo carregado), salva direto (SOBRESCREVE)
-        if(window.gavetaAtual) { await window.executarSalvamento(window.gavetaAtual); return; }
+        
+        // Se a gaveta já foi escolhida nesta sessão, sobrescreve direto
+        if(window.gavetaAtual) { 
+            await window.executarSalvamento(window.gavetaAtual); 
+            return; 
+        }
 
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "ESCOLHA A GAVETA";
@@ -235,15 +237,22 @@
     window.executarSalvamento = async (gaveta) => {
         window.gavetaAtual = gaveta;
         const ed = document.getElementById('editor-principal');
+        
+        // SET sobrescreve os dados no caminho especificado (sem criar duplicatas)
         await set(ref(db, `pmdf_v1/GAVETAS/${window.idAtual}`), {
-            id: window.idAtual, gaveta: gaveta, peca: window.pecaAtualNome,
-            data: new Date().toLocaleString('pt-BR'), conteudo: ed.innerHTML
+            id: window.idAtual,
+            gaveta: gaveta,
+            peca: window.pecaAtualNome,
+            data: new Date().toLocaleString('pt-BR'),
+            conteudo: ed.innerHTML
         });
+
         document.getElementById('universal-modal').style.display = 'none';
         atualizarDisplay();
-        alert(`SALVO EM: ${gaveta}`);
+        alert(`MISSÃO ATUALIZADA EM: ${gaveta}`);
     };
 
+    // 3. GERENCIADOR DE GAVETAS
     window.gerenciadorPasta = async () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
@@ -255,59 +264,62 @@
             c.innerHTML = "";
             const dados = snap.val();
             Object.keys(dados).reverse().forEach(key => {
-                const data = dados[key];
-                const item = document.createElement('div');
-                item.className = 'item-arquivo';
-                const tagCor = data.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
+                const item = dados[key];
+                const div = document.createElement('div');
+                div.className = 'item-arquivo';
+                const tagCor = item.gaveta === 'REDAÇÃO' ? 'var(--gold)' : 'var(--questoes)';
                 
-                item.innerHTML = `
+                div.innerHTML = `
                     <div class="item-info" onclick="window.carregarArquivo('${key}')">
-                        <span class="tag" style="background:${tagCor}">${data.gaveta || 'S/G'}</span><br>
-                        <strong>${data.peca || 'SEM NOME'}</strong><br>
-                        <small>${data.data || ''}</small>
+                        <span class="tag" style="background:${tagCor}">${item.gaveta}</span><br>
+                        <strong>${item.peca}</strong><br>
+                        <small>Último salvamento: ${item.data}</small>
                     </div>
                     <div class="item-acoes">
                         <button class="btn-acao" style="background:#fee2e2; color:#ef4444" onclick="window.excluirArquivo('${key}')"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
-                c.appendChild(item);
+                c.appendChild(div);
             });
-        } else { c.innerHTML = "Vazio."; }
+        } else { c.innerHTML = "Gaveta vazia."; }
     };
 
     window.carregarArquivo = async (chave) => {
         const snap = await get(ref(db, `pmdf_v1/GAVETAS/${chave}`));
         if(snap.exists()) {
             const data = snap.val();
-            window.idAtual = chave; 
+            window.idAtual = chave; // Mantém o ID original para continuar sobrescrevendo
             window.gavetaAtual = data.gaveta;
             window.pecaAtualNome = data.peca;
-            document.getElementById('editor-principal').innerHTML = data.conteudo || "";
+            document.getElementById('editor-principal').innerHTML = data.conteudo;
             atualizarDisplay();
             document.getElementById('universal-modal').style.display = 'none';
         }
     };
 
     window.excluirArquivo = async (chave) => {
-        if(confirm("EXCLUIR DEFINITIVAMENTE?")) {
+        if(confirm("Excluir definitivamente?")) {
             await remove(ref(db, `pmdf_v1/GAVETAS/${chave}`));
             if(window.idAtual === chave) { 
-                window.idAtual = null; window.gavetaAtual = null; 
-                document.getElementById('editor-principal').innerHTML = ""; 
-                atualizarDisplay(); 
+                window.idAtual = null; window.gavetaAtual = null; window.pecaAtualNome = "";
+                document.getElementById('editor-principal').innerHTML = "";
+                atualizarDisplay();
             }
             window.gerenciadorPasta();
         }
     };
 
+    // 4. NÚCLEO DURO (LEIS PMDF)
     window.abrirNucleoDuro = () => {
         const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM PMDF";
+        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE PMDF";
         const leis = [
-            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CPM'],
-            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'CPPM'],
-            ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88']
+            ['https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF (L. 7.289)'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'CÓDIGO PENAL MILITAR'],
+            ['https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'PROC. PENAL MILITAR'],
+            ['https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CONSTITUIÇÃO FEDERAL'],
+            ['https://www.planalto.gov.br/ccivil_03/leis/l4898.htm', 'ABUSO DE AUTORIDADE'],
+            ['https://www.planalto.gov.br/ccivil_03/leis/l9474.htm', 'ESTATUTO DO DESARMAMENTO']
         ];
         c.innerHTML = leis.map(l => `<div class="opt-btn" onclick="window.abrirVade('${l[0]}', '${l[1]}')">${l[1]}</div>`).join('');
         document.getElementById('universal-modal').style.display = 'flex';
@@ -320,6 +332,13 @@
         document.getElementById('universal-modal').style.display = 'none';
     };
 
+    // --- FERRAMENTAS ---
+    window.renomearNoTopo = () => {
+        if(!window.idAtual) return;
+        const novo = prompt("Renomear Peça:", window.pecaAtualNome);
+        if(novo) { window.pecaAtualNome = novo.toUpperCase(); atualizarDisplay(); }
+    };
+
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
@@ -327,11 +346,11 @@
     };
 
     window.limparFormatacao = () => { document.execCommand('removeFormat', false, null); document.execCommand('backColor', false, 'transparent'); };
-    window.limparFolha = () => { if(confirm("Limpar tudo?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar toda a folha?")) document.getElementById('editor-principal').innerHTML = ""; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     
     function atualizarDisplay() {
-        document.getElementById('ex-display').innerText = window.gavetaAtual || "EDITANDO";
+        document.getElementById('ex-display').innerText = window.gavetaAtual || "SISTEMA PRONTO";
         document.getElementById('identificador-peca').innerText = window.pecaAtualNome || "CLIQUE EM NOVA MISSÃO";
     }
 </script>
