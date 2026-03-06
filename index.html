@@ -8,10 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #020617; --gold: #fbbf24; 
-            --bg-paper: #cbd5e1; --sidebar-w: 70px;
-            /* AJUSTE MATEMÁTICO FGV */
-            --altura-linha: 35.2px; 
+            --primary: #020617; 
+            --gold: #fbbf24; 
+            --bg-paper: #cbd5e1; 
+            --sidebar-w: 70px;
+            /* AJUSTE MATEMÁTICO DE PRECISÃO OAB/FGV */
+            --altura-linha: 35px; 
+            --font-size-editor: 19px;
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -71,11 +74,12 @@
         .color-dot.active { border: 2px solid #000; transform: scale(1.1); }
         .btn-borracha { background: none; border: none; cursor: pointer; color: #64748b; font-size: 1rem; margin-left: 5px; }
 
-        /* --- A FOLHA IDENTICA À IMAGEM --- */
+        /* --- A FOLHA BLINDADA --- */
         .paper { 
             width: 100%; max-width: 850px; background: white; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-top: 15px;
             border: 1px solid #000;
+            position: relative;
         }
         
         .folha-grid { 
@@ -93,20 +97,29 @@
             height: var(--altura-linha); 
             display: flex; align-items: center; justify-content: center; 
             font-size: 11px; font-weight: 700; color: #000;
-            border-bottom: 0.5px solid #d1d5db;
+            /* Removemos a borda aqui para usar a pauta global da área escrita */
         }
         
         .area-escrita { 
-            outline: none; padding: 0 15px; 
+            outline: none; 
+            padding: 0 15px; 
             font-family: 'Courier New', Courier, monospace !important; 
-            font-size: 19px !important; /* Tamanho real de prova */
+            font-size: var(--font-size-editor) !important; 
             font-weight: 700 !important; 
             color: #000 !important;
+            
+            /* Sincronização Vertical */
             line-height: var(--altura-linha) !important; 
-            text-align: justify; white-space: pre-wrap;
             min-height: calc(var(--altura-linha) * 150);
-            background-image: linear-gradient(transparent 97%, #d1d5db 3%);
+            
+            /* Pauta milimétrica */
+            background-image: linear-gradient(#d1d5db 1px, transparent 1px);
             background-size: 100% var(--altura-linha);
+            background-attachment: local;
+            
+            text-align: justify; 
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
@@ -192,8 +205,17 @@
         nums += '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
         f.innerHTML = nums;
 
-        document.getElementById('editor-principal').addEventListener('mouseup', () => { 
+        const ed = document.getElementById('editor-principal');
+        ed.addEventListener('mouseup', () => { 
             if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor); 
+        });
+        
+        // Impedir que o enter crie divs (mantém a estrutura da linha)
+        ed.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.execCommand('insertLineBreak');
+                e.preventDefault();
+            }
         });
     };
 
@@ -222,11 +244,10 @@
     window.salvarComEscolha = async () => {
         if(!window.idAtual) return alert("Inicie uma Missão.");
         if(window.gavetaAtual) return window.executarSave(window.gavetaAtual);
-
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "ESCOLHA A GAVETA";
-        c.innerHTML = `<div style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #eee; background:#f8fafc; font-weight:800; cursor:pointer;" onclick="window.executarSave('REDAÇÃO')">REDAÇÃO</div>
-                       <div style="width:100%; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #eee; background:#f8fafc; font-weight:800; cursor:pointer;" onclick="window.executarSave('QUESTÕES')">QUESTÕES</div>`;
+        c.innerHTML = `<div class="btn-side" style="width:100%; margin-bottom:10px; background:#f8fafc; color:#000; font-weight:800;" onclick="window.executarSave('REDAÇÃO')">REDAÇÃO</div>
+                       <div class="btn-side" style="width:100%; background:#f8fafc; color:#000; font-weight:800;" onclick="window.executarSave('QUESTÕES')">QUESTÕES</div>`;
         document.getElementById('universal-modal').style.display = 'flex';
     };
 
@@ -238,7 +259,7 @@
         });
         document.getElementById('universal-modal').style.display = 'none';
         window.atualizarUI();
-        alert("Salvo com sucesso!");
+        alert("Salvo!");
     };
 
     window.gerenciadorPasta = () => {
