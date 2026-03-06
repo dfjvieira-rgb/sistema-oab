@@ -141,10 +141,10 @@
     <aside class="sidebar">
         <button class="btn-side" data-label="REDAÇÃO" onclick="window.ativarModo('REDAÇÃO')"><i class="fas fa-edit"></i></button>
         <button class="btn-side" data-label="QUESTÕES" onclick="window.ativarModo('QUESTÕES')"><i class="fas fa-question-circle"></i></button>
-        <button class="btn-side" data-label="NÚCLEO DURO" onclick="window.abrirNucleoLeis()"><i class="fas fa-gavel"></i></button>
-        <button class="btn-side" data-label="PASTA GAVETAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
+        <button class="btn-side" data-label="NÚCLEO DURO" onclick="window.abrirNucleoDuro()"><i class="fas fa-gavel"></i></button>
+        <button class="btn-side" data-label="GAVETAS SALVAS" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i></button>
         <hr style="width:60%; opacity:0.1">
-        <button class="btn-side" data-label="SALVAR" onclick="window.finalizarPeca()"><i class="fas fa-save" style="color:#10b981"></i></button>
+        <button class="btn-side" data-label="SALVAR AGORA" onclick="window.finalizarPeca()"><i class="fas fa-save" style="color:#10b981"></i></button>
         <button class="btn-side" data-label="GERAR PDF" onclick="window.print()"><i class="fas fa-file-pdf" style="color:var(--perigo)"></i></button>
     </aside>
 
@@ -169,7 +169,7 @@
     <section id="pdf-viewer">
         <div class="pdf-controls">
             <button onclick="window.toggleRecolherEditor()" style="background:none; border:none; color:var(--gold); cursor:pointer"><i class="fas fa-expand"></i> TELA CHEIA</button>
-            <span id="pdf-title">DOCUMENTO</span>
+            <span id="pdf-title">VADE MECUM</span>
             <button onclick="window.fecharPDF()" style="background:var(--perigo); border:none; padding:5px 12px; color:white; border-radius:5px; cursor:pointer">FECHAR</button>
         </div>
         <iframe id="pdf-frame"></iframe>
@@ -180,13 +180,13 @@
     <div class="modal-body">
         <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
         <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer;">FECHAR</button>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; cursor:pointer;">VOLTAR</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = { databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com" };
     const app = initializeApp(firebaseConfig);
@@ -200,14 +200,17 @@
         montarFolha();
         atualizarDisplay();
         const ed = document.getElementById('editor-principal');
+        
         ed.addEventListener('mouseup', () => {
             if (window.getSelection().toString().length > 0) document.execCommand('backColor', false, window.currentColor);
         });
+
         ed.addEventListener('paste', (e) => {
             e.preventDefault();
             const text = (e.originalEvent || e).clipboardData.getData('text/plain');
             document.execCommand('insertText', false, text);
         });
+
         carregarRascunho();
         setInterval(salvarAutomatico, 30000);
     };
@@ -219,6 +222,31 @@
         nums += '</div><div class="area-escrita" id="editor-principal" contenteditable="true" spellcheck="false"></div>';
         f.innerHTML = nums;
     }
+
+    window.abrirNucleoDuro = () => {
+        const c = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
+        c.innerHTML = `
+            <div class="opt-btn" onclick="window.abrirVade('https://www.planalto.gov.br/ccivil_03/leis/l7289.htm', 'ESTATUTO PMDF')">ESTATUTO (LEI 7.289/84)</div>
+            <div class="opt-btn" onclick="window.abrirVade('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm', 'PENAL MILITAR')">CÓDIGO PENAL MILITAR</div>
+            <div class="opt-btn" onclick="window.abrirVade('https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm', 'PROC. PENAL MILITAR')">CÓD. PROC. PENAL MILITAR</div>
+            <div class="opt-btn" onclick="window.abrirVade('https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm', 'CF/88')">CONSTITUIÇÃO FEDERAL</div>
+            <div class="opt-btn" onclick="window.abrirVade('https://www.planalto.gov.br/ccivil_03/leis/l6450.htm', 'ORGANIZAÇÃO PMDF')">LEI DE ORGANIZAÇÃO</div>
+        `;
+        document.getElementById('universal-modal').style.display = 'flex';
+    };
+
+    window.abrirVade = (url, titulo) => {
+        document.getElementById('pdf-frame').src = url;
+        document.getElementById('pdf-title').innerText = `VADE MECUM: ${titulo}`;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    window.toggleRecolherEditor = () => {
+        document.getElementById('editor-container').classList.toggle('collapsed');
+        document.getElementById('pdf-viewer').classList.toggle('full-view');
+    };
 
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
@@ -235,42 +263,19 @@
         }
     };
 
-    window.abrirNucleoLeis = () => {
-        const c = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ NÚCLEO DURO PMDF";
-        c.innerHTML = `
-            <div class="opt-btn" onclick="window.verPDF('estatuto.pdf', 'ESTATUTO')">ESTATUTO PMDF</div>
-            <div class="opt-btn" onclick="window.verPDF('cpm.pdf', 'CP MILITAR')">CÓD. PENAL MILITAR</div>
-            <div class="opt-btn" onclick="window.verPDF('cppm.pdf', 'CPP MILITAR')">CÓD. PROC. MILITAR</div>
-        `;
-        document.getElementById('universal-modal').style.display = 'flex';
-    };
-
-    window.verPDF = (url, tit) => {
-        document.getElementById('pdf-frame').src = url;
-        document.getElementById('pdf-title').innerText = tit;
-        document.getElementById('pdf-viewer').classList.add('active');
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-
-    window.toggleRecolherEditor = () => {
-        document.getElementById('editor-container').classList.toggle('collapsed');
-        document.getElementById('pdf-viewer').classList.toggle('full-view');
-    };
-
     window.finalizarPeca = async () => {
         const ed = document.getElementById('editor-principal');
         const id = Date.now();
         await set(ref(db, `pmdf_v1/HISTORICO/${id}`), {
             exame: window.modoAtual, peca: `${window.pecaAtualNome} (${new Date().toLocaleString()})`, conteudo: ed.innerHTML
         });
-        alert("SALVO NA GAVETA " + window.modoAtual);
+        alert("SALVO COM SUCESSO!");
     };
 
     window.gerenciadorPasta = async () => {
         const c = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = "📂 MINHAS GAVETAS";
-        c.innerHTML = "Carregando...";
+        c.innerHTML = "Buscando arquivos...";
         document.getElementById('universal-modal').style.display = 'flex';
         const snap = await get(ref(db, `pmdf_v1/HISTORICO`));
         if(snap.exists()) {
@@ -282,7 +287,7 @@
                 btn.onclick = () => { document.getElementById('editor-principal').innerHTML = data.conteudo; document.getElementById('universal-modal').style.display = 'none'; };
                 c.appendChild(btn);
             });
-        }
+        } else { c.innerHTML = "Vazio."; }
     };
 
     function atualizarDisplay() {
@@ -294,6 +299,7 @@
     async function carregarRascunho() { const snap = await get(ref(db, `pmdf_v1/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
     window.fecharPDF = () => { document.getElementById('pdf-viewer').classList.remove('active', 'full-view'); document.getElementById('editor-container').classList.remove('collapsed'); };
     window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.renomearTreino = () => { const n = prompt("Novo nome:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n.toUpperCase(); atualizarDisplay(); } };
 </script>
 </body>
 </html>
