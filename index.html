@@ -226,7 +226,6 @@
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
     
-    // CIRURGIA: Conexão do arquivo externo VADE.JS
     import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
@@ -253,7 +252,6 @@
         setInterval(salvarAutomatico, 30000);
     };
 
-    // CIRURGIA: Lógica para ligar o botão VADE MECUM
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -436,24 +434,30 @@
     window.abrirExames = () => alert("Módulo de Exames OAB.");
     window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
     window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
-    window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
     
     // --- CIRURGIA: INTELIGÊNCIA DE MARCA-TEXTO E DESFAZER ---
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(color !== 'transparent') window.toggleMarcaTexto();
+        // Ao clicar na cor, já tenta aplicar à seleção se houver
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0 && !sel.isCollapsed) {
+            window.toggleMarcaTexto();
+        }
     };
 
     window.toggleMarcaTexto = () => {
+        const ed = document.getElementById('editor-principal');
         const sel = window.getSelection();
+        
         if (sel.rangeCount > 0 && !sel.isCollapsed) {
-            const ed = document.getElementById('editor-principal');
+            // Salva estado para o Desfazer
             if(ed) {
                 window.historicoUndo.push(ed.innerHTML);
                 if(window.historicoUndo.length > 30) window.historicoUndo.shift();
             }
+            // Aplica a cor
             document.execCommand('hiliteColor', false, window.currentColor);
         } else {
             alert("Selecione um texto na folha para marcar.");
@@ -468,32 +472,36 @@
             alert("Nada para desfazer.");
         }
     };
-window.abrirPergaminho = () => {
+
+    window.abrirPergaminho = () => {
         const modal = document.getElementById('universal-modal');
         document.getElementById('modal-title').innerText = "📜 PERGAMINHO";
         const content = document.getElementById('modal-content');
         content.innerHTML = "";
-        Object.keys(pecas).forEach(k => {
-            const b = document.createElement('div'); b.className = 'opt-btn';
-            b.innerHTML = `<span>${k}</span> <i class="fas fa-plus"></i>`;
-            b.onclick = () => { 
-                FolhaEngine.injetarTextoMultilinhas(pecas[k]); 
-                modal.style.display='none';
-                if(window.innerWidth < 768) window.toggleFoguete();
-            };
-            content.appendChild(b);
-        });
-        modal.style.display = 'flex';
+        if(typeof pecas !== 'undefined') {
+            Object.keys(pecas).forEach(k => {
+                const b = document.createElement('div'); b.className = 'opt-btn';
+                b.innerHTML = `<span>${k}</span> <i class="fas fa-plus"></i>`;
+                b.onclick = () => { 
+                    FolhaEngine.injetarTextoMultilinhas(pecas[k]); 
+                    modal.style.display='none';
+                    if(window.innerWidth < 768) window.toggleFoguete();
+                };
+                content.appendChild(b);
+            });
+            modal.style.display = 'flex';
+        } else {
+            alert("Estruturas de peças não carregadas.");
+        }
     };
 
     window.injetarTeses = () => {
-        const dna = BANCO_ESPELHOS[window.activeEx];
-        if(dna) {
+        if(typeof BANCO_ESPELHOS !== 'undefined' && window.activeEx && BANCO_ESPELHOS[window.activeEx]) {
+            const dna = BANCO_ESPELHOS[window.activeEx];
             FolhaEngine.injetarTextoMultilinhas(dna);
             if(window.innerWidth < 768) window.toggleFoguete();
-        } else { alert("Sem espelho para este exame."); }
+        } else { alert("Sem espelho ou dados para injetar."); }
     };
 </script>
 </body>
 </html>
-
