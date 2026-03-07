@@ -11,7 +11,7 @@
             --nc: #f472b6; --qp: #a855f7; --tese: #3b82f6; --arsenal: #22c55e;
             --sumula: #f97316; --artigo: #10b981; --artcpc: #0ea5e9; --pre: #ef4444;
             --oj: #06b6d4; --tema: #facc15; --leis: #94a3b8; --aviso: #ffffff;
-            --artcc: #6366f1;
+            --artcc: #6366f1; --crim: #ef4444; /* Cor para Criminologia */
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding-bottom: 130px; }
@@ -25,20 +25,17 @@
 
         .container { padding: 15px; max-width: 800px; margin: 0 auto; }
 
-        #calc-aviso-box { 
-            background: white; color: black; padding: 20px; border-radius: 15px; 
-            margin-bottom: 20px; display: none; text-align: center; border: 3px solid var(--gold);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        /* PAINEL DE CONTROLE DE MATÉRIAS/PASTAS */
+        .folder-selector {
+            display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 10px;
         }
-        #calc-aviso-box input { background: #f1f5f9; color: black; border: 2px solid #cbd5e1; text-align: center; font-size: 1.5rem; font-weight: bold; width: 80%; margin: 10px 0; border-radius: 10px; }
-        .res-aviso { font-size: 2.2rem; font-weight: 900; color: #1e293b; margin: 5px 0; }
-        .explicacao-aviso { 
-            background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; 
-            font-size: 0.85rem; text-align: left; color: #334155; line-height: 1.4; margin-top: 10px;
+        .folder-chip {
+            background: #334155; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; white-space: nowrap; cursor: pointer; border: 1px solid transparent;
         }
+        .folder-chip.active { border-color: var(--gold); background: var(--gold); color: black; }
 
         .panel-input { background: #0f172a; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px dashed #334155; }
-        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; font-family: inherit; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; font-family: inherit; }
 
         .post-it {
             padding: 18px; border-radius: 15px; margin-bottom: 15px; color: #020617;
@@ -59,9 +56,6 @@
             display: flex; overflow-x: auto; padding: 10px 5px;
             border-top: 2px solid #334155; z-index: 2000;
         }
-        .nav-tabs::-webkit-scrollbar { height: 4px; }
-        .nav-tabs::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-
         .tab { 
             color: #94a3b8; text-align: center; font-size: 9px; text-decoration: none; 
             font-weight: 700; min-width: 85px; cursor: pointer; flex-shrink: 0;
@@ -77,58 +71,45 @@
 
 <header>
     <button class="btn-voltar" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> VOLTAR</button>
-    <h2 style="font-size: 1rem; margin:0;">INTELIGÊNCIA <span style="color:var(--gold)">ELITE PMDF</span></h2>
+    <h2 style="font-size: 1rem; margin:0;">CADERNO <span style="color:var(--gold)">DINÂMICO PMDF</span></h2>
 </header>
 
 <div class="container">
-    <div id="calc-aviso-box">
-        <h3 style="margin:0;"><i class="fas fa-calculator"></i> CALCULAR AVISO</h3>
-        <p style="font-size: 0.8rem; color:#475569;">Anos completos de trabalho:</p>
-        <input type="number" id="anos-trabalho" placeholder="0" oninput="calcularAviso()">
-        <div class="res-aviso" id="total-dias">30 Dias</div>
-        <div class="explicacao-aviso" id="desc-aviso">
-            <strong>Fundamentação:</strong><br>
-            O empregado tem direito a 30 dias base (Art. 487 CLT). Como não completou 1 ano, não há acréscimo da Lei 12.506/11.
-        </div>
-    </div>
-
-    <div id="panel-editor" class="panel-input">
-        <h4 id="editor-title" style="margin-top:0; color:var(--gold);">Adicionar à Mentoria PMDF</h4>
-        <input id="inp-t" placeholder="Título (Ex: Art. 186 CC)">
-        <textarea id="inp-c" rows="3" placeholder="Conteúdo Principal..."></textarea>
-        <textarea id="inp-r" rows="2" style="background:#0f172a; border-color:var(--gold)" placeholder="Rascunho/Dica de Ouro PMDF..."></textarea>
-        <button id="btn-salvar" class="btn-voltar" style="width:100%; background:var(--gold); margin-top:10px; font-weight: 900;">GRAVAR NA MEMÓRIA IA PMDF</button>
+    <div class="panel-input">
+        <h4 id="editor-title" style="margin-top:0; color:var(--gold);">Gerenciar Arquivo / Matéria</h4>
+        <input id="inp-t" placeholder="Nome do Arquivo (Ex: Criminologia - Aula 01)">
+        <select id="inp-folder">
+            <option value="DIREITO PENAL">DIREITO PENAL</option>
+            <option value="CRIMINOLOGIA">CRIMINOLOGIA</option>
+            <option value="LEGISLAÇÃO PMDF">LEGISLAÇÃO PMDF</option>
+            <option value="DIREITO CONSTITUCIONAL">DIREITO CONSTITUCIONAL</option>
+            <option value="OUTROS">OUTROS...</option>
+        </select>
+        <textarea id="inp-c" rows="3" placeholder="Conteúdo do estudo..."></textarea>
+        <textarea id="inp-r" rows="2" style="background:#0f172a; border-color:var(--gold)" placeholder="Observações e Dicas de Ouro..."></textarea>
+        <button id="btn-salvar" class="btn-voltar" style="width:100%; background:var(--gold); margin-top:10px; font-weight: 900;">SALVAR ALTERAÇÕES</button>
     </div>
 
     <div id="sec-inteligencia">
-        <h3 id="intel-head" style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-brain"></i> SELECIONE UMA CATEGORIA
+        <div class="folder-selector" id="folder-list">
+            </div>
+        <h3 id="intel-head" style="font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--gold);">
+            <i class="fas fa-folder-open"></i> MEUS ARQUIVOS
         </h3>
         <div id="feed-v13"></div>
     </div>
 </div>
 
 <nav class="nav-tabs">
-    <a class="tab active" onclick="showTab('qp')"><i class="fas fa-search"></i>PEÇA?</a>
-    <a class="tab" onclick="showTab('nc')"><i class="fas fa-brain"></i>N.C</a>
-    <a class="tab" onclick="showTab('pre')"><i class="fas fa-exclamation-triangle"></i>PRELIMINAR</a>
-    <a class="tab" onclick="showTab('tese')"><i class="fas fa-gavel"></i>TESES</a>
-    <a class="tab" onclick="showTab('aviso')"><i class="fas fa-calendar-day"></i>AVISO</a>
-    <a class="tab" onclick="showTab('tema')"><i class="fas fa-lightbulb"></i>TEMAS</a>
-    <a class="tab" onclick="showTab('sumula')"><i class="fas fa-balance-scale"></i>SÚMULAS</a>
-    <a class="tab" onclick="showTab('oj')"><i class="fas fa-shield-halved"></i>OJ's</a>
-    <a class="tab" onclick="showTab('artigo')"><i class="fas fa-book"></i>ART. CLT</a>
-    <a class="tab" onclick="showTab('artcpc')"><i class="fas fa-file-invoice"></i>ART. CPC</a>
-    <a class="tab" onclick="showTab('artcc')"><i class="fas fa-scale-balanced"></i>ART. CC</a>
-    <a class="tab" onclick="showTab('leis')"><i class="fas fa-scroll"></i>LEIS</a>
-    <a class="tab" onclick="showTab('arsenal')"><i class="fas fa-bolt"></i>50Q</a>
+    <a class="tab active" onclick="filterFolder('TODOS')"><i class="fas fa-layer-group"></i>TUDO</a>
+    <a class="tab" onclick="filterFolder('CRIMINOLOGIA')"><i class="fas fa-mask"></i>CRIMINOLOGIA</a>
+    <a class="tab" onclick="filterFolder('DIREITO PENAL')"><i class="fas fa-gavel"></i>PENAL</a>
+    <a class="tab" onclick="filterFolder('LEGISLAÇÃO PMDF')"><i class="fas fa-shield-alt"></i>PMDF</a>
 </nav>
-
-<button id="fab-injetor" onclick="injetorMestre()" title="Carga Rápida"><i class="fas fa-rocket"></i></button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, set, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const config = {
         apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
@@ -138,113 +119,87 @@
     };
     const app = initializeApp(config);
     const db = getDatabase(app);
+    const RAIZ_MENTORIA = 'v13_pmdf_arquivos';
 
-    // REFERÊNCIA ÚNICA PARA PMDF (DIFERENTE DO v13_master)
-    const RAIZ_MENTORIA = 'v13_pmdf';
-
-    let currentTab = 'qp';
+    let currentFolder = 'TODOS';
     let editId = null;
     let cache = {};
 
-    const iconMap = {
-        qp: 'fa-search', nc: 'fa-brain', pre: 'fa-exclamation-triangle', tese: 'fa-gavel',
-        aviso: 'fa-calendar-day', tema: 'fa-lightbulb', sumula: 'fa-balance-scale',
-        oj: 'fa-shield-halved', artigo: 'fa-book', artcpc: 'fa-file-invoice', artcc: 'fa-scale-balanced', leis: 'fa-scroll', arsenal: 'fa-bolt'
-    };
-
-    window.calcularAviso = () => {
-        const anos = parseInt(document.getElementById('anos-trabalho').value) || 0;
-        let bonus = anos * 3;
-        if (bonus > 60) bonus = 60;
-        const total = 30 + bonus;
-        document.getElementById('total-dias').innerText = total + " Dias";
-        let explicacao = `<strong>Fundamentação (Lei 12.506/11):</strong><br>• 30 dias base.<br>`;
-        if (anos > 0) {
-            explicacao += `• + ${bonus} dias (${anos} ano(s) x 3 dias).<br>`;
-            if (bonus >= 60) explicacao += `• ⚠️ Teto atingido.`;
-        }
-        document.getElementById('desc-aviso').innerHTML = explicacao;
-    };
-
-    window.showTab = (tab) => {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        const activeTab = document.querySelector(`.tab[onclick*='${tab}']`);
-        if(activeTab) activeTab.classList.add('active');
-        
-        const titulos = { 
-            qp: 'Qual a Peça?', nc: 'Não Confunda', pre: 'Preliminares', tese: 'Banco de Teses',
-            aviso: 'Cálculo Aviso', tema: 'Temas STF/TST', sumula: 'Súmulas', oj: 'OJ\'s TST',
-            artigo: 'Artigos CLT', artcpc: 'Artigos CPC', artcc: 'Artigos Cód. Civil', leis: 'Leis Extravagantes', arsenal: '50 Questões'
-        };
-        
-        const header = document.getElementById('intel-head');
-        header.innerHTML = `<i class="fas ${iconMap[tab]}"></i> ${titulos[tab].toUpperCase()}`;
-        header.style.color = `var(--${tab})`;
-        
-        document.getElementById('btn-salvar').style.background = `var(--${tab})`;
-        document.getElementById('calc-aviso-box').style.display = (tab === 'aviso') ? 'block' : 'none';
-        
-        render();
-    };
-
+    // SALVAR OU EDITAR (RENOMEAR)
     document.getElementById('btn-salvar').onclick = () => {
         const t = document.getElementById('inp-t').value;
         const c = document.getElementById('inp-c').value;
         const r = document.getElementById('inp-r').value;
-        if(!t || !c) return alert("Preencha título e conteúdo.");
-        const dados = { t, c, r: r || "", cat: currentTab, ts: serverTimestamp() };
-        if(editId) { set(ref(db, `${RAIZ_MENTORIA}/${editId}`), dados); editId = null; }
-        else { push(ref(db, RAIZ_MENTORIA), dados); }
-        document.getElementById('inp-t').value = ""; document.getElementById('inp-c').value = ""; document.getElementById('inp-r').value = "";
+        const folder = document.getElementById('inp-folder').value;
+
+        if(!t || !c) return alert("Defina o nome do arquivo e o conteúdo.");
+
+        const dados = { t, c, r: r || "", folder, ts: serverTimestamp() };
+
+        if(editId) {
+            update(ref(db, `${RAIZ_MENTORIA}/${editId}`), dados)
+                .then(() => { alert("Arquivo atualizado/renomeado!"); resetForm(); });
+        } else {
+            push(ref(db, RAIZ_MENTORIA), dados);
+            resetForm();
+        }
     };
 
-    onValue(ref(db, RAIZ_MENTORIA), (snap) => { cache = snap.val() || {}; render(); });
+    function resetForm() {
+        editId = null;
+        document.getElementById('inp-t').value = "";
+        document.getElementById('inp-c').value = "";
+        document.getElementById('inp-r').value = "";
+        document.getElementById('editor-title').innerText = "Gerenciar Arquivo / Matéria";
+    }
+
+    onValue(ref(db, RAIZ_MENTORIA), (snap) => {
+        cache = snap.val() || {};
+        render();
+    });
+
+    window.filterFolder = (f) => {
+        currentFolder = f;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        render();
+    };
 
     function render() {
         const f = document.getElementById('feed-v13');
         f.innerHTML = "";
-        const cores = { 
-            qp:'var(--qp)', nc:'var(--nc)', pre:'var(--pre)', tese:'var(--tese)', 
-            aviso:'var(--aviso)', tema:'var(--tema)', sumula:'var(--sumula)', 
-            oj:'var(--oj)', artigo:'var(--artigo)', artcpc:'var(--artcpc)', artcc:'var(--artcc)', leis:'var(--leis)', arsenal:'var(--arsenal)' 
-        };
+        
         Object.keys(cache).reverse().forEach(id => {
             const it = cache[id];
-            if(it.cat === currentTab) {
+            
+            if(currentFolder === 'TODOS' || it.folder === currentFolder) {
                 f.innerHTML += `
-                    <div class="post-it" style="background:${cores[it.cat]}">
-                        <strong><i class="fas ${iconMap[it.cat]}"></i> ${it.t}</strong>
-                        <p>${it.c}</p>
-                        ${it.r ? `<div class="rascunho-box"><strong>Rascunho PMDF:</strong><br>${it.r}</div>` : ""}
+                    <div class="post-it" style="background: white; border-left: 10px solid var(--gold)">
+                        <strong><i class="fas fa-file-alt"></i> ${it.t}</strong>
+                        <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">PASTA: ${it.folder}</div>
+                        <p style="color: #1e293b">${it.c}</p>
+                        ${it.r ? `<div class="rascunho-box"><strong>Dica/Rascunho:</strong><br>${it.r}</div>` : ""}
                         <div class="actions">
-                            <button class="btn-circle" style="background:rgba(255,255,255,0.4); color:black" onclick="editar('${id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-circle" style="background:rgba(0,0,0,0.2)" onclick="apagar('${id}')"><i class="fas fa-times"></i></button>
+                            <button class="btn-circle" style="background:#334155;" onclick="editarArquivo('${id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-circle" style="background:#ef4444;" onclick="apagar('${id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>`;
             }
         });
     }
 
-    window.apagar = (id) => { if(confirm("Deletar da Memória PMDF?")) remove(ref(db, `${RAIZ_MENTORIA}/${id}`)); };
-    window.editar = (id) => {
-        const it = cache[id]; editId = id;
+    window.editarArquivo = (id) => {
+        const it = cache[id];
+        editId = id;
         document.getElementById('inp-t').value = it.t;
+        document.getElementById('inp-folder').value = it.folder;
         document.getElementById('inp-c').value = it.c;
         document.getElementById('inp-r').value = it.r || "";
+        document.getElementById('editor-title').innerText = "Editando: " + it.t;
         window.scrollTo({top:0, behavior:'smooth'});
     };
 
-    window.injetorMestre = () => {
-        const q = [
-            { t: "Princípio da Legalidade", c: "Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.", r: "Art. 5º, II, CF/88.", cat: "leis" },
-            { t: "Hierarquia Militar", c: "Baseada na disciplina e subordinação.", r: "Conceito Chave PMDF.", cat: "nc" }
-        ];
-        q.forEach(i => push(ref(db, RAIZ_MENTORIA), { ...i, ts: serverTimestamp() }));
-        showTab('leis');
-    };
+    window.apagar = (id) => { if(confirm("Excluir este arquivo permanentemente?")) remove(ref(db, `${RAIZ_MENTORIA}/${id}`)); };
 
-    window.onload = () => showTab('qp');
 </script>
 </body>
 </html>
