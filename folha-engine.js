@@ -1,11 +1,12 @@
-// FolhaEngine.js - VERSÃO DEFINITIVA [BLINDAGEM ANTI-ERRO DE TIPO]
+// FolhaEngine.js - VERSÃO DEFINITIVA [BLINDAGEM PMDF]
 export const FolhaEngine = {
     montar: (containerId) => {
         const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = "";
         
-        const styleId = 'style-folha-elite-master';
+        // Style ID único para o projeto PMDF
+        const styleId = 'style-folha-elite-pmdf';
         if (!document.getElementById(styleId)) {
             const style = document.createElement('style');
             style.id = styleId;
@@ -75,7 +76,8 @@ export const FolhaEngine = {
 
         const editor = document.createElement('div');
         editor.className = 'area-editor';
-        editor.id = 'editor-principal';
+        // ID ISOLADO PARA PMDF
+        editor.id = 'editor-principal-pmdf';
         editor.contentEditable = "true";
         editor.spellcheck = false;
 
@@ -106,7 +108,7 @@ export const FolhaEngine = {
     },
 
     injetarTextoMultilinhas: (textoBruto) => {
-        const editor = document.getElementById('editor-principal');
+        const editor = document.getElementById('editor-principal-pmdf');
         if (!editor) return;
         const limpo = textoBruto.replace(/<[^>]*>?/gm, '').trim();
         if (editor.innerText.trim() === "") {
@@ -119,15 +121,14 @@ export const FolhaEngine = {
     },
 
     visualizarImpressao: () => {
-        const editor = document.getElementById('editor-principal');
+        const editor = document.getElementById('editor-principal-pmdf');
         if (!editor) return;
         const conteudo = editor.innerText;
-        this.renderizarFolhaEstatica(conteudo, localStorage.getItem('activeEx') || "---");
+        // Chave de localStorage específica para não misturar com OAB
+        return FolhaEngine.renderizarFolhaEstatica(conteudo, localStorage.getItem('activeEx_pmdf') || "---");
     },
 
-    // AQUI ESTÁ A CORREÇÃO PARA O "NADA":
     renderizarFolhaEstatica: (dadosBrutos, exame) => {
-        // Se dadosBrutos for Array (versão velha), vira string. Se for String (versão nova), limpa.
         let textoFinal = "";
         if (Array.isArray(dadosBrutos)) {
             textoFinal = dadosBrutos.join('\n');
@@ -139,7 +140,7 @@ export const FolhaEngine = {
         
         let html = `
             <div style="text-align:center; border-bottom:3px solid #000; padding:20px; font-family:Arial,sans-serif; background:#f8fafc; color:black;">
-                <h2 style="margin:0; font-size:18px;">CADERNO DE RESPOSTAS - EXAME ${exame}</h2>
+                <h2 style="margin:0; font-size:18px;">CADERNO DE RESPOSTAS (PMDF) - EXAME ${exame}</h2>
                 <p style="margin:5px 0 0 0; font-size:12px; color:#444;">REPRODUÇÃO DO HISTÓRICO ELITE</p>
             </div>
         `;
