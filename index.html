@@ -468,8 +468,32 @@
             alert("Nada para desfazer.");
         }
     };
+window.abrirPergaminho = () => {
+        const modal = document.getElementById('universal-modal');
+        document.getElementById('modal-title').innerText = "📜 PERGAMINHO";
+        const content = document.getElementById('modal-content');
+        content.innerHTML = "";
+        Object.keys(pecas).forEach(k => {
+            const b = document.createElement('div'); b.className = 'opt-btn';
+            b.innerHTML = `<span>${k}</span> <i class="fas fa-plus"></i>`;
+            b.onclick = () => { 
+                FolhaEngine.injetarTextoMultilinhas(pecas[k]); 
+                modal.style.display='none';
+                if(window.innerWidth < 768) window.toggleFoguete();
+            };
+            content.appendChild(b);
+        });
+        modal.style.display = 'flex';
+    };
 
-    window.abrirPergaminho = () => alert("Botão Pergaminho: Carregando estruturas das peças...");
+    window.injetarTeses = () => {
+        const dna = BANCO_ESPELHOS[window.activeEx];
+        if(dna) {
+            FolhaEngine.injetarTextoMultilinhas(dna);
+            if(window.innerWidth < 768) window.toggleFoguete();
+        } else { alert("Sem espelho para este exame."); }
+    };
 </script>
 </body>
 </html>
+
