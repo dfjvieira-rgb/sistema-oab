@@ -202,7 +202,9 @@
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
-    const ID_EDITOR = 'editor-principal'; // ID sagrado para o Vade e FolhaEngine
+    
+    // ID PADRÃO: Ajuste este ID se o seu HTML usar outro nome para o editor
+    const ID_EDITOR = 'editor-principal'; 
 
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: " EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
@@ -226,7 +228,7 @@
         setInterval(salvarAutomatico, 30000);
     };
 
-    // --- INTERFACE E MODAIS ---
+    // --- INTERFACE E VADE ---
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -254,12 +256,7 @@
         localStorage.setItem('idTrabalhoAtivo_pmdf', window.idTrabalhoAtivo);
     }
 
-    window.renomearTrabalhoAtivo = () => {
-        const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
-    };
-
-    // --- LÓGICA DE SALVAMENTO (UPSERT) ---
+    // --- SALVAMENTO INTELIGENTE (UPSERT) ---
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -268,7 +265,7 @@
         
         content.innerHTML = `
             <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
-                ARQUIVO: ${window.pecaAtualNome}
+                ARQUIVO ATIVO: ${window.pecaAtualNome}
             </div>
             <div style="max-height: 350px; overflow-y: auto;">
                 ${pastasDestino.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}
@@ -298,6 +295,20 @@
     };
 
     // --- GESTÃO DE ARQUIVOS ---
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            const ed = document.getElementById(ID_EDITOR);
+            if(ed) {
+                ed.innerHTML = snap.val().conteudo;
+                window.pecaAtualNome = snap.val().peca;
+                window.idTrabalhoAtivo = id;
+                atualizarLabelPeca();
+                document.getElementById('universal-modal').style.display = 'none';
+            }
+        }
+    };
+
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -339,7 +350,7 @@
                     div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
                     div.innerHTML = `
                         <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
-                        <div class="file-actions" style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:12px; margin-left:10px;">
                             <i class="fas fa-edit" onclick="window.renomearArquivo('${k}', '${tipo}')" style="color:#007bff; cursor:pointer;"></i>
                             <i class="fas fa-folder-minus" onclick="window.moverArquivo('${k}', '${tipo}')" style="color:#ffc107; cursor:pointer;"></i>
                             <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer;"></i>
@@ -348,26 +359,15 @@
                     content.appendChild(div);
                 }
             });
-            if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Vazio.</p>`;
-        }
-    };
-
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
-            window.pecaAtualNome = snap.val().peca;
-            window.idTrabalhoAtivo = id;
-            atualizarLabelPeca();
-            document.getElementById('universal-modal').style.display = 'none';
+            if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Pasta vazia.</p>`;
         }
     };
 
     window.renomearArquivo = async (id, tipo) => {
-        const novoNome = prompt("Renomear para:");
-        if (novoNome && novoNome.trim() !== "") {
-            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novoNome.trim() });
-            if(window.idTrabalhoAtivo === id) { window.pecaAtualNome = novoNome.trim(); atualizarLabelPeca(); }
+        const novo = prompt("Novo nome para o arquivo:");
+        if (novo && novo.trim() !== "") {
+            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novo.trim() });
+            if(window.idTrabalhoAtivo === id) { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
             window.abrirGavetaEspecifica(tipo);
         }
     };
@@ -382,7 +382,7 @@
     };
 
     window.excluirTrabalho = async (id, tipo) => {
-        if(confirm("Excluir arquivo?")) {
+        if(confirm("Excluir definitivamente?")) {
             await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
             if(window.idTrabalhoAtivo === id) window.idTrabalhoAtivo = null;
             window.abrirGavetaEspecifica(tipo);
@@ -400,7 +400,8 @@
     async function carregarRascunho() { 
         const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
         if(snap.exists()) {
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
+            const ed = document.getElementById(ID_EDITOR);
+            if(ed) ed.innerHTML = snap.val().conteudo;
             window.idTrabalhoAtivo = snap.val().idAtivo || null;
             window.pecaAtualNome = snap.val().nomeAtivo || "NOVO TREINO PMDF";
             atualizarLabelPeca();
