@@ -233,7 +233,6 @@
     window.corMarcaTexto = '#fef08a';
     window.marcaTextoAtivo = false;
 
-    // Constante mestre para evitar que matérias sumam de novo
     const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
 
     window.LISTA_PDF_BIBLIOTECA = [
@@ -387,17 +386,61 @@
                 const item = snap.val()[k];
                 if(item.exame === tipo) {
                     const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
-                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px;"> ${item.peca}</span><i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
+                    div.style.cssText = "display:flex; flex-direction:column; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:8px;";
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
+                            <div style="display:flex; gap:10px;">
+                                <i class="fas fa-exchange-alt" title="Mover/Renomear" onclick="window.prepararMoverArquivo('${k}')" style="color:var(--questoes); cursor:pointer; padding:5px;"></i>
+                                <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:5px;"></i>
+                            </div>
+                        </div>
+                    `;
                     content.appendChild(div);
                 }
             });
         }
     };
 
+    // --- FUNÇÃO MOVER E RENOMEAR ARQUIVO ---
+    window.prepararMoverArquivo = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(!snap.exists()) return;
+        const item = snap.val();
+        
+        const novoNome = prompt("Renomear arquivo:", item.peca);
+        if(novoNome === null) return;
+
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "MOVER PARA...";
+        
+        const pastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
+        content.innerHTML = `
+            <p style="font-size:11px; margin-bottom:10px;">Escolha o destino para: <b>${novoNome}</b></p>
+            <div style="max-height:300px; overflow-y:auto;">
+                ${pastas.map(p => `<div class="opt-btn" onclick="window.executarMovimentacao('${id}', '${p}', '${novoNome}')"><span>${p}</span></div>`).join('')}
+            </div>
+        `;
+    };
+
+    window.executarMovimentacao = async (id, novaPasta, novoNome) => {
+        await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), {
+            exame: novaPasta,
+            peca: novoNome
+        });
+        alert("Arquivo atualizado!");
+        window.gerenciadorPasta();
+    };
+
     window.carregarTrabalho = async (id) => {
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){ document.getElementById('editor-principal').innerHTML = snap.val().conteudo; window.pecaAtualNome = snap.val().peca; atualizarLabelPeca(); document.getElementById('universal-modal').style.display = 'none'; }
+        if(snap.exists()){ 
+            document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
+            window.pecaAtualNome = snap.val().peca; 
+            atualizarLabelPeca(); 
+            document.getElementById('universal-modal').style.display = 'none'; 
+        }
     };
 
     window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
