@@ -3,340 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ALISSON ELITE 2026 - MASTER ICON</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>MENTORIA ELITE V13 - PMDF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
-            --bg-paper: #cbd5e1; --paper-color: #ffffff;
-            --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
-            --glass: rgba(30, 41, 59, 0.7);
-            --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
-            --vade: #16a34a; 
+            --primary: #020617; --gold: #fbbf24; --card: #1e293b;
+            --nc: #f472b6; --qp: #a855f7; --tese: #3b82f6; --arsenal: #22c55e;
+            --sumula: #f97316; --artigo: #10b981; --artcpc: #0ea5e9; --pre: #ef4444;
+            --oj: #06b6d4; --tema: #facc15; --leis: #94a3b8; --aviso: #ffffff;
+            --artcc: #6366f1;
         }
-
-        body.dark-mode { --bg-paper: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--primary);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            color: white;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); color: white; margin: 0; padding-bottom: 130px; }
 
         header {
-            background: var(--primary);
-            height: 60px;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--gold);
-            z-index: 5000;
+            background: var(--card); padding: 15px 20px; border-bottom: 2px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .btn-voltar { background: white; color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 900; font-size: 12px; cursor: pointer; }
+
+        .container { padding: 15px; max-width: 800px; margin: 0 auto; }
+
+        #calc-aviso-box { 
+            background: white; color: black; padding: 20px; border-radius: 15px; 
+            margin-bottom: 20px; display: none; text-align: center; border: 3px solid var(--gold);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        #calc-aviso-box input { background: #f1f5f9; color: black; border: 2px solid #cbd5e1; text-align: center; font-size: 1.5rem; font-weight: bold; width: 80%; margin: 10px 0; border-radius: 10px; }
+        .res-aviso { font-size: 2.2rem; font-weight: 900; color: #1e293b; margin: 5px 0; }
+        .explicacao-aviso { 
+            background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; 
+            font-size: 0.85rem; text-align: left; color: #334155; line-height: 1.4; margin-top: 10px;
         }
 
-        .logo { font-size: 1.2rem; font-weight: 900; letter-spacing: -1px; }
-        .logo span { color: var(--gold); }
+        .panel-input { background: #0f172a; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px dashed #334155; }
+        input, textarea { width: 100%; padding: 12px; margin: 5px 0; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 8px; font-family: inherit; }
 
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        .post-it {
+            padding: 18px; border-radius: 15px; margin-bottom: 15px; color: #020617;
+            position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .sidebar {
-            width: var(--sidebar-w);
-            background: #1e293b;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 15px 10px;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            overflow-y: auto;
-            transition: all 0.3s ease;
+        .post-it strong { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; text-transform: uppercase; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-bottom: 10px; }
+        .post-it p { margin: 8px 0; font-size: 0.95rem; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .rascunho-box { background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 4px solid rgba(0,0,0,0.3); font-size: 0.85rem; font-style: italic; font-weight: 500; }
+
+        .actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+        .btn-circle { width: 38px; height: 38px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
+
+        .nav-tabs {
+            position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
+            display: flex; overflow-x: auto; padding: 10px 5px;
+            border-top: 2px solid #334155; z-index: 2000;
         }
+        .nav-tabs::-webkit-scrollbar { height: 4px; }
+        .nav-tabs::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
-        .btn-side {
-            width: 100%; min-height: 45px; border: none; border-radius: 8px;
-            display: flex; align-items: center; justify-content: flex-start; color: white;
-            cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
-            padding: 0 12px; gap: 12px;
-            position: relative;
+        .tab { 
+            color: #94a3b8; text-align: center; font-size: 9px; text-decoration: none; 
+            font-weight: 700; min-width: 85px; cursor: pointer; flex-shrink: 0;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
-        .btn-side i { font-size: 1rem; color: var(--gold); width: 20px; text-align: center; }
-        .btn-side span { font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+        .tab.active { color: var(--gold); }
+        .tab i { display: block; font-size: 1.1rem; margin-bottom: 4px; }
 
-        .editor-container {
-            flex: 1; display: flex; flex-direction: column;
-            background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
-            transition: all 0.4s ease;
-        }
-
-        .sticky-tools {
-            position: sticky; top: -20px; z-index: 1000; background: white;
-            width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px;
-        }
-
-        #identificador-peca {
-            padding: 15px; background: #f8fafc; text-align: center;
-            font-weight: 900; color: #020617; border-bottom: 3px solid var(--gold);
-            cursor: pointer; display: flex; justify-content: center; align-items: center;
-            gap: 10px; font-size: 14px; text-transform: uppercase;
-        }
-        
-        .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; align-items: center; }
-        .btn-lib {
-            flex: 1; padding: 12px; border: none; background: transparent;
-            cursor: pointer; font-weight: 800; font-size: 0.7rem;
-            text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
-        }
-
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; position: relative; }
-
-        #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; border-left: 0 solid var(--gold); overflow: hidden; }
-        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
-        #pdf-viewer.full-view { width: 100% !important; flex: 1; }
-
-        #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
-        .fab-main { width: 65px; height: 65px; border-radius: 50%; background: var(--gold); border: none; font-size: 1.8rem; box-shadow: 0 8px 25px rgba(0,0,0,0.4); cursor: pointer; color: black; }
-        .fab-sub { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; display: none; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; }
-        #mobile-hub.active .fab-sub { display: flex; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
-        .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
-
-        /* Estilo dos ícones de ação na lista de arquivos */
-        .file-actions { display: flex; gap: 5px; align-items: center; }
-        .btn-action-small { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        .btn-rename { background: #e2e8f0; color: #475569; }
-        .btn-move { background: #fef9c3; color: #854d0e; }
-        .btn-delete { background: #fee2e2; color: #b91c1c; }
-
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            #mobile-hub { display: flex; }
-            #pdf-viewer.active { width: 100%; position: absolute; right: 0; top: 0; height: 100%; z-index: 8000; }
-        }
+        #fab-injetor { position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; background: var(--gold); border-radius: 50%; border: none; font-size: 1.5rem; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 1001; color: black; cursor: pointer; }
     </style>
 </head>
-<body class="dark-mode">
+<body>
 
 <header>
-    <div class="logo">ALISSON <span>PMDF</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">--</span></div>
+    <button class="btn-voltar" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> VOLTAR</button>
+    <h2 style="font-size: 1rem; margin:0;">INTELIGÊNCIA <span style="color:var(--gold)">ELITE PMDF</span></h2>
 </header>
 
-<main>
-    <aside class="sidebar" id="sidebar-main">
-        <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
-        <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
-        <button class="btn-side" style="background:var(--vade); color:#fff" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i> <span>VADE MECUM</span></button>
-        <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
-        <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
-        <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
-        <button class="btn-side" style="background:#334155;" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i> <span>MINHA PASTA</span></button>
-        <button class="btn-side" style="background:#10b981;" onclick="window.finalizarPeca()"><i class="fas fa-save"></i> <span>SALVAR</span></button>
-        <hr style="width:100%; opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i> <span>MENTORIA IA</span></button>
-        <button class="btn-side" style="background:#3b82f6;" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i> <span>MARTELO</span></button>
-    </aside>
-
-    <section class="editor-container" id="editor-container">
-        <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomearTrabalhoAtivo()">
-                <i class="fas fa-file-signature" style="color:var(--gold)"></i>
-                <span id="nome-exibicao-peca">NOVO TREINO PMDF</span>
-                <i class="fas fa-pen" style="font-size:10px; opacity:0.3; margin-left:10px"></i>
-            </div>
-            
-            <div class="toolbar-liberdade">
-                <button class="btn-lib" style="background:#64748b; color:white" onclick="window.desfazer()"><i class="fas fa-undo"></i> Desfazer</button>
-                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i> Limpar</button>
-                <button class="btn-lib" id="btn-foco" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
-            </div>
+<div class="container">
+    <div id="calc-aviso-box">
+        <h3 style="margin:0;"><i class="fas fa-calculator"></i> CALCULAR AVISO</h3>
+        <p style="font-size: 0.8rem; color:#475569;">Anos completos de trabalho:</p>
+        <input type="number" id="anos-trabalho" placeholder="0" oninput="calcularAviso()">
+        <div class="res-aviso" id="total-dias">30 Dias</div>
+        <div class="explicacao-aviso" id="desc-aviso">
+            <strong>Fundamentação:</strong><br>
+            O empregado tem direito a 30 dias base (Art. 487 CLT). Como não completou 1 ano, não há acréscimo da Lei 12.506/11.
         </div>
-        <div class="paper">
-            <div id="folha-total"></div>
-        </div>
-    </section>
-
-    <section id="pdf-viewer">
-        <div class="pdf-controls" style="background: #1e293b; padding: 12px; display: flex; justify-content: space-between; color: white; font-weight: 900; font-size: 12px; align-items: center;">
-            <div>
-                <button onclick="window.toggleRecolherEditor()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:10px;">
-                    <i class="fas fa-arrows-alt-h"></i> VOLTAR EDITOR
-                </button>
-                <span id="pdf-title">DOCUMENTO</span>
-            </div>
-            <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
-        </div>
-        <iframe id="pdf-frame" style="width:100%; flex:1; border:none;"></iframe>
-    </section>
-
-    <div id="mobile-hub">
-        <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket" id="rocket-icon"></i></button>
-        <button class="fab-sub" style="background:var(--vade);" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i></button>
-        <button class="fab-sub" style="background:var(--biblioteca);" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
-        <button class="fab-sub" style="background:var(--gold);" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
     </div>
-</main>
 
-<div class="modal" id="universal-modal">
-    <div class="modal-body">
-        <h2 id="modal-title" style="margin-bottom:20px; border-bottom:2px solid var(--gold)"></h2>
-        <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; background:#000; color:#fff; border-radius:10px; margin-top:15px; font-weight:bold; cursor:pointer;">FECHAR</button>
+    <div id="panel-editor" class="panel-input">
+        <h4 id="editor-title" style="margin-top:0; color:var(--gold);">Adicionar à Mentoria PMDF</h4>
+        <input id="inp-t" placeholder="Título (Ex: Art. 186 CC)">
+        <textarea id="inp-c" rows="3" placeholder="Conteúdo Principal..."></textarea>
+        <textarea id="inp-r" rows="2" style="background:#0f172a; border-color:var(--gold)" placeholder="Rascunho/Dica de Ouro PMDF..."></textarea>
+        <button id="btn-salvar" class="btn-voltar" style="width:100%; background:var(--gold); margin-top:10px; font-weight: 900;">GRAVAR NA MEMÓRIA IA PMDF</button>
+    </div>
+
+    <div id="sec-inteligencia">
+        <h3 id="intel-head" style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-brain"></i> SELECIONE UMA CATEGORIA
+        </h3>
+        <div id="feed-v13"></div>
     </div>
 </div>
 
+<nav class="nav-tabs">
+    <a class="tab active" onclick="showTab('qp')"><i class="fas fa-search"></i>PEÇA?</a>
+    <a class="tab" onclick="showTab('nc')"><i class="fas fa-brain"></i>N.C</a>
+    <a class="tab" onclick="showTab('pre')"><i class="fas fa-exclamation-triangle"></i>PRELIMINAR</a>
+    <a class="tab" onclick="showTab('tese')"><i class="fas fa-gavel"></i>TESES</a>
+    <a class="tab" onclick="showTab('aviso')"><i class="fas fa-calendar-day"></i>AVISO</a>
+    <a class="tab" onclick="showTab('tema')"><i class="fas fa-lightbulb"></i>TEMAS</a>
+    <a class="tab" onclick="showTab('sumula')"><i class="fas fa-balance-scale"></i>SÚMULAS</a>
+    <a class="tab" onclick="showTab('oj')"><i class="fas fa-shield-halved"></i>OJ's</a>
+    <a class="tab" onclick="showTab('artigo')"><i class="fas fa-book"></i>ART. CLT</a>
+    <a class="tab" onclick="showTab('artcpc')"><i class="fas fa-file-invoice"></i>ART. CPC</a>
+    <a class="tab" onclick="showTab('artcc')"><i class="fas fa-scale-balanced"></i>ART. CC</a>
+    <a class="tab" onclick="showTab('leis')"><i class="fas fa-scroll"></i>LEIS</a>
+    <a class="tab" onclick="showTab('arsenal')"><i class="fas fa-bolt"></i>50Q</a>
+</nav>
+
+<button id="fab-injetor" onclick="injetorMestre()" title="Carga Rápida"><i class="fas fa-rocket"></i></button>
+
 <script type="module">
-    import { db } from './firebase-config.js';
-    import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { FolhaEngine } from './folha-engine.js';
-    import { renderizarVadeHTML } from './vade.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push, remove, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    window.db = db;
-    const RAIZ_PMDF = "producao_pmdf";
+    const config = {
+        apiKey: "AIzaSyAmigODFK8R9c0-fWtagdxLWu9xkODfKYQ",
+        authDomain: "masteroab-db5e1.firebaseapp.com",
+        projectId: "masteroab-db5e1",
+        databaseURL: "https://masteroab-db5e1-default-rtdb.firebaseio.com"
+    };
+    const app = initializeApp(config);
+    const db = getDatabase(app);
 
-    const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+    const RAIZ_MENTORIA = 'v13_pmdf';
 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
-    
-    window.onload = async () => {
-        FolhaEngine.montar('folha-total');
-        atualizarLabelPeca();
-        await carregarRascunho();
-        setInterval(salvarAutomatico, 30000);
+    let currentTab = 'qp';
+    let editId = null;
+    let cache = {};
+
+    const iconMap = {
+        qp: 'fa-search', nc: 'fa-brain', pre: 'fa-exclamation-triangle', tese: 'fa-gavel',
+        aviso: 'fa-calendar-day', tema: 'fa-lightbulb', sumula: 'fa-balance-scale',
+        oj: 'fa-shield-halved', artigo: 'fa-book', artcpc: 'fa-file-invoice', artcc: 'fa-scale-balanced', leis: 'fa-scroll', arsenal: 'fa-bolt'
     };
 
-    function atualizarLabelPeca() {
-        const label = document.getElementById('nome-exibicao-peca');
-        if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+    window.calcularAviso = () => {
+        const anos = parseInt(document.getElementById('anos-trabalho').value) || 0;
+        let bonus = anos * 3;
+        if (bonus > 60) bonus = 60;
+        const total = 30 + bonus;
+        document.getElementById('total-dias').innerText = total + " Dias";
+        let explicacao = `<strong>Fundamentação (Lei 12.506/11):</strong><br>• 30 dias base.<br>`;
+        if (anos > 0) {
+            explicacao += `• + ${bonus} dias (${anos} ano(s) x 3 dias).<br>`;
+            if (bonus >= 60) explicacao += `• ⚠️ Teto atingido.`;
+        }
+        document.getElementById('desc-aviso').innerHTML = explicacao;
+    };
+
+    window.showTab = (tab) => {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        const activeTab = document.querySelector(`.tab[onclick*='${tab}']`);
+        if(activeTab) activeTab.classList.add('active');
+        
+        const titulos = { 
+            qp: 'Qual a Peça?', nc: 'Não Confunda', pre: 'Preliminares', tese: 'Banco de Teses',
+            aviso: 'Cálculo Aviso', tema: 'Temas STF/TST', sumula: 'Súmulas', oj: 'OJ\'s TST',
+            artigo: 'Artigos CLT', artcpc: 'Artigos CPC', artcc: 'Artigos Cód. Civil', leis: 'Leis Extravagantes', arsenal: '50 Questões'
+        };
+        
+        const header = document.getElementById('intel-head');
+        header.innerHTML = `<i class="fas ${iconMap[tab]}"></i> ${titulos[tab].toUpperCase()}`;
+        header.style.color = `var(--${tab})`;
+        
+        document.getElementById('btn-salvar').style.background = `var(--${tab})`;
+        document.getElementById('calc-aviso-box').style.display = (tab === 'aviso') ? 'block' : 'none';
+        
+        render();
+    };
+
+    document.getElementById('btn-salvar').onclick = () => {
+        const t = document.getElementById('inp-t').value;
+        const c = document.getElementById('inp-c').value;
+        const r = document.getElementById('inp-r').value;
+        if(!t || !c) return alert("Preencha título e conteúdo.");
+        const dados = { t, c, r: r || "", cat: currentTab, ts: serverTimestamp() };
+        if(editId) { set(ref(db, `${RAIZ_MENTORIA}/${editId}`), dados); editId = null; }
+        else { push(ref(db, RAIZ_MENTORIA), dados); }
+        document.getElementById('inp-t').value = ""; document.getElementById('inp-c').value = ""; document.getElementById('inp-r').value = "";
+    };
+
+    onValue(ref(db, RAIZ_MENTORIA), (snap) => { cache = snap.val() || {}; render(); });
+
+    function render() {
+        const f = document.getElementById('feed-v13');
+        f.innerHTML = "";
+        const cores = { 
+            qp:'var(--qp)', nc:'var(--nc)', pre:'var(--pre)', tese:'var(--tese)', 
+            aviso:'var(--aviso)', tema:'var(--tema)', sumula:'var(--sumula)', 
+            oj:'var(--oj)', artigo:'var(--artigo)', artcpc:'var(--artcpc)', artcc:'var(--artcc)', leis:'var(--leis)', arsenal:'var(--arsenal)' 
+        };
+        Object.keys(cache).reverse().forEach(id => {
+            const it = cache[id];
+            if(it.cat === currentTab) {
+                f.innerHTML += `
+                    <div class="post-it" style="background:${cores[it.cat]}">
+                        <strong><i class="fas ${iconMap[it.cat]}"></i> ${it.t}</strong>
+                        <p>${it.c}</p>
+                        ${it.r ? `<div class="rascunho-box"><strong>Rascunho PMDF:</strong><br>${it.r}</div>` : ""}
+                        <div class="actions">
+                            <button class="btn-circle" style="background:rgba(255,255,255,0.4); color:black" onclick="editar('${id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-circle" style="background:rgba(0,0,0,0.2)" onclick="apagar('${id}')"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>`;
+            }
+        });
     }
 
-    window.renomearTrabalhoAtivo = () => {
-        const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
+    window.apagar = (id) => { if(confirm("Deletar da Memória PMDF?")) remove(ref(db, `${RAIZ_MENTORIA}/${id}`)); };
+    window.editar = (id) => {
+        const it = cache[id]; editId = id;
+        document.getElementById('inp-t').value = it.t;
+        document.getElementById('inp-c').value = it.c;
+        document.getElementById('inp-r').value = it.r || "";
+        window.scrollTo({top:0, behavior:'smooth'});
     };
 
-    window.gerenciadorPasta = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " MINHA PASTA";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
-            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span> CADERNO DE MATÉRIAS</span></div>
-        `;
-        modal.style.display = 'flex';
+    window.injetorMestre = () => {
+        const q = [
+            { t: "Princípio da Legalidade", c: "Ninguém será obrigado a fazer ou deixar de fazer algo senão em virtude de lei.", r: "Art. 5º, II, CF/88.", cat: "leis" },
+            { t: "Hierarquia Militar", c: "Baseada na disciplina e subordinação.", r: "Conceito Chave PMDF.", cat: "nc" }
+        ];
+        q.forEach(i => push(ref(db, RAIZ_MENTORIA), { ...i, ts: serverTimestamp() }));
+        showTab('leis');
     };
 
-    window.abrirSubPastasCaderno = () => {
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " MEU CADERNO";
-        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
-        MATERIAS_MESTRE.forEach(mat => {
-            const div = document.createElement('div');
-            div.className = "opt-btn";
-            div.onclick = () => window.abrirGavetaEspecifica(mat);
-            div.innerHTML = `<span><i class="fas fa-book"></i> ${mat}</span> <i class="fas fa-chevron-right" style="opacity:0.3"></i>`;
-            content.appendChild(div);
-        });
-    };
-
-    window.abrirGavetaEspecifica = async (tipo) => {
-        const content = document.getElementById('modal-content');
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        const eMateria = MATERIAS_MESTRE.includes(tipo);
-        
-        content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
-        
-        if (snap.exists()) {
-            Object.keys(snap.val()).forEach(k => {
-                const item = snap.val()[k];
-                if(item.exame === tipo) {
-                    const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
-                    div.innerHTML = `
-                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
-                        <div class="file-actions">
-                            <button class="btn-action-small btn-rename" title="Renomear" onclick="window.renomearArquivo('${k}', '${tipo}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-action-small btn-move" title="Mover Pasta" onclick="window.moverArquivo('${k}', '${tipo}')"><i class="fas fa-folder-minus"></i></button>
-                            <button class="btn-action-small btn-delete" title="Excluir" onclick="window.excluirTrabalho('${k}', '${tipo}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                    content.appendChild(div);
-                }
-            });
-        }
-    };
-
-    // --- NOVAS FUNÇÕES DE GESTÃO DE ARQUIVO ---
-    
-    window.renomearArquivo = async (id, tipo) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        const nomeAntigo = snap.val().peca;
-        const novoNome = prompt("Renomear arquivo para:", nomeAntigo);
-        if (novoNome && novoNome.trim() !== "" && novoNome !== nomeAntigo) {
-            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novoNome.trim() });
-            window.abrirGavetaEspecifica(tipo);
-        }
-    };
-
-    window.moverArquivo = async (id, tipoOrigem) => {
-        const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        const novaPasta = prompt("Mover para qual pasta?\nOpções: " + todasAsPastas.join(", "), tipoOrigem);
-        
-        if (novaPasta && todasAsPastas.includes(novaPasta.toUpperCase()) && novaPasta.toUpperCase() !== tipoOrigem) {
-            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: novaPasta.toUpperCase() });
-            window.abrirGavetaEspecifica(tipoOrigem);
-        } else if (novaPasta && !todasAsPastas.includes(novaPasta.toUpperCase())) {
-            alert("Pasta inválida!");
-        }
-    };
-
-    // ------------------------------------------
-
-    window.finalizarPeca = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " SALVAR EM...";
-        const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        content.innerHTML = `<div style="max-height: 350px; overflow-y: auto;">${todasAsPastas.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}</div>`;
-        modal.style.display = 'flex';
-    };
-
-    window.executarSalvamentoInteligente = async (pasta) => {
-        const ed = document.getElementById('editor-principal');
-        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
-        const idParaUsar = Date.now();
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), { exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString() });
-        alert("Salvo em " + pasta);
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){ document.getElementById('editor-principal').innerHTML = snap.val().conteudo; window.pecaAtualNome = snap.val().peca; atualizarLabelPeca(); document.getElementById('universal-modal').style.display = 'none'; }
-    };
-
-    window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo permanentemente?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
-    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
-    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
-    window.abrirMentoria = () => window.location.href = 'mentoria.html';
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
-    window.desfazer = () => { document.execCommand('undo', false, null); };
+    window.onload = () => showTab('qp');
 </script>
 </body>
 </html>
