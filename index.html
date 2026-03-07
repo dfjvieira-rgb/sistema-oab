@@ -228,7 +228,8 @@
     import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
-    const RAIZ_PMDF = "producao_pmdf";
+    // AJUSTE: Mudança de raiz para não conflitar com OAB
+    const RAIZ_PMDF = "SISTEMA_PMDF_ISOLADO";
 
     // --- VARIÁVEIS DO MARCA-TEXTO ---
     window.corMarcaTexto = '#fef08a';
@@ -244,7 +245,8 @@
         { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
     ];
 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
+    // AJUSTE: Chave de LocalStorage específica para PMDF
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_PMDF') || "NOVO TREINO PMDF";
     window.historicoUndo = [];
 
     window.onload = async () => {
@@ -315,7 +317,8 @@
     function atualizarLabelPeca() {
         const label = document.getElementById('nome-exibicao-peca');
         if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+        // AJUSTE: Chave exclusiva LocalStorage
+        localStorage.setItem('pecaAtualNome_PMDF', window.pecaAtualNome);
     }
 
     window.renomearTrabalhoAtivo = () => {
@@ -408,8 +411,11 @@
     };
 
     window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
-    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
-    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
+    
+    // AJUSTE: Salvando rascunho em local separado
+    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO_AUTO`), { conteudo: ed.innerHTML }); }
+    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO_AUTO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
+    
     window.abrirPDFDireto = (u, n) => { document.getElementById('pdf-title').innerText = n; document.getElementById('pdf-frame').src = u; document.getElementById('pdf-viewer').classList.add('active'); document.getElementById('universal-modal').style.display = 'none'; };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
