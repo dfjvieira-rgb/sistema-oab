@@ -154,4 +154,4 @@ export const FolhaEngine = {
         }
         return html;
     }
-}; dogra, depois que alterou minha folha meu projeto parou de funcionar
+}; 
