@@ -98,6 +98,7 @@
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 10px; gap: 8px; border-right: 1px solid #f1f5f9; height: 45px; }
         .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .color-dot.active { border-color: #000; transform: scale(1.1); }
+        .color-dot.none { background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: red; }
 
         .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; position: relative; }
 
@@ -165,6 +166,9 @@
                     <div class="color-dot" id="dot-green" style="background:#bbf7d0;" onclick="window.setHighlightColor('#bbf7d0', 'dot-green')"></div>
                     <div class="color-dot" id="dot-orange" style="background:#fed7aa;" onclick="window.setHighlightColor('#fed7aa', 'dot-orange')"></div>
                     <div class="color-dot" id="dot-purple" style="background:#e9d5ff;" onclick="window.setHighlightColor('#e9d5ff', 'dot-purple')"></div>
+                    <div class="color-dot none" id="dot-none" title="Remover Cor" onclick="window.setHighlightColor('transparent', 'dot-none')">
+                        <i class="fas fa-slash"></i>
+                    </div>
                 </div>
                 <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i> Limpar</button>
                 <button class="btn-lib" id="btn-foco" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
@@ -220,56 +224,58 @@
         FolhaEngine.montar('folha-total');
         atualizarLabelPeca();
         await carregarRascunho();
+        
+        // Listener para o Marca-Texto Automático quando o pincel está ligado
+        document.getElementById('editor-principal').addEventListener('mouseup', () => {
+            if(window.marcaTextoAtivo) window.executarPincel();
+        });
+        document.getElementById('editor-principal').addEventListener('touchend', () => {
+            if(window.marcaTextoAtivo) window.executarPincel();
+        });
+
         setInterval(salvarAutomatico, 30000);
     };
 
-    // --- LÓGICA MARCA-TEXTO (APROVADA PELO USUÁRIO) ---
+    // --- LÓGICA MARCA-TEXTO (APROVADA E AJUSTADA) ---
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(!window.marcaTextoAtivo) window.toggleMarcaTexto(true);
         
-        // Aplicação imediata se houver seleção
+        // Se houver algo selecionado ao trocar a cor, já aplica
         const sel = window.getSelection();
-        if (sel.rangeCount > 0 && !sel.isCollapsed) {
-            executarPincel();
-        }
+        if (sel.rangeCount > 0 && !sel.isCollapsed) window.executarPincel();
     };
 
     window.toggleMarcaTexto = (forcarAtivo = null) => {
         window.marcaTextoAtivo = (forcarAtivo !== null) ? forcarAtivo : !window.marcaTextoAtivo;
         const btn = document.getElementById('btn-highlight');
         if(window.marcaTextoAtivo) {
-            btn.style.background = window.currentColor;
-            btn.style.color = "#000"; 
-            btn.innerHTML = '<i class="fas fa-pen-nib"></i>';
-            
-            // Se já houver algo selecionado ao clicar no pincel
-            const sel = window.getSelection();
-            if (sel.rangeCount > 0 && !sel.isCollapsed) executarPincel();
+            btn.style.background = window.currentColor === 'transparent' ? '#eee' : window.currentColor;
+            btn.style.color = "#000"; btn.innerHTML = '<i class="fas fa-pen-nib"></i>';
         } else {
-            btn.style.background = "transparent"; 
-            btn.style.color = "#64748b"; 
-            btn.innerHTML = '<i class="fas fa-highlighter"></i>';
+            btn.style.background = "transparent"; btn.style.color = "#64748b"; btn.innerHTML = '<i class="fas fa-highlighter"></i>';
         }
     };
 
-    function executarPincel() {
+    window.executarPincel = () => {
         const ed = document.getElementById('editor-principal');
-        if(ed) {
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0 && !sel.isCollapsed) {
             window.historicoUndo.push(ed.innerHTML);
             if(window.historicoUndo.length > 30) window.historicoUndo.shift();
+            
+            document.getElementById('editor-principal').focus();
+            if (window.currentColor === 'transparent') {
+                document.execCommand('removeFormat', false, null);
+            } else {
+                document.execCommand('hiliteColor', false, window.currentColor);
+            }
         }
-        document.execCommand('hiliteColor', false, window.currentColor);
-    }
-
-    // --- FUNÇÕES DE SISTEMA ---
-    window.desfazer = () => { 
-        const ed = document.getElementById('editor-principal'); 
-        if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); 
     };
 
+    // --- SALVAMENTO E PASTAS ---
     async function salvarAutomatico() { 
         const ed = document.getElementById('editor-principal'); 
         if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
@@ -278,19 +284,6 @@
     async function carregarRascunho() { 
         const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
         if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
-
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
-    
-    window.renomearTrabalhoAtivo = () => {
-        const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
-    };
-
-    function atualizarLabelPeca() {
-        const label = document.getElementById('nome-exibicao-peca');
-        if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
     }
 
     window.finalizarPeca = () => {
@@ -308,24 +301,25 @@
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
             exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString()
         });
-        alert("Salvo com sucesso!");
+        alert("Salvo na pasta " + pasta + "!");
         document.getElementById('universal-modal').style.display = 'none';
     };
 
+    // --- UTILITÁRIOS ---
+    window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
+    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.renomearTrabalhoAtivo = () => { const n = prompt("Nome:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n; atualizarLabelPeca(); } };
+    function atualizarLabelPeca() { document.getElementById('nome-exibicao-peca').innerText = window.pecaAtualNome; localStorage.setItem('pecaAtualNome', window.pecaAtualNome); }
+    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
+    window.abrirMentoria = () => window.location.href = 'mentoria.html';
+    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE";
         document.getElementById('modal-content').innerHTML = renderizarVadeHTML();
         modal.style.display = 'flex';
     };
-
-    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
-    window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
-    window.abrirMentoria = () => window.location.href = 'mentoria.html';
-    
-    window.abrirBibliotecaPDF = () => alert("Biblioteca carregando...");
-    window.abrirExames = () => alert("Módulo de Exames...");
 </script>
 </body>
 </html>
