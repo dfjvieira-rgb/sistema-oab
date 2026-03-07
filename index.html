@@ -202,13 +202,14 @@
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
-    const ID_EDITOR = "editor-principal-pmdf"; // Constante para blindagem
+    const ID_EDITOR = "editor-principal-pmdf";
+    
+    // CONTROLE DE ARQUIVO ABERTO
+    window.idTrabalhoAtivo = localStorage.getItem('idTrabalhoAtivo_pmdf') || null;
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_pmdf') || "NOVO TREINO PMDF";
 
     const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
 
-    // Chave de localstorage isolada para PMDF
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_pmdf') || "NOVO TREINO PMDF";
-    
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         atualizarLabelPeca();
@@ -220,13 +221,80 @@
         const label = document.getElementById('nome-exibicao-peca');
         if(label) label.innerText = window.pecaAtualNome;
         localStorage.setItem('pecaAtualNome_pmdf', window.pecaAtualNome);
+        localStorage.setItem('idTrabalhoAtivo_pmdf', window.idTrabalhoAtivo);
     }
 
     window.renomearTrabalhoAtivo = () => {
         const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
+        if(novo && novo.trim() !== "") { 
+            window.pecaAtualNome = novo.trim(); 
+            atualizarLabelPeca(); 
+        }
     };
 
+    // --- LÓGICA DE SALVAMENTO INTELIGENTE (UPSERT) ---
+    window.finalizarPeca = () => {
+        // Se o arquivo já existe (tem ID), salva direto na pasta de origem
+        if (window.idTrabalhoAtivo) {
+            confirmarSalvamentoDireto();
+        } else {
+            // Se for novo, abre o modal de escolher pasta
+            const modal = document.getElementById('universal-modal');
+            const content = document.getElementById('modal-content');
+            document.getElementById('modal-title').innerText = " SALVAR NOVO EM...";
+            const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
+            content.innerHTML = `<div style="max-height: 350px; overflow-y: auto;">${todasAsPastas.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}</div>`;
+            modal.style.display = 'flex';
+        }
+    };
+
+    async function confirmarSalvamentoDireto() {
+        const ed = document.getElementById(ID_EDITOR);
+        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
+        
+        try {
+            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${window.idTrabalhoAtivo}`), { 
+                peca: window.pecaAtualNome, 
+                conteudo: ed.innerHTML, 
+                data_update: new Date().toLocaleString() 
+            });
+            alert("Alterações salvas com sucesso!");
+        } catch (e) {
+            alert("Erro ao atualizar. Tente salvar como novo.");
+            window.idTrabalhoAtivo = null;
+        }
+    }
+
+    window.executarSalvamentoInteligente = async (pasta) => {
+        const ed = document.getElementById(ID_EDITOR);
+        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
+        
+        const novoId = Date.now().toString();
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${novoId}`), { 
+            exame: pasta, 
+            peca: window.pecaAtualNome, 
+            conteudo: ed.innerHTML, 
+            data: new Date().toLocaleString() 
+        });
+        
+        window.idTrabalhoAtivo = novoId;
+        atualizarLabelPeca();
+        alert("Criado e salvo em " + pasta);
+        document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){ 
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+            window.pecaAtualNome = snap.val().peca; 
+            window.idTrabalhoAtivo = id; // Vincula o ID para permitir o "Update"
+            atualizarLabelPeca(); 
+            document.getElementById('universal-modal').style.display = 'none'; 
+        }
+    };
+
+    // --- FUNÇÕES DE PASTA E GESTÃO ---
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -256,9 +324,7 @@
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
         const eMateria = MATERIAS_MESTRE.includes(tipo);
-        
         content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
-        
         if (snap.exists()) {
             Object.keys(snap.val()).forEach(k => {
                 const item = snap.val()[k];
@@ -280,87 +346,64 @@
     };
 
     window.renomearArquivo = async (id, tipo) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        const nomeAntigo = snap.val().peca;
-        const novoNome = prompt("Renomear arquivo para:", nomeAntigo);
-        if (novoNome && novoNome.trim() !== "" && novoNome !== nomeAntigo) {
+        const novoNome = prompt("Renomear arquivo para:");
+        if (novoNome && novoNome.trim() !== "") {
             await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novoNome.trim() });
+            if(window.idTrabalhoAtivo === id) { window.pecaAtualNome = novoNome.trim(); atualizarLabelPeca(); }
             window.abrirGavetaEspecifica(tipo);
         }
     };
 
     window.moverArquivo = async (id, tipoOrigem) => {
         const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        const novaPasta = prompt("Mover para qual pasta?\nOpções: " + todasAsPastas.join(", "), tipoOrigem);
-        
-        if (novaPasta && todasAsPastas.includes(novaPasta.toUpperCase()) && novaPasta.toUpperCase() !== tipoOrigem) {
+        const novaPasta = prompt("Mover para qual pasta?\n" + todasAsPastas.join(", "));
+        if (novaPasta && todasAsPastas.includes(novaPasta.toUpperCase())) {
             await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: novaPasta.toUpperCase() });
             window.abrirGavetaEspecifica(tipoOrigem);
-        } else if (novaPasta && !todasAsPastas.includes(novaPasta.toUpperCase())) {
-            alert("Pasta inválida!");
         }
     };
 
-    window.finalizarPeca = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " SALVAR EM...";
-        const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        content.innerHTML = `<div style="max-height: 350px; overflow-y: auto;">${todasAsPastas.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}</div>`;
-        modal.style.display = 'flex';
+    window.excluirTrabalho = async (id, tipo) => { 
+        if(confirm("Excluir arquivo permanentemente?")) { 
+            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); 
+            if(window.idTrabalhoAtivo === id) window.ativarTreinoLivre();
+            window.abrirGavetaEspecifica(tipo); 
+        } 
     };
 
-    window.executarSalvamentoInteligente = async (pasta) => {
-        const ed = document.getElementById(ID_EDITOR);
-        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
-        const idParaUsar = Date.now();
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), { exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString() });
-        alert("Salvo em " + pasta);
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){ 
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
-            window.pecaAtualNome = snap.val().peca; 
-            atualizarLabelPeca(); 
-            document.getElementById('universal-modal').style.display = 'none'; 
-        }
-    };
-
-    window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo permanentemente?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
-    
-    // Rascunho isolado por caminho no Firebase
     async function salvarAutomatico() { 
         const ed = document.getElementById(ID_EDITOR); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`), { conteudo: ed.innerHTML }); 
+        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`), { 
+            conteudo: ed.innerHTML, 
+            idAtivo: window.idTrabalhoAtivo, 
+            nomeAtivo: window.pecaAtualNome 
+        }); 
     }
     
     async function carregarRascunho() { 
         const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`)); 
-        if(snap.exists()) document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+        if(snap.exists()) {
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+            window.idTrabalhoAtivo = snap.val().idAtivo || null;
+            window.pecaAtualNome = snap.val().nomeAtivo || "NOVO TREINO PMDF";
+            atualizarLabelPeca();
+        }
     }
 
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    
-    window.limparFolha = () => { 
-        if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; 
-    };
-    
-    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
+    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; };
     
     window.ativarTreinoLivre = () => { 
-        if(confirm("Novo treino em branco?")) { 
+        if(confirm("Iniciar novo treino? Isso desvincula o arquivo atual.")) { 
             window.limparFolha(); 
             window.pecaAtualNome = "NOVO TREINO PMDF"; 
+            window.idTrabalhoAtivo = null; // Garante que o próximo Save peça uma pasta
             atualizarLabelPeca(); 
         } 
     };
-    
+
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.desfazer = () => { document.execCommand('undo', false, null); };
 </script>
-</body>
-</html>
