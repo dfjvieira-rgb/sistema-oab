@@ -198,18 +198,28 @@
     import { db } from './firebase-config.js';
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
-    import { renderizarVadeHTML } from './vade.js'; // Restaurado
+    
+    // CIRURGIA: Conexão do arquivo externo VADE.JS
+    import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
+    const ID_EDITOR = 'editor-principal'; // ID padrão para injeção de leis
+
+    window.LISTA_PDF_BIBLIOTECA = [
+        { nome: " EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
+        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
+        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
+        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO - Identificação de Peças_231123_182636.pdf" },
+        { nome: "TESES OAB 2ª FASE", url: "TESES-----OAB--SEGUNDA--FASE--TRABALHO.pdf" },
+        { nome: "REVISÃO DE PEÇAS - RALIN", url: "raulin.pdf" },
+        { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
+    ];
+
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
     
-    // Voltando para o ID padrão que o seu Vade.js e FolhaEngine esperam
-    const ID_EDITOR = 'editor-principal'; 
-
+    // Controle para o Save/Update Inteligente
     window.idTrabalhoAtivo = localStorage.getItem('idTrabalhoAtivo_pmdf') || null;
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_pmdf') || "NOVO TREINO PMDF";
-
-    const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
@@ -218,79 +228,40 @@
         setInterval(salvarAutomatico, 30000);
     };
 
-    // FUNÇÃO VADE MECUM RESTAURADA
+    // CIRURGIA: VADE MECUM (Abre no modal universal que seu CSS posiciona)
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " VADE MECUM PMDF";
-        content.innerHTML = renderizarVadeHTML(); // Chama sua função original do vade.js
+        document.getElementById('modal-title').innerText = " VADE MECUM ELITE";
+        content.innerHTML = renderizarVadeHTML();
         modal.style.display = 'flex';
     };
 
     function atualizarLabelPeca() {
         const label = document.getElementById('nome-exibicao-peca');
         if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome_pmdf', window.pecaAtualNome);
+        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
         localStorage.setItem('idTrabalhoAtivo_pmdf', window.idTrabalhoAtivo);
     }
 
     window.renomearTrabalhoAtivo = () => {
         const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
-        if(novo && novo.trim() !== "") { 
-            window.pecaAtualNome = novo.trim(); 
-            atualizarLabelPeca(); 
-        }
+        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
     };
 
-    window.finalizarPeca = () => {
-        if (window.idTrabalhoAtivo) {
-            confirmarSalvamentoDireto();
-        } else {
-            const modal = document.getElementById('universal-modal');
-            const content = document.getElementById('modal-content');
-            document.getElementById('modal-title').innerText = " SALVAR NOVO EM...";
-            const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-            content.innerHTML = `<div style="max-height: 350px; overflow-y: auto;">${todasAsPastas.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}</div>`;
-            modal.style.display = 'flex';
-        }
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " BIBLIOTECA ELITE";
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
+                <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
     };
 
-    async function confirmarSalvamentoDireto() {
-        const ed = document.getElementById(ID_EDITOR);
-        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
-        await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${window.idTrabalhoAtivo}`), { 
-            peca: window.pecaAtualNome, 
-            conteudo: ed.innerHTML, 
-            data_update: new Date().toLocaleString() 
-        });
-        alert("Alterações salvas!");
-    }
-
-    window.executarSalvamentoInteligente = async (pasta) => {
-        const ed = document.getElementById(ID_EDITOR);
-        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
-        const novoId = Date.now().toString();
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${novoId}`), { 
-            exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString() 
-        });
-        window.idTrabalhoAtivo = novoId;
-        atualizarLabelPeca();
-        alert("Salvo em " + pasta);
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){ 
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
-            window.pecaAtualNome = snap.val().peca; 
-            window.idTrabalhoAtivo = id;
-            atualizarLabelPeca(); 
-            document.getElementById('universal-modal').style.display = 'none'; 
-        }
-    };
-
-    // MANTENDO DEMAIS FUNÇÕES DE PASTA
+    // LÓGICA DE PASTAS MANTIDA CONFORME ORIGINAL
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -306,8 +277,9 @@
     window.abrirSubPastasCaderno = () => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = " MEU CADERNO";
+        const materias = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
         content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
-        MATERIAS_MESTRE.forEach(mat => {
+        materias.forEach(mat => {
             const div = document.createElement('div');
             div.className = "opt-btn";
             div.onclick = () => window.abrirGavetaEspecifica(mat);
@@ -316,78 +288,118 @@
         });
     };
 
+    // --- SALVAMENTO INTELIGENTE (UPSERT) ---
+    window.finalizarPeca = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " SALVAR EM...";
+        const pastasDestino = ["QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        
+        content.innerHTML = `
+            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
+                ARQUIVO: ${window.pecaAtualNome}
+            </div>
+            <div style="max-height: 350px; overflow-y: auto;">
+                ${pastasDestino.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}
+            </div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.executarSalvamentoInteligente = async (pasta) => {
+        const ed = document.getElementById(ID_EDITOR);
+        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
+
+        // Se já temos um ID ativo, usamos ele (Atualização)
+        // Se não, geramos um novo (Criação)
+        if (!window.idTrabalhoAtivo) {
+            window.idTrabalhoAtivo = Date.now().toString();
+        }
+
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${window.idTrabalhoAtivo}`), {
+            exame: pasta,
+            peca: window.pecaAtualNome,
+            conteudo: ed.innerHTML,
+            data: new Date().toLocaleString()
+        });
+
+        atualizarLabelPeca();
+        alert("Salvo com sucesso!");
+        document.getElementById('universal-modal').style.display = 'none';
+    };
+
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
+            window.pecaAtualNome = snap.val().peca;
+            window.idTrabalhoAtivo = id; // Vincula o ID para permitir o Update
+            atualizarLabelPeca();
+            document.getElementById('universal-modal').style.display = 'none';
+        }
+    };
+
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        const eMateria = MATERIAS_MESTRE.includes(tipo);
+        const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
         content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
         if (snap.exists()) {
+            let temArquivo = false;
             Object.keys(snap.val()).forEach(k => {
                 const item = snap.val()[k];
                 if(item.exame === tipo) {
+                    temArquivo = true;
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
-                    div.innerHTML = `
-                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
-                        <div class="file-actions">
-                            <button class="btn-action-small btn-rename" title="Renomear" onclick="window.renomearArquivo('${k}', '${tipo}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-action-small btn-move" title="Mover Pasta" onclick="window.moverArquivo('${k}', '${tipo}')"><i class="fas fa-folder-minus"></i></button>
-                            <button class="btn-action-small btn-delete" title="Excluir" onclick="window.excluirTrabalho('${k}', '${tipo}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
+                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
+                        <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
                     content.appendChild(div);
                 }
             });
+            if(!temArquivo) content.innerHTML += `<p style="text-align:center; opacity:0.5; margin-top:20px;">Vazio.</p>`;
+        }
+    };
+
+    window.excluirTrabalho = async (id, tipo) => {
+        if(confirm("Excluir este arquivo?")) {
+            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+            if(window.idTrabalhoAtivo === id) window.idTrabalhoAtivo = null;
+            window.abrirGavetaEspecifica(tipo);
         }
     };
 
     async function salvarAutomatico() { 
         const ed = document.getElementById(ID_EDITOR); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`), { 
-            conteudo: ed.innerHTML, idAtivo: window.idTrabalhoAtivo, nomeAtivo: window.pecaAtualNome 
+        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { 
+            conteudo: ed.innerHTML, 
+            idAtivo: window.idTrabalhoAtivo, 
+            nomeAtivo: window.pecaAtualNome 
         }); 
     }
-    
+
     async function carregarRascunho() { 
-        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`)); 
+        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
         if(snap.exists()) {
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
             window.idTrabalhoAtivo = snap.val().idAtivo || null;
             window.pecaAtualNome = snap.val().nomeAtivo || "NOVO TREINO PMDF";
             atualizarLabelPeca();
         }
     }
 
-    window.renomearArquivo = async (id, tipo) => {
-        const novoNome = prompt("Renomear arquivo para:");
-        if (novoNome && novoNome.trim() !== "") {
-            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novoNome.trim() });
-            if(window.idTrabalhoAtivo === id) { window.pecaAtualNome = novoNome.trim(); atualizarLabelPeca(); }
-            window.abrirGavetaEspecifica(tipo);
-        }
+    window.abrirPDFDireto = (u, n) => {
+        document.getElementById('pdf-title').innerText = n;
+        document.getElementById('pdf-frame').src = u;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
     };
 
-    window.moverArquivo = async (id, tipoOrigem) => {
-        const todasAsPastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        const novaPasta = prompt("Mover para qual pasta?\n" + todasAsPastas.join(", "));
-        if (novaPasta && todasAsPastas.includes(novaPasta.toUpperCase())) {
-            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: novaPasta.toUpperCase() });
-            window.abrirGavetaEspecifica(tipoOrigem);
-        }
-    };
-
-    window.excluirTrabalho = async (id, tipo) => { 
-        if(confirm("Excluir arquivo permanentemente?")) { 
-            await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); 
-            if(window.idTrabalhoAtivo === id) window.ativarTreinoLivre();
-            window.abrirGavetaEspecifica(tipo); 
-        } 
-    };
-
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; };
-    window.ativarTreinoLivre = () => { if(confirm("Iniciar novo treino?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; window.idTrabalhoAtivo = null; atualizarLabelPeca(); } };
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; };
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
+    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; window.idTrabalhoAtivo = null; atualizarLabelPeca(); } };
+    window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.desfazer = () => { document.execCommand('undo', false, null); };
 </script>
