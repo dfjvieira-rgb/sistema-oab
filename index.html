@@ -198,13 +198,11 @@
     import { db } from './firebase-config.js';
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
-    
-    // CIRURGIA: Conexão do arquivo externo VADE.JS
     import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
-    const ID_EDITOR = 'editor-principal'; // ID padrão para injeção de leis
+    const ID_EDITOR = 'editor-principal'; // ID sagrado para o Vade e FolhaEngine
 
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: " EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
@@ -216,9 +214,9 @@
         { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
     ];
 
+    const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
-    
-    // Controle para o Save/Update Inteligente
     window.idTrabalhoAtivo = localStorage.getItem('idTrabalhoAtivo_pmdf') || null;
 
     window.onload = async () => {
@@ -228,12 +226,24 @@
         setInterval(salvarAutomatico, 30000);
     };
 
-    // CIRURGIA: VADE MECUM (Abre no modal universal que seu CSS posiciona)
+    // --- INTERFACE E MODAIS ---
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = " VADE MECUM ELITE";
         content.innerHTML = renderizarVadeHTML();
+        modal.style.display = 'flex';
+    };
+
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " BIBLIOTECA ELITE";
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
+                <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
+            </div>
+        `).join('');
         modal.style.display = 'flex';
     };
 
@@ -249,51 +259,12 @@
         if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
     };
 
-    window.abrirBibliotecaPDF = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " BIBLIOTECA ELITE";
-        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `
-            <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
-                <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
-            </div>
-        `).join('');
-        modal.style.display = 'flex';
-    };
-
-    // LÓGICA DE PASTAS MANTIDA CONFORME ORIGINAL
-    window.gerenciadorPasta = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " MINHA PASTA";
-        content.innerHTML = `
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
-            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
-            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span> CADERNO DE MATÉRIAS</span></div>
-        `;
-        modal.style.display = 'flex';
-    };
-
-    window.abrirSubPastasCaderno = () => {
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " MEU CADERNO";
-        const materias = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
-        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
-        materias.forEach(mat => {
-            const div = document.createElement('div');
-            div.className = "opt-btn";
-            div.onclick = () => window.abrirGavetaEspecifica(mat);
-            div.innerHTML = `<span><i class="fas fa-book"></i> ${mat}</span> <i class="fas fa-chevron-right" style="opacity:0.3"></i>`;
-            content.appendChild(div);
-        });
-    };
-
-    // --- SALVAMENTO INTELIGENTE (UPSERT) ---
+    // --- LÓGICA DE SALVAMENTO (UPSERT) ---
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = " SALVAR EM...";
-        const pastasDestino = ["QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        const pastasDestino = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
         
         content.innerHTML = `
             <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
@@ -310,8 +281,6 @@
         const ed = document.getElementById(ID_EDITOR);
         if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
 
-        // Se já temos um ID ativo, usamos ele (Atualização)
-        // Se não, geramos um novo (Criação)
         if (!window.idTrabalhoAtivo) {
             window.idTrabalhoAtivo = Date.now().toString();
         }
@@ -328,22 +297,38 @@
         document.getElementById('universal-modal').style.display = 'none';
     };
 
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){
-            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
-            window.pecaAtualNome = snap.val().peca;
-            window.idTrabalhoAtivo = id; // Vincula o ID para permitir o Update
-            atualizarLabelPeca();
-            document.getElementById('universal-modal').style.display = 'none';
-        }
+    // --- GESTÃO DE ARQUIVOS ---
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " MINHA PASTA";
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
+            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span> CADERNO DE MATÉRIAS</span></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.abrirSubPastasCaderno = () => {
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " MEU CADERNO";
+        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
+        MATERIAS_MESTRE.forEach(mat => {
+            const div = document.createElement('div');
+            div.className = "opt-btn";
+            div.onclick = () => window.abrirGavetaEspecifica(mat);
+            div.innerHTML = `<span><i class="fas fa-book"></i> ${mat}</span> <i class="fas fa-chevron-right" style="opacity:0.3"></i>`;
+            content.appendChild(div);
+        });
     };
 
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
+        const eMateria = MATERIAS_MESTRE.includes(tipo);
         content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
+        
         if (snap.exists()) {
             let temArquivo = false;
             Object.keys(snap.val()).forEach(k => {
@@ -352,8 +337,14 @@
                     temArquivo = true;
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
-                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
-                        <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
+                    div.innerHTML = `
+                        <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
+                        <div class="file-actions" style="display:flex; gap:10px;">
+                            <i class="fas fa-edit" onclick="window.renomearArquivo('${k}', '${tipo}')" style="color:#007bff; cursor:pointer;"></i>
+                            <i class="fas fa-folder-minus" onclick="window.moverArquivo('${k}', '${tipo}')" style="color:#ffc107; cursor:pointer;"></i>
+                            <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer;"></i>
+                        </div>
+                    `;
                     content.appendChild(div);
                 }
             });
@@ -361,20 +352,48 @@
         }
     };
 
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
+            window.pecaAtualNome = snap.val().peca;
+            window.idTrabalhoAtivo = id;
+            atualizarLabelPeca();
+            document.getElementById('universal-modal').style.display = 'none';
+        }
+    };
+
+    window.renomearArquivo = async (id, tipo) => {
+        const novoNome = prompt("Renomear para:");
+        if (novoNome && novoNome.trim() !== "") {
+            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { peca: novoNome.trim() });
+            if(window.idTrabalhoAtivo === id) { window.pecaAtualNome = novoNome.trim(); atualizarLabelPeca(); }
+            window.abrirGavetaEspecifica(tipo);
+        }
+    };
+
+    window.moverArquivo = async (id, tipoOrigem) => {
+        const pastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
+        const nova = prompt("Mover para qual pasta?\n" + pastas.join(", "));
+        if (nova && pastas.includes(nova.toUpperCase())) {
+            await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: nova.toUpperCase() });
+            window.abrirGavetaEspecifica(tipoOrigem);
+        }
+    };
+
     window.excluirTrabalho = async (id, tipo) => {
-        if(confirm("Excluir este arquivo?")) {
+        if(confirm("Excluir arquivo?")) {
             await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
             if(window.idTrabalhoAtivo === id) window.idTrabalhoAtivo = null;
             window.abrirGavetaEspecifica(tipo);
         }
     };
 
+    // --- UTILITÁRIOS ---
     async function salvarAutomatico() { 
         const ed = document.getElementById(ID_EDITOR); 
         if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { 
-            conteudo: ed.innerHTML, 
-            idAtivo: window.idTrabalhoAtivo, 
-            nomeAtivo: window.pecaAtualNome 
+            conteudo: ed.innerHTML, idAtivo: window.idTrabalhoAtivo, nomeAtivo: window.pecaAtualNome 
         }); 
     }
 
@@ -402,4 +421,5 @@
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.desfazer = () => { document.execCommand('undo', false, null); };
+
 </script>
