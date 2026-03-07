@@ -9,34 +9,34 @@
     <style>
         :root {
             --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
-            --bg-paper: #cbd5e1; --paper-color: #ffffff; 
+            --bg-paper: #cbd5e1; --paper-color: #ffffff;
             --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
             --glass: rgba(30, 41, 59, 0.7);
             --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
-            --vade: #16a34a; 
+            --vade: #16a34a; /* COR VERDE VADE MECUM */
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            font-family: 'Inter', system-ui, sans-serif; 
-            background: var(--primary); 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             color: white;
         }
 
-        header { 
-            background: var(--primary); 
-            height: 60px; 
-            padding: 0 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 2px solid var(--gold); 
+        header {
+            background: var(--primary);
+            height: 60px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold);
             z-index: 5000;
         }
 
@@ -45,22 +45,22 @@
 
         main { display: flex; flex: 1; overflow: hidden; position: relative; }
         
-        .sidebar { 
-            width: var(--sidebar-w); 
-            background: #1e293b; 
-            display: flex; 
-            flex-direction: column; 
+        .sidebar {
+            width: var(--sidebar-w);
+            background: #1e293b;
+            display: flex;
+            flex-direction: column;
             align-items: flex-start;
-            gap: 8px; 
-            padding: 15px 10px; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
-            overflow-y: auto; 
+            gap: 8px;
+            padding: 15px 10px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
             transition: all 0.3s ease;
         }
 
-        .btn-side { 
-            width: 100%; min-height: 45px; border: none; border-radius: 8px; 
-            display: flex; align-items: center; justify-content: flex-start; color: white; 
+        .btn-side {
+            width: 100%; min-height: 45px; border: none; border-radius: 8px;
+            display: flex; align-items: center; justify-content: flex-start; color: white;
             cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05);
             padding: 0 12px; gap: 12px;
             position: relative;
@@ -69,34 +69,35 @@
         .btn-side i { font-size: 1rem; color: var(--gold); width: 20px; text-align: center; }
         .btn-side span { font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
 
-        .editor-container { 
-            flex: 1; display: flex; flex-direction: column; 
+        .editor-container {
+            flex: 1; display: flex; flex-direction: column;
             background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px;
             transition: all 0.4s ease;
         }
 
-        .sticky-tools { 
-            position: sticky; top: -20px; z-index: 1000; background: white; 
+        .sticky-tools {
+            position: sticky; top: -20px; z-index: 1000; background: white;
             width: 100%; max-width: 850px; border-radius: 0 0 12px 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px;
         }
 
-        #identificador-peca { 
-            padding: 15px; background: #f8fafc; text-align: center; 
+        #identificador-peca {
+            padding: 15px; background: #f8fafc; text-align: center;
             font-weight: 900; color: #020617; border-bottom: 3px solid var(--gold);
-            cursor: pointer; display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
             gap: 10px; font-size: 14px; text-transform: uppercase;
         }
+        #identificador-peca:hover { background: #f1f5f9; }
         
         .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; align-items: center; }
-        .btn-lib { 
-            flex: 1; padding: 12px; border: none; background: transparent; 
-            cursor: pointer; font-weight: 800; font-size: 0.7rem; 
+        .btn-lib {
+            flex: 1; padding: 12px; border: none; background: transparent;
+            cursor: pointer; font-weight: 800; font-size: 0.7rem;
             text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9;
         }
 
         .highlight-box { display: flex; align-items: center; background: #f1f5f9; padding: 0 10px; gap: 8px; border-right: 1px solid #f1f5f9; height: 45px; }
-        .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-dot { width: 20px; height: 20px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative; }
         .color-dot.active { border-color: #000; transform: scale(1.1); }
         .color-dot.none { background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: red; }
 
@@ -122,6 +123,13 @@
             .sidebar { display: none; }
             #mobile-hub { display: flex; }
             #pdf-viewer.active { width: 100%; position: absolute; right: 0; top: 0; height: 100%; z-index: 8000; }
+        }
+
+        @media print {
+            body, main, .editor-container { overflow: visible !important; height: auto !important; display: block !important; background: white !important; }
+            .sidebar, header, .sticky-tools, #mobile-hub, #pdf-viewer, .modal { display: none !important; }
+            .paper { box-shadow: none !important; margin: 0 !important; width: 100% !important; min-height: auto !important; }
+            .editor-container { padding: 0 !important; }
         }
     </style>
 </head>
@@ -151,7 +159,7 @@
     <section class="editor-container" id="editor-container">
         <div class="sticky-tools">
             <div id="identificador-peca" onclick="window.renomearTrabalhoAtivo()">
-                <i class="fas fa-file-signature" style="color:var(--gold)"></i> 
+                <i class="fas fa-file-signature" style="color:var(--gold)"></i>
                 <span id="nome-exibicao-peca">NOVO TREINO PMDF</span>
                 <i class="fas fa-pen" style="font-size:10px; opacity:0.3; margin-left:10px"></i>
             </div>
@@ -182,17 +190,24 @@
 
     <section id="pdf-viewer">
         <div class="pdf-controls">
-            <button onclick="window.toggleRecolherEditor()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">VOLTAR EDITOR</button>
-            <span id="pdf-title">DOCUMENTO</span>
+            <div>
+                <button onclick="window.toggleRecolherEditor()" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:10px;">
+                    <i class="fas fa-arrows-alt-h"></i> VOLTAR EDITOR
+                </button>
+                <span id="pdf-title">DOCUMENTO</span>
+            </div>
             <button onclick="window.fecharPDF()" style="background:var(--gold); border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer">X</button>
         </div>
         <iframe id="pdf-frame"></iframe>
     </section>
 
     <div id="mobile-hub">
-        <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket"></i></button>
-        <button class="fab-sub" style="background:var(--vade);" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i></button>
-        <button class="fab-sub" style="background:var(--biblioteca);" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
+        <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket" id="rocket-icon"></i></button>
+        <button class="fab-sub" style="background:var(--vade); color:white" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i></button>
+        <button class="fab-sub" style="background:var(--biblioteca); color:white" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
+        <button class="fab-sub" style="background:var(--teses); color:white" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
+        <button class="fab-sub" style="background:var(--questoes); color:white" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
+        <button class="fab-sub" style="background:#facc15; color:black" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i></button>
         <button class="fab-sub" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i></button>
         <button class="fab-sub" style="background:var(--gold); color:black" onclick="window.abrirExames()"><i class="fas fa-list"></i></button>
     </div>
@@ -207,119 +222,207 @@
 </div>
 
 <script type="module">
-    import { db } from './firebase-config.js'; 
+    import { db } from './firebase-config.js';
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
     import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
-    const RAIZ_PMDF = "producao_pmdf"; 
+    const RAIZ_PMDF = "producao_pmdf";
+
+    // --- VARIÁVEIS DO MARCA-TEXTO ---
+    window.corMarcaTexto = '#fef08a';
+    window.marcaTextoAtivo = false;
+
+    window.LISTA_PDF_BIBLIOTECA = [
+        { nome: " EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
+        { nome: "TABELA IDENTIFICAÇÃO DE PEÇAS", url: "identificacaopecas.pdf" },
+        { nome: "RESUMINHO APOSTAS!", url: "RESUMINHO APOSTAS!.pdf" },
+        { nome: "LINHA DO TEMPO - PEÇAS", url: "LINHA DO TEMPO - Identificação de Peças_231123_182636.pdf" },
+        { nome: "TESES OAB 2ª FASE", url: "TESES-----OAB--SEGUNDA--FASE--TRABALHO.pdf" },
+        { nome: "REVISÃO DE PEÇAS - RALIN", url: "raulin.pdf" },
+        { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
+    ];
 
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
     window.historicoUndo = [];
-    window.currentColor = '#fef08a';
-    window.marcaTextoAtivo = false;
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
         atualizarLabelPeca();
         await carregarRascunho();
-        
-        // Listener para o Marca-Texto Automático quando o pincel está ligado
-        document.getElementById('editor-principal').addEventListener('mouseup', () => {
-            if(window.marcaTextoAtivo) window.executarPincel();
-        });
-        document.getElementById('editor-principal').addEventListener('touchend', () => {
-            if(window.marcaTextoAtivo) window.executarPincel();
-        });
+
+        // CIRURGIA: Ativando a escuta de seleção no editor para o marca-texto
+        const ed = document.getElementById('editor-principal');
+        if(ed) {
+            ed.addEventListener('mouseup', () => { if(window.marcaTextoAtivo) window.executarMarcaTexto(); });
+            ed.addEventListener('touchend', () => { if(window.marcaTextoAtivo) window.executarMarcaTexto(); });
+        }
 
         setInterval(salvarAutomatico, 30000);
     };
 
-    // --- LÓGICA MARCA-TEXTO (APROVADA E AJUSTADA) ---
-    window.setHighlightColor = (color, id) => {
-        window.currentColor = color;
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(!window.marcaTextoAtivo) window.toggleMarcaTexto(true);
-        
-        // Se houver algo selecionado ao trocar a cor, já aplica
-        const sel = window.getSelection();
-        if (sel.rangeCount > 0 && !sel.isCollapsed) window.executarPincel();
-    };
-
-    window.toggleMarcaTexto = (forcarAtivo = null) => {
-        window.marcaTextoAtivo = (forcarAtivo !== null) ? forcarAtivo : !window.marcaTextoAtivo;
+    // --- LÓGICA DO MARCA-TEXTO ---
+    window.toggleMarcaTexto = () => {
+        window.marcaTextoAtivo = !window.marcaTextoAtivo;
         const btn = document.getElementById('btn-highlight');
         if(window.marcaTextoAtivo) {
-            btn.style.background = window.currentColor === 'transparent' ? '#eee' : window.currentColor;
-            btn.style.color = "#000"; btn.innerHTML = '<i class="fas fa-pen-nib"></i>';
+            btn.style.background = window.corMarcaTexto === 'transparent' ? '#eee' : window.corMarcaTexto;
+            btn.style.color = "#000";
         } else {
-            btn.style.background = "transparent"; btn.style.color = "#64748b"; btn.innerHTML = '<i class="fas fa-highlighter"></i>';
+            btn.style.background = "transparent";
+            btn.style.color = "#64748b";
         }
     };
 
-    window.executarPincel = () => {
-        const ed = document.getElementById('editor-principal');
+    window.setHighlightColor = (color, id) => {
+        window.corMarcaTexto = color;
+        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        
+        // Ativa o marca-texto se estiver desligado
+        if(!window.marcaTextoAtivo) window.toggleMarcaTexto();
+        else {
+            const btn = document.getElementById('btn-highlight');
+            btn.style.background = color === 'transparent' ? '#eee' : color;
+        }
+
+        // Se houver algo selecionado, aplica na hora
+        window.executarMarcaTexto();
+    };
+
+    window.executarMarcaTexto = () => {
         const sel = window.getSelection();
-        if (sel.rangeCount > 0 && !sel.isCollapsed) {
-            window.historicoUndo.push(ed.innerHTML);
-            if(window.historicoUndo.length > 30) window.historicoUndo.shift();
-            
+        if(!sel.isCollapsed && sel.rangeCount > 0) {
             document.getElementById('editor-principal').focus();
-            if (window.currentColor === 'transparent') {
+            if(window.corMarcaTexto === 'transparent') {
                 document.execCommand('removeFormat', false, null);
             } else {
-                document.execCommand('hiliteColor', false, window.currentColor);
+                document.execCommand('hiliteColor', false, window.corMarcaTexto);
             }
         }
     };
 
-    // --- SALVAMENTO E PASTAS ---
-    async function salvarAutomatico() { 
-        const ed = document.getElementById('editor-principal'); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); 
+    // --- SISTEMA DE ARQUIVOS E INTERFACE ---
+    window.abrirVadeMecum = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " VADE MECUM ELITE";
+        content.innerHTML = renderizarVadeHTML();
+        modal.style.display = 'flex';
+    };
+
+    function atualizarLabelPeca() {
+        const label = document.getElementById('nome-exibicao-peca');
+        if(label) label.innerText = window.pecaAtualNome;
+        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
     }
 
-    async function carregarRascunho() { 
-        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
-        if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; 
-    }
+    window.renomearTrabalhoAtivo = () => {
+        const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
+        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
+    };
+
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " BIBLIOTECA ELITE";
+        content.innerHTML = window.LISTA_PDF_BIBLIOTECA.map(pdf => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${pdf.url}','${pdf.nome}')">
+                <span><i class="fas fa-file-pdf"></i> ${pdf.nome}</span>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
+    };
+
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " MINHA PASTA";
+        content.innerHTML = `
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
+            <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
+            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span> CADERNO DE MATÉRIAS</span></div>
+        `;
+        modal.style.display = 'flex';
+    };
+
+    window.abrirSubPastasCaderno = () => {
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " MEU CADERNO";
+        const materias = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
+        materias.forEach(mat => {
+            const div = document.createElement('div');
+            div.className = "opt-btn";
+            div.onclick = () => window.abrirGavetaEspecifica(mat);
+            div.innerHTML = `<span><i class="fas fa-book"></i> ${mat}</span> <i class="fas fa-chevron-right" style="opacity:0.3"></i>`;
+            content.appendChild(div);
+        });
+    };
 
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "💾 SALVAR EM...";
-        const pastas = ["QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "LEGISLAÇÃO PMDF"];
-        content.innerHTML = pastas.map(p => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${p}')"><span>${p}</span></div>`).join('');
+        document.getElementById('modal-title').innerText = " SALVAR EM...";
+        const pastasDestino = ["QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        content.innerHTML = `<div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">ARQUIVO: ${window.pecaAtualNome}</div><div style="max-height: 350px; overflow-y: auto;">${pastasDestino.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}</div>`;
         modal.style.display = 'flex';
     };
 
     window.executarSalvamentoInteligente = async (pasta) => {
         const ed = document.getElementById('editor-principal');
-        const idParaUsar = Date.now();
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), {
-            exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString()
-        });
-        alert("Salvo na pasta " + pasta + "!");
+        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        let idParaUsar = Date.now();
+        if (snap.exists()) {
+            const dados = snap.val();
+            for (let id in dados) { if (dados[id].peca === window.pecaAtualNome && dados[id].exame === pasta) { idParaUsar = id; break; } }
+        }
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), { exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString() });
+        alert("Salvo com sucesso!");
         document.getElementById('universal-modal').style.display = 'none';
     };
 
-    // --- UTILITÁRIOS ---
-    window.desfazer = () => { const ed = document.getElementById('editor-principal'); if(window.historicoUndo.length > 0) ed.innerHTML = window.historicoUndo.pop(); };
+    window.abrirGavetaEspecifica = async (tipo) => {
+        const content = document.getElementById('modal-content');
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
+        const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
+        content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
+        if (snap.exists()) {
+            Object.keys(snap.val()).forEach(k => {
+                const item = snap.val()[k];
+                if(item.exame === tipo) {
+                    const div = document.createElement('div');
+                    div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
+                    div.innerHTML = `<span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px;"> ${item.peca}</span><i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer; padding:10px;"></i>`;
+                    content.appendChild(div);
+                }
+            });
+        }
+    };
+
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){ document.getElementById('editor-principal').innerHTML = snap.val().conteudo; window.pecaAtualNome = snap.val().peca; atualizarLabelPeca(); document.getElementById('universal-modal').style.display = 'none'; }
+    };
+
+    window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
+    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
+    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
+    window.abrirPDFDireto = (u, n) => { document.getElementById('pdf-title').innerText = n; document.getElementById('pdf-frame').src = u; document.getElementById('pdf-viewer').classList.add('active'); document.getElementById('universal-modal').style.display = 'none'; };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
     window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.renomearTrabalhoAtivo = () => { const n = prompt("Nome:", window.pecaAtualNome); if(n) { window.pecaAtualNome = n; atualizarLabelPeca(); } };
-    function atualizarLabelPeca() { document.getElementById('nome-exibicao-peca').innerText = window.pecaAtualNome; localStorage.setItem('pecaAtualNome', window.pecaAtualNome); }
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active', 'full-view');
+    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
-    window.abrirVadeMecum = () => {
-        const modal = document.getElementById('universal-modal');
-        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE";
-        document.getElementById('modal-content').innerHTML = renderizarVadeHTML();
-        modal.style.display = 'flex';
-    };
+    window.desfazer = () => { document.execCommand('undo', false, null); };
+
+    window.abrirExames = () => alert("Módulo de Exames OAB.");
+    window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
+    window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
+    window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
 </script>
 </body>
 </html>
