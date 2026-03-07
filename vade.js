@@ -35,12 +35,16 @@ export const LEIS_PMDF = [
 ];
 
 export function renderizarVadeHTML() {
-    const h = LEIS_PMDF.map(lei => `
-        <div class="opt-btn" onclick="window.abrirPDFDireto('${lei.url}','${lei.nome}')" 
-             style="padding:10px; margin-bottom:5px; border-left: 5px solid #fbbf24; background: #f1f5f9; font-size: 10px; font-weight: 900; color: #1e293b; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-            <span><i class="fas fa-gavel" style="margin-right: 8px;"></i> ${lei.nome}</span>
-        </div>
-    `).join('');
+    // Cirurgia: Adicionamos um verificador no onclick para resetar o fundo do iframe se for a lei de abuso
+    const h = LEIS_PMDF.map(lei => {
+        const isAbuso = lei.nome.includes("ABUSO");
+        return `
+            <div class="opt-btn" onclick="window.abrirLeiBlindada('${lei.url}','${lei.nome}', ${isAbuso})" 
+                 style="padding:10px; margin-bottom:5px; border-left: 5px solid #fbbf24; background: #f1f5f9; font-size: 10px; font-weight: 900; color: #1e293b; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                <span><i class="fas fa-gavel" style="margin-right: 8px;"></i> ${lei.nome}</span>
+            </div>
+        `;
+    }).join('');
 
     return `
         <div style="background:#020617; color:#fbbf24; padding:8px; border-radius:6px; font-size:9px; margin-bottom:12px; text-align:center; font-weight:bold;">
@@ -52,5 +56,16 @@ export function renderizarVadeHTML() {
     `;
 }
 
-// Expõe para o escopo global para garantir compatibilidade com o index
+// Cirurgia Corretiva de Contraste
+window.abrirLeiBlindada = (url, nome, forcarBranco) => {
+    const frame = document.getElementById('pdf-frame');
+    if(frame) {
+        // Se for abuso de autoridade, removemos filtros de inversão de cores do iframe
+        frame.style.filter = forcarBranco ? "invert(0) hue-rotate(0deg) brightness(1)" : "";
+        frame.style.background = "#fff";
+    }
+    window.abrirPDFDireto(url, nome);
+};
+
+// Expõe para o escopo global
 window.renderizarVadeHTML = renderizarVadeHTML;
