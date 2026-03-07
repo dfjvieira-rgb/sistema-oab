@@ -110,7 +110,6 @@
         .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
         .opt-btn { width: 100%; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; display: flex; justify-content: space-between; cursor: pointer; align-items: center; }
 
-        /* Estilo dos ícones de ação na lista de arquivos */
         .file-actions { display: flex; gap: 5px; align-items: center; }
         .btn-action-small { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .btn-rename { background: #e2e8f0; color: #475569; }
@@ -203,10 +202,12 @@
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
+    const ID_EDITOR = "editor-principal-pmdf"; // Constante para blindagem
 
     const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
 
-    window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
+    // Chave de localstorage isolada para PMDF
+    window.pecaAtualNome = localStorage.getItem('pecaAtualNome_pmdf') || "NOVO TREINO PMDF";
     
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
@@ -218,7 +219,7 @@
     function atualizarLabelPeca() {
         const label = document.getElementById('nome-exibicao-peca');
         if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+        localStorage.setItem('pecaAtualNome_pmdf', window.pecaAtualNome);
     }
 
     window.renomearTrabalhoAtivo = () => {
@@ -278,8 +279,6 @@
         }
     };
 
-    // --- NOVAS FUNÇÕES DE GESTÃO DE ARQUIVO ---
-    
     window.renomearArquivo = async (id, tipo) => {
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
         const nomeAntigo = snap.val().peca;
@@ -302,8 +301,6 @@
         }
     };
 
-    // ------------------------------------------
-
     window.finalizarPeca = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -314,7 +311,7 @@
     };
 
     window.executarSalvamentoInteligente = async (pasta) => {
-        const ed = document.getElementById('editor-principal');
+        const ed = document.getElementById(ID_EDITOR);
         if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
         const idParaUsar = Date.now();
         await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${idParaUsar}`), { exame: pasta, peca: window.pecaAtualNome, conteudo: ed.innerHTML, data: new Date().toLocaleString() });
@@ -324,16 +321,43 @@
 
     window.carregarTrabalho = async (id) => {
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){ document.getElementById('editor-principal').innerHTML = snap.val().conteudo; window.pecaAtualNome = snap.val().peca; atualizarLabelPeca(); document.getElementById('universal-modal').style.display = 'none'; }
+        if(snap.exists()){ 
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+            window.pecaAtualNome = snap.val().peca; 
+            atualizarLabelPeca(); 
+            document.getElementById('universal-modal').style.display = 'none'; 
+        }
     };
 
     window.excluirTrabalho = async (id, tipo) => { if(confirm("Excluir arquivo permanentemente?")) { await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`)); window.abrirGavetaEspecifica(tipo); } };
-    async function salvarAutomatico() { const ed = document.getElementById('editor-principal'); if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML }); }
-    async function carregarRascunho() { const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); if(snap.exists()) document.getElementById('editor-principal').innerHTML = snap.val().conteudo; }
+    
+    // Rascunho isolado por caminho no Firebase
+    async function salvarAutomatico() { 
+        const ed = document.getElementById(ID_EDITOR); 
+        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`), { conteudo: ed.innerHTML }); 
+    }
+    
+    async function carregarRascunho() { 
+        const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO_PMDF`)); 
+        if(snap.exists()) document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo; 
+    }
+
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById('editor-principal').innerHTML = ""; };
+    
+    window.limparFolha = () => { 
+        if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; 
+    };
+    
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
-    window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; atualizarLabelPeca(); } };
+    
+    window.ativarTreinoLivre = () => { 
+        if(confirm("Novo treino em branco?")) { 
+            window.limparFolha(); 
+            window.pecaAtualNome = "NOVO TREINO PMDF"; 
+            atualizarLabelPeca(); 
+        } 
+    };
+    
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
     window.desfazer = () => { document.execCommand('undo', false, null); };
