@@ -198,13 +198,13 @@
     import { db } from './firebase-config.js';
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
+    
+    // CIRURGIA: Conexão do arquivo externo VADE.JS
     import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf";
-    
-    // ID PADRÃO: Ajuste este ID se o seu HTML usar outro nome para o editor
-    const ID_EDITOR = 'editor-principal'; 
+    const ID_EDITOR = 'editor-principal';
 
     window.LISTA_PDF_BIBLIOTECA = [
         { nome: " EDITAL PMDF 2023", url: "edital-abertura-04-2023.pdf" },
@@ -216,8 +216,6 @@
         { nome: "100 ARTIGOS PARA GRIFAR", url: "100 ARTIGOS.PDF" }
     ];
 
-    const MATERIAS_MESTRE = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
-
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
     window.idTrabalhoAtivo = localStorage.getItem('idTrabalhoAtivo_pmdf') || null;
 
@@ -228,13 +226,25 @@
         setInterval(salvarAutomatico, 30000);
     };
 
-    // --- INTERFACE E VADE ---
+    // --- INTERFACE ---
     window.abrirVadeMecum = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = " VADE MECUM ELITE";
         content.innerHTML = renderizarVadeHTML();
         modal.style.display = 'flex';
+    };
+
+    function atualizarLabelPeca() {
+        const label = document.getElementById('nome-exibicao-peca');
+        if(label) label.innerText = window.pecaAtualNome;
+        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
+        localStorage.setItem('idTrabalhoAtivo_pmdf', window.idTrabalhoAtivo);
+    }
+
+    window.renomearTrabalhoAtivo = () => {
+        const novo = prompt("Novo nome para este trabalho:", window.pecaAtualNome);
+        if(novo && novo.trim() !== "") { window.pecaAtualNome = novo.trim(); atualizarLabelPeca(); }
     };
 
     window.abrirBibliotecaPDF = () => {
@@ -249,66 +259,7 @@
         modal.style.display = 'flex';
     };
 
-    function atualizarLabelPeca() {
-        const label = document.getElementById('nome-exibicao-peca');
-        if(label) label.innerText = window.pecaAtualNome;
-        localStorage.setItem('pecaAtualNome', window.pecaAtualNome);
-        localStorage.setItem('idTrabalhoAtivo_pmdf', window.idTrabalhoAtivo);
-    }
-
-    // --- SALVAMENTO INTELIGENTE (UPSERT) ---
-    window.finalizarPeca = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = " SALVAR EM...";
-        const pastasDestino = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        
-        content.innerHTML = `
-            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">
-                ARQUIVO ATIVO: ${window.pecaAtualNome}
-            </div>
-            <div style="max-height: 350px; overflow-y: auto;">
-                ${pastasDestino.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}
-            </div>
-        `;
-        modal.style.display = 'flex';
-    };
-
-    window.executarSalvamentoInteligente = async (pasta) => {
-        const ed = document.getElementById(ID_EDITOR);
-        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
-
-        if (!window.idTrabalhoAtivo) {
-            window.idTrabalhoAtivo = Date.now().toString();
-        }
-
-        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${window.idTrabalhoAtivo}`), {
-            exame: pasta,
-            peca: window.pecaAtualNome,
-            conteudo: ed.innerHTML,
-            data: new Date().toLocaleString()
-        });
-
-        atualizarLabelPeca();
-        alert("Salvo com sucesso!");
-        document.getElementById('universal-modal').style.display = 'none';
-    };
-
-    // --- GESTÃO DE ARQUIVOS ---
-    window.carregarTrabalho = async (id) => {
-        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
-        if(snap.exists()){
-            const ed = document.getElementById(ID_EDITOR);
-            if(ed) {
-                ed.innerHTML = snap.val().conteudo;
-                window.pecaAtualNome = snap.val().peca;
-                window.idTrabalhoAtivo = id;
-                atualizarLabelPeca();
-                document.getElementById('universal-modal').style.display = 'none';
-            }
-        }
-    };
-
+    // --- PASTAS E GESTÃO ---
     window.gerenciadorPasta = () => {
         const modal = document.getElementById('universal-modal');
         const content = document.getElementById('modal-content');
@@ -324,8 +275,9 @@
     window.abrirSubPastasCaderno = () => {
         const content = document.getElementById('modal-content');
         document.getElementById('modal-title').innerText = " MEU CADERNO";
-        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
-        MATERIAS_MESTRE.forEach(mat => {
+        const materias = ["DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        content.innerHTML = `<div onclick="window.gerenciadorPasta()" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR ÀS PASTAS</div>`;
+        materias.forEach(mat => {
             const div = document.createElement('div');
             div.className = "opt-btn";
             div.onclick = () => window.abrirGavetaEspecifica(mat);
@@ -334,10 +286,43 @@
         });
     };
 
+    // --- SALVAR E CARREGAR (RESTAURADO) ---
+    window.finalizarPeca = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = " SALVAR EM...";
+        const pastasDestino = ["QUESTÕES", "REDAÇÃO", "DIREITO PENAL", "DIREITO PROC. PENAL", "DIREITO CONSTITUCIONAL", "DIREITO ADMINISTRATIVO", "DIREITO PENAL MILITAR", "DIREITO PROC. PENAL MILITAR", "LEGISLAÇÃO PMDF", "CRIMINOLOGIA", "DIREITOS HUMANOS"];
+        content.innerHTML = `
+            <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:11px; margin-bottom:15px; font-weight:bold; text-align:center;">ARQUIVO: ${window.pecaAtualNome}</div>
+            <div style="max-height: 350px; overflow-y: auto;">
+                ${pastasDestino.map(pasta => `<div class="opt-btn" onclick="window.executarSalvamentoInteligente('${pasta}')"><span>${pasta}</span></div>`).join('')}
+            </div>`;
+        modal.style.display = 'flex';
+    };
+
+    window.executarSalvamentoInteligente = async (pasta) => {
+        const ed = document.getElementById(ID_EDITOR);
+        if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
+        
+        // Se não tem ID, cria um novo (Novo arquivo). Se tem, sobrescreve (Atualização).
+        if (!window.idTrabalhoAtivo) window.idTrabalhoAtivo = Date.now().toString();
+
+        await set(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${window.idTrabalhoAtivo}`), {
+            exame: pasta,
+            peca: window.pecaAtualNome,
+            conteudo: ed.innerHTML,
+            data: new Date().toLocaleString()
+        });
+
+        alert("Salvo com sucesso!");
+        document.getElementById('universal-modal').style.display = 'none';
+        atualizarLabelPeca();
+    };
+
     window.abrirGavetaEspecifica = async (tipo) => {
         const content = document.getElementById('modal-content');
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
-        const eMateria = MATERIAS_MESTRE.includes(tipo);
+        const eMateria = !["QUESTÕES", "REDAÇÃO"].includes(tipo);
         content.innerHTML = `<div onclick="${eMateria ? 'window.abrirSubPastasCaderno()' : 'window.gerenciadorPasta()'}" style="cursor:pointer; color:var(--gold); font-weight:bold; margin-bottom:15px;"><i class="fas fa-arrow-left"></i> VOLTAR</div>`;
         
         if (snap.exists()) {
@@ -350,12 +335,11 @@
                     div.style.cssText = "display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee; background:#f8fafc; border-radius:8px; margin-bottom:5px; align-items:center;";
                     div.innerHTML = `
                         <span onclick="window.carregarTrabalho('${k}')" style="cursor:pointer; font-weight:bold; font-size:12px; flex:1;"> ${item.peca}</span>
-                        <div style="display:flex; gap:12px; margin-left:10px;">
+                        <div style="display:flex; gap:10px;">
                             <i class="fas fa-edit" onclick="window.renomearArquivo('${k}', '${tipo}')" style="color:#007bff; cursor:pointer;"></i>
                             <i class="fas fa-folder-minus" onclick="window.moverArquivo('${k}', '${tipo}')" style="color:#ffc107; cursor:pointer;"></i>
                             <i class="fas fa-trash" onclick="window.excluirTrabalho('${k}', '${tipo}')" style="color:red; cursor:pointer;"></i>
-                        </div>
-                    `;
+                        </div>`;
                     content.appendChild(div);
                 }
             });
@@ -363,6 +347,18 @@
         }
     };
 
+    window.carregarTrabalho = async (id) => {
+        const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
+        if(snap.exists()){
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
+            window.pecaAtualNome = snap.val().peca;
+            window.idTrabalhoAtivo = id; // IMPORTANTE: Vincula o ID para abrir e salvar por cima
+            atualizarLabelPeca();
+            document.getElementById('universal-modal').style.display = 'none';
+        }
+    };
+
+    // --- FUNÇÕES DE INTELIGÊNCIA ---
     window.renomearArquivo = async (id, tipo) => {
         const novo = prompt("Novo nome para o arquivo:");
         if (novo && novo.trim() !== "") {
@@ -373,16 +369,15 @@
     };
 
     window.moverArquivo = async (id, tipoOrigem) => {
-        const pastas = ["QUESTÕES", "REDAÇÃO", ...MATERIAS_MESTRE];
-        const nova = prompt("Mover para qual pasta?\n" + pastas.join(", "));
-        if (nova && pastas.includes(nova.toUpperCase())) {
+        const nova = prompt("Mover para qual pasta? (Ex: REDAÇÃO, DIREITO PENAL...)");
+        if (nova) {
             await update(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`), { exame: nova.toUpperCase() });
             window.abrirGavetaEspecifica(tipoOrigem);
         }
     };
 
     window.excluirTrabalho = async (id, tipo) => {
-        if(confirm("Excluir definitivamente?")) {
+        if(confirm("Excluir arquivo?")) {
             await remove(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL/${id}`));
             if(window.idTrabalhoAtivo === id) window.idTrabalhoAtivo = null;
             window.abrirGavetaEspecifica(tipo);
@@ -392,16 +387,12 @@
     // --- UTILITÁRIOS ---
     async function salvarAutomatico() { 
         const ed = document.getElementById(ID_EDITOR); 
-        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { 
-            conteudo: ed.innerHTML, idAtivo: window.idTrabalhoAtivo, nomeAtivo: window.pecaAtualNome 
-        }); 
+        if(ed) await set(ref(db, `${RAIZ_PMDF}/RASCUNHO`), { conteudo: ed.innerHTML, idAtivo: window.idTrabalhoAtivo, nomeAtivo: window.pecaAtualNome }); 
     }
-
     async function carregarRascunho() { 
         const snap = await get(ref(db, `${RAIZ_PMDF}/RASCUNHO`)); 
         if(snap.exists()) {
-            const ed = document.getElementById(ID_EDITOR);
-            if(ed) ed.innerHTML = snap.val().conteudo;
+            document.getElementById(ID_EDITOR).innerHTML = snap.val().conteudo;
             window.idTrabalhoAtivo = snap.val().idAtivo || null;
             window.pecaAtualNome = snap.val().nomeAtivo || "NOVO TREINO PMDF";
             atualizarLabelPeca();
@@ -414,13 +405,12 @@
         document.getElementById('pdf-viewer').classList.add('active');
         document.getElementById('universal-modal').style.display = 'none';
     };
-
+    
     window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar papel?")) document.getElementById(ID_EDITOR).innerHTML = ""; };
+    window.limparFolha = () => { if(confirm("Limpar papel?")) { document.getElementById(ID_EDITOR).innerHTML = ""; window.idTrabalhoAtivo = null; } };
     window.toggleRecolherEditor = () => { document.getElementById('pdf-viewer').classList.toggle('full-view'); };
     window.ativarTreinoLivre = () => { if(confirm("Novo treino em branco?")) { window.limparFolha(); window.pecaAtualNome = "NOVO TREINO PMDF"; window.idTrabalhoAtivo = null; atualizarLabelPeca(); } };
     window.abrirMentoria = () => window.location.href = 'mentoria.html';
     window.toggleFoguete = () => document.getElementById('mobile-hub').classList.toggle('active');
-    window.desfazer = () => { document.execCommand('undo', false, null); };
-
+    window.desfazer = () => document.execCommand('undo');
 </script>
