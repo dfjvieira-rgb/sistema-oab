@@ -13,6 +13,7 @@
             --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
             --glass: rgba(30, 41, 59, 0.7);
             --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
+            --vade: #16a34a; /* COR VERDE VADE MECUM */
         }
 
         body.dark-mode { --bg-paper: #0f172a; }
@@ -143,6 +144,7 @@
     <aside class="sidebar" id="sidebar-main">
         <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
         <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
+        <button class="btn-side" style="background:var(--vade); color:#fff" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i> <span>VADE MECUM</span></button>
         <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
         <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
         <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
@@ -201,6 +203,7 @@
 
     <div id="mobile-hub">
         <button class="fab-main" onclick="window.toggleFoguete()"><i class="fas fa-rocket" id="rocket-icon"></i></button>
+        <button class="fab-sub" style="background:var(--vade); color:white" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i></button>
         <button class="fab-sub" style="background:var(--biblioteca); color:white" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i></button>
         <button class="fab-sub" style="background:var(--teses); color:white" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i></button>
         <button class="fab-sub" style="background:var(--questoes); color:white" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i></button>
@@ -222,6 +225,9 @@
     import { db } from './firebase-config.js'; 
     import { ref, get, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { FolhaEngine } from './folha-engine.js';
+    
+    // CIRURGIA: Conexão do arquivo externo VADE.JS
+    import { renderizarVadeHTML } from './vade.js';
 
     window.db = db;
     const RAIZ_PMDF = "producao_pmdf"; 
@@ -244,6 +250,15 @@
         atualizarLabelPeca();
         await carregarRascunho();
         setInterval(salvarAutomatico, 30000);
+    };
+
+    // CIRURGIA: Lógica para ligar o botão VADE MECUM
+    window.abrirVadeMecum = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE";
+        content.innerHTML = renderizarVadeHTML();
+        modal.style.display = 'flex';
     };
 
     function atualizarLabelPeca() {
@@ -325,7 +340,6 @@
         modal.style.display = 'flex';
     };
 
-    // CIRURGIA: SALVAMENTO COM LOGICA DE ATUALIZAÇÃO (UPSERT)
     window.executarSalvamentoInteligente = async (pasta) => {
         const ed = document.getElementById('editor-principal');
         if(!ed || !ed.innerText.trim()) return alert("Folha vazia!");
@@ -333,18 +347,16 @@
         const snap = await get(ref(db, `${RAIZ_PMDF}/HISTORICO_OFICIAL`));
         let idParaUsar = null;
 
-        // Verifica se já existe um arquivo com o MESMO NOME na MESMA PASTA
         if (snap.exists()) {
             const dados = snap.val();
             for (let id in dados) {
                 if (dados[id].peca === window.pecaAtualNome && dados[id].exame === pasta) {
-                    idParaUsar = id; // Encontrou o arquivo, vamos atualizar
+                    idParaUsar = id;
                     break;
                 }
             }
         }
 
-        // Se não encontrou, gera um novo ID baseado no timestamp
         if (!idParaUsar) {
             idParaUsar = Date.now();
         }
