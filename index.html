@@ -290,7 +290,7 @@
         content.innerHTML = `
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')"><span>PASTA: QUESTÕES</span></div>
             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')"><span>PASTA: REDAÇÃO</span></div>
-            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span>📓 CADERNO DE MATÉRIAS</span></div>
+            <div class="opt-btn" onclick="window.abrirSubPastasCaderno()" style="border-left: 5px solid var(--mentoria)"><span>📓 CADERDE MATÉRIAS</span></div>
         `;
         modal.style.display = 'flex';
     };
@@ -435,12 +435,13 @@
     window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
     window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
     
-    // --- CIRURGIA: INTELIGÊNCIA DE MARCA-TEXTO E DESFAZER ---
+    // --- CIRURGIA: INTELIGÊNCIA DE MARCA-TEXTO ATIVADA ---
     window.setHighlightColor = (color, id) => {
         window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        // Ao clicar na cor, já tenta aplicar à seleção se houver
+        
+        // Aplicação imediata se houver seleção
         const sel = window.getSelection();
         if (sel.rangeCount > 0 && !sel.isCollapsed) {
             window.toggleMarcaTexto();
@@ -457,8 +458,16 @@
                 window.historicoUndo.push(ed.innerHTML);
                 if(window.historicoUndo.length > 30) window.historicoUndo.shift();
             }
-            // Aplica a cor
-            document.execCommand('hiliteColor', false, window.currentColor);
+
+            // Garante que o comando seja executado na área correta
+            document.getElementById('editor-principal').focus();
+            
+            // EXECUÇÃO DO PINCEL
+            if (window.currentColor === 'transparent') {
+                document.execCommand('removeFormat', false, null);
+            } else {
+                document.execCommand('hiliteColor', false, window.currentColor);
+            }
         } else {
             alert("Selecione um texto na folha para marcar.");
         }
