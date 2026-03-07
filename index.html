@@ -244,6 +244,7 @@
 
     window.pecaAtualNome = localStorage.getItem('pecaAtualNome') || "NOVO TREINO PMDF";
     window.historicoUndo = [];
+    window.currentColor = '#fef08a';
 
     window.onload = async () => {
         FolhaEngine.montar('folha-total');
@@ -436,13 +437,39 @@
     window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
     window.ativarModoTeses = () => alert("Modo Treino Teses Ativo.");
     window.injetarTeses = () => alert("Função Martelo: Injetando estruturas...");
-    window.desfazer = () => alert("Função desfazer acionada.");
     
-    window.toggleMarcaTexto = () => { alert("Selecione um texto para aplicar a cor escolhida."); };
+    // --- CIRURGIA: INTELIGÊNCIA DE MARCA-TEXTO E DESFAZER ---
     window.setHighlightColor = (color, id) => {
+        window.currentColor = color;
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        if(color !== 'transparent') window.toggleMarcaTexto();
     };
+
+    window.toggleMarcaTexto = () => {
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0 && !sel.isCollapsed) {
+            const ed = document.getElementById('editor-principal');
+            if(ed) {
+                window.historicoUndo.push(ed.innerHTML);
+                if(window.historicoUndo.length > 30) window.historicoUndo.shift();
+            }
+            document.execCommand('hiliteColor', false, window.currentColor);
+        } else {
+            alert("Selecione um texto na folha para marcar.");
+        }
+    };
+
+    window.desfazer = () => { 
+        const ed = document.getElementById('editor-principal'); 
+        if(window.historicoUndo.length > 0) {
+            ed.innerHTML = window.historicoUndo.pop(); 
+        } else {
+            alert("Nada para desfazer.");
+        }
+    };
+
+    window.abrirPergaminho = () => alert("Botão Pergaminho: Carregando estruturas das peças...");
 </script>
 </body>
 </html>
