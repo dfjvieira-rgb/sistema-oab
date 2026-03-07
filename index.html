@@ -1,188 +1,188 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ALISSON ELITE 2026 - MASTER ICON</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
-            --bg-paper: #cbd5e1; --paper-color: #ffffff; 
-            --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
-            --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
-            --vade: #065f46;
-        }
-        body.dark-mode { --bg-paper: #0f172a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white; }
-        header { background: var(--primary); height: 60px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 5000; }
-        .logo { font-size: 1.2rem; font-weight: 900; }
-        .logo span { color: var(--gold); }
-        main { display: flex; flex: 1; overflow: hidden; position: relative; }
-        .sidebar { width: var(--sidebar-w); background: #1e293b; display: flex; flex-direction: column; padding: 15px 10px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; gap: 8px; }
-        .btn-side { width: 100%; min-height: 45px; border: none; border-radius: 8px; display: flex; align-items: center; color: white; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05); padding: 0 12px; gap: 12px; }
-        .btn-side:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
-        .btn-side i { font-size: 1rem; color: var(--gold); width: 20px; text-align: center; }
-        .btn-side span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
-        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px; }
-        .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 850px; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px; }
-        #identificador-peca { padding: 15px; background: #f8fafc; text-align: center; font-weight: 900; color: #020617; border-bottom: 3px solid var(--gold); cursor: pointer; }
-        .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; }
-        .btn-lib { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9; }
-        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; position: relative; padding: 40px; color: black; }
-        #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
-        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
-        .opt-btn { width: 100%; padding: 15px; margin-bottom: 8px; border-radius: 10px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; }
-        #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
-        @media (max-width: 768px) { .sidebar { display: none; } #mobile-hub { display: flex; } }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ALISSON ELITE 2026 - MASTER ICON</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #020617; --gold: #fbbf24; --gold-dark: #d97706;
+            --bg-paper: #cbd5e1; --paper-color: #ffffff; 
+            --mentoria: #a855f7; --sidebar-w: 200px; --perigo: #ef4444;
+            --questoes: #3b82f6; --teses: #f97316; --biblioteca: #475569;
+            --vade: #065f46;
+        }
+        body.dark-mode { --bg-paper: #0f172a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: white; }
+        header { background: var(--primary); height: 60px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); z-index: 5000; }
+        .logo { font-size: 1.2rem; font-weight: 900; }
+        .logo span { color: var(--gold); }
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+        .sidebar { width: var(--sidebar-w); background: #1e293b; display: flex; flex-direction: column; padding: 15px 10px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; gap: 8px; }
+        .btn-side { width: 100%; min-height: 45px; border: none; border-radius: 8px; display: flex; align-items: center; color: white; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.05); padding: 0 12px; gap: 12px; }
+        .btn-side:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
+        .btn-side i { font-size: 1rem; color: var(--gold); width: 20px; text-align: center; }
+        .btn-side span { font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .editor-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-paper); overflow-y: auto; align-items: center; padding: 20px 10px; }
+        .sticky-tools { position: sticky; top: -20px; z-index: 1000; background: white; width: 100%; max-width: 850px; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 10px; }
+        #identificador-peca { padding: 15px; background: #f8fafc; text-align: center; font-weight: 900; color: #020617; border-bottom: 3px solid var(--gold); cursor: pointer; }
+        .toolbar-liberdade { display: flex; background: #fff; flex-wrap: wrap; }
+        .btn-lib { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; color: #64748b; border-right: 1px solid #f1f5f9; }
+        .paper { width: 100%; max-width: 850px; background: white; box-shadow: 0 20px 50px rgba(0,0,0,0.4); min-height: 5250px; position: relative; padding: 40px; color: black; }
+        #pdf-viewer { width: 0; background: #334155; transition: 0.4s; display: flex; flex-direction: column; overflow: hidden; }
+        #pdf-viewer.active { width: 50%; border-left: 4px solid var(--gold); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110000; align-items: center; justify-content: center; }
+        .modal-body { background: white; width: 95%; max-width: 500px; padding: 25px; border-radius: 20px; color: #0f172a; max-height: 85vh; overflow-y: auto; }
+        .opt-btn { width: 100%; padding: 15px; margin-bottom: 8px; border-radius: 10px; border: 1px solid #eee; background: #f8fafc; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; }
+        #mobile-hub { display: none; position: fixed; bottom: 30px; right: 25px; z-index: 99999; flex-direction: column-reverse; gap: 12px; }
+        @media (max-width: 768px) { .sidebar { display: none; } #mobile-hub { display: flex; } }
+    </style>
 </head>
 <body class="dark-mode">
 
 <header>
-    <div class="logo">ALISSON <span>PMDF</span></div>
-    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">MASTER</span></div>
+    <div class="logo">ALISSON <span>PMDF</span></div>
+    <div style="color:var(--gold); font-size:10px; font-weight:bold;">MODO: <span id="ex-display">MASTER</span></div>
 </header>
 
 <main>
-    <aside class="sidebar">
-        <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
-        <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
-        <button class="btn-side" style="background:var(--vade); color:#fff" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i> <span>VADE MECUM</span></button>
-        <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
-        <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
-        <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
-        <button class="btn-side" style="background:#334155;" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i> <span>MINHA PASTA</span></button>
-        <button class="btn-side" style="background:#10b981;" onclick="window.finalizarPeca()"><i class="fas fa-save"></i> <span>SALVAR</span></button>
-        <hr style="opacity:0.1; margin:5px 0">
-        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i> <span>MENTORIA IA</span></button>
-        <button class="btn-side" style="background:#475569;" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i> <span>PERGAMINHO</span></button>
-        <button class="btn-side" style="background:#3b82f6;" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i> <span>MARTELO</span></button>
-    </aside>
+    <aside class="sidebar">
+        <button class="btn-side" style="background:var(--gold); color:#000" onclick="window.abrirExames()"><i class="fas fa-list"></i> <span>EXAMES OAB</span></button>
+        <button class="btn-side" style="background:#facc15; color:#000" onclick="window.ativarTreinoLivre()"><i class="fas fa-edit"></i> <span>NOVO TREINO</span></button>
+        <button class="btn-side" style="background:var(--vade); color:#fff" onclick="window.abrirVadeMecum()"><i class="fas fa-book-open"></i> <span>VADE MECUM</span></button>
+        <button class="btn-side" style="background:var(--questoes); color:#fff" onclick="window.ativarModoQuestoes()"><i class="fas fa-question-circle"></i> <span>QUESTÕES</span></button>
+        <button class="btn-side" style="background:var(--teses); color:#fff" onclick="window.ativarModoTeses()"><i class="fas fa-gavel"></i> <span>TREINO TESES</span></button>
+        <button class="btn-side" style="background:var(--biblioteca); color:#fff" onclick="window.abrirBibliotecaPDF()"><i class="fas fa-folder"></i> <span>BIBLIOTECA</span></button>
+        <button class="btn-side" style="background:#334155;" onclick="window.gerenciadorPasta()"><i class="fas fa-folder-open"></i> <span>MINHA PASTA</span></button>
+        <button class="btn-side" style="background:#10b981;" onclick="window.finalizarPeca()"><i class="fas fa-save"></i> <span>SALVAR</span></button>
+        <hr style="opacity:0.1; margin:5px 0">
+        <button class="btn-side" style="background:var(--mentoria);" onclick="window.abrirMentoria()"><i class="fas fa-robot"></i> <span>MENTORIA IA</span></button>
+        <button class="btn-side" style="background:#475569;" onclick="window.abrirPergaminho()"><i class="fas fa-scroll"></i> <span>PERGAMINHO</span></button>
+        <button class="btn-side" style="background:#3b82f6;" onclick="window.injetarTeses()"><i class="fas fa-hammer"></i> <span>MARTELO</span></button>
+    </aside>
 
-    <section class="editor-container">
-        <div class="sticky-tools">
-            <div id="identificador-peca" onclick="window.renomearTrabalhoAtivo()">
-                <i class="fas fa-file-signature" style="color:var(--gold)"></i> <span id="nome-exibicao-peca">NOVO TREINO PMDF</span>
-            </div>
-            <div class="toolbar-liberdade">
-                <button class="btn-lib" onclick="window.desfazer()"><i class="fas fa-undo"></i> Desfazer</button>
-                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i> Limpar</button>
-                <button class="btn-lib" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
-                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
-            </div>
-        </div>
-        <div class="paper" id="editor-principal" contenteditable="true"></div>
-    </section>
+    <section class="editor-container">
+        <div class="sticky-tools">
+            <div id="identificador-peca" onclick="window.renomearTrabalhoAtivo()">
+                <i class="fas fa-file-signature" style="color:var(--gold)"></i> <span id="nome-exibicao-peca">NOVO TREINO PMDF</span>
+            </div>
+            <div class="toolbar-liberdade">
+                <button class="btn-lib" onclick="window.desfazer()"><i class="fas fa-undo"></i> Desfazer</button>
+                <button class="btn-lib" onclick="window.limparFolha()"><i class="fas fa-trash"></i> Limpar</button>
+                <button class="btn-lib" onclick="window.toggleRecolherEditor()"><i class="fas fa-expand"></i> Foco PDF</button>
+                <button class="btn-lib" style="background:#22c55e; color:white" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+            </div>
+        </div>
+        <div class="paper" id="editor-principal" contenteditable="true"></div>
+    </section>
 
-    <section id="pdf-viewer">
-        <div style="background:#1e293b; padding:10px; display:flex; justify-content:space-between;">
-            <span id="pdf-title" style="font-size:12px; font-weight:bold;">PDF</span>
-            <button onclick="window.fecharPDF()" style="color:var(--gold); background:none; border:none; cursor:pointer;">FECHAR X</button>
-        </div>
-        <iframe id="pdf-frame" style="width:100%; flex:1; border:none;"></iframe>
-    </section>
+    <section id="pdf-viewer">
+        <div style="background:#1e293b; padding:10px; display:flex; justify-content:space-between;">
+            <span id="pdf-title" style="font-size:12px; font-weight:bold;">PDF</span>
+            <button onclick="window.fecharPDF()" style="color:var(--gold); background:none; border:none; cursor:pointer;">FECHAR X</button>
+        </div>
+        <iframe id="pdf-frame" style="width:100%; flex:1; border:none;"></iframe>
+    </section>
 
-    <div id="mobile-hub">
-        <button style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none;" onclick="this.parentElement.classList.toggle('active')"><i class="fas fa-rocket"></i></button>
-    </div>
+    <div id="mobile-hub">
+        <button style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none;" onclick="this.parentElement.classList.toggle('active')"><i class="fas fa-rocket"></i></button>
+    </div>
 </main>
 
 <div class="modal" id="universal-modal">
-    <div class="modal-body">
-        <h2 id="modal-title" style="border-bottom:2px solid var(--gold); margin-bottom:15px;"></h2>
-        <div id="modal-content"></div>
-        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; margin-top:15px; background:black; color:white; border-radius:10px; cursor:pointer;">FECHAR</button>
-    </div>
+    <div class="modal-body">
+        <h2 id="modal-title" style="border-bottom:2px solid var(--gold); margin-bottom:15px;"></h2>
+        <div id="modal-content"></div>
+        <button onclick="document.getElementById('universal-modal').style.display='none'" style="width:100%; padding:15px; margin-top:15px; background:black; color:white; border-radius:10px; cursor:pointer;">FECHAR</button>
+    </div>
 </div>
 
 <script type="module">
-    import { db } from './firebase-config.js';
-    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { db } from './firebase-config.js';
+    import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // --- NÚCLEO DURO DE LEIS (VADE MECUM) ---
-    const NUCLEO_DURO = [
-        { lei: "CP", desc: "Código Penal - Art. 1º ao 120", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm" },
-        { lei: "CPP", desc: "Processo Penal - Procedimentos", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm" },
-        { lei: "CPM", desc: "Penal Militar", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" },
-        { lei: "CPPM", desc: "Processo Penal Militar", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" },
-        { lei: "LEI 13.445", desc: "Lei de Migração", link: "https://www.planalto.gov.br/ccivil_03/_ato2017-2022/2017/lei/l13445.htm" }
-    ];
+    // --- NÚCLEO DURO DE LEIS (VADE MECUM) ---
+    const NUCLEO_DURO = [
+        { lei: "CP", desc: "Código Penal - Art. 1º ao 120", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm" },
+        { lei: "CPP", desc: "Processo Penal - Procedimentos", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689.htm" },
+        { lei: "CPM", desc: "Penal Militar", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1001.htm" },
+        { lei: "CPPM", desc: "Processo Penal Militar", link: "https://www.planalto.gov.br/ccivil_03/decreto-lei/del1002.htm" },
+        { lei: "LEI 13.445", desc: "Lei de Migração", link: "https://www.planalto.gov.br/ccivil_03/_ato2017-2022/2017/lei/l13445.htm" }
+    ];
 
-    window.abrirVadeMecum = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE";
-        content.innerHTML = NUCLEO_DURO.map(item => `
-            <div class="opt-btn" onclick="window.abrirPDFDireto('${item.link}', '${item.lei}')">
-                <span><strong>${item.lei}</strong> - ${item.desc}</span>
-                <i class="fas fa-external-link-alt"></i>
-            </div>
-        `).join('');
-        modal.style.display = 'flex';
-    };
+    window.abrirVadeMecum = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "⚖️ VADE MECUM ELITE";
+        content.innerHTML = NUCLEO_DURO.map(item => `
+            <div class="opt-btn" onclick="window.abrirPDFDireto('${item.link}', '${item.lei}')">
+                <span><strong>${item.lei}</strong> - ${item.desc}</span>
+                <i class="fas fa-external-link-alt"></i>
+            </div>
+        `).join('');
+        modal.style.display = 'flex';
+    };
 
-    // --- FUNÇÕES DE BIBLIOTECA E PASTAS (RECUPERADAS) ---
-    window.abrirBibliotecaPDF = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📚 BIBLIOTECA";
-        const lista = [
-            {nome: "EDITAL PMDF", url: "edital-abertura-04-2023.pdf"},
-            {nome: "TABELA DE PEÇAS", url: "identificacaopecas.pdf"}
-        ];
-        content.innerHTML = lista.map(p => `<div class="opt-btn" onclick="window.abrirPDFDireto('${p.url}', '${p.nome}')">${p.nome}</div>`).join('');
-        modal.style.display = 'flex';
-    };
+    // --- FUNÇÕES DE BIBLIOTECA E PASTAS (RECUPERADAS) ---
+    window.abrirBibliotecaPDF = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📚 BIBLIOTECA";
+        const lista = [
+            {nome: "EDITAL PMDF", url: "edital-abertura-04-2023.pdf"},
+            {nome: "TABELA DE PEÇAS", url: "identificacaopecas.pdf"}
+        ];
+        content.innerHTML = lista.map(p => `<div class="opt-btn" onclick="window.abrirPDFDireto('${p.url}', '${p.nome}')">${p.nome}</div>`).join('');
+        modal.style.display = 'flex';
+    };
 
-    window.gerenciadorPasta = () => {
-        const modal = document.getElementById('universal-modal');
-        const content = document.getElementById('modal-content');
-        document.getElementById('modal-title').innerText = "📂 MINHA PASTA";
-        content.innerHTML = `<div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')">QUESTÕES</div>
-                             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')">REDAÇÃO</div>`;
-        modal.style.display = 'flex';
-    };
+    window.gerenciadorPasta = () => {
+        const modal = document.getElementById('universal-modal');
+        const content = document.getElementById('modal-content');
+        document.getElementById('modal-title').innerText = "📂 MINHA PASTA";
+        content.innerHTML = `<div class="opt-btn" onclick="window.abrirGavetaEspecifica('QUESTÕES')">QUESTÕES</div>
+                             <div class="opt-btn" onclick="window.abrirGavetaEspecifica('REDAÇÃO')">REDAÇÃO</div>`;
+        modal.style.display = 'flex';
+    };
 
-    window.abrirPDFDireto = (url, titulo) => {
-        document.getElementById('pdf-title').innerText = titulo;
-        document.getElementById('pdf-frame').src = url;
-        document.getElementById('pdf-viewer').classList.add('active');
-        document.getElementById('universal-modal').style.display = 'none';
-    };
+    window.abrirPDFDireto = (url, titulo) => {
+        document.getElementById('pdf-title').innerText = titulo;
+        document.getElementById('pdf-frame').src = url;
+        document.getElementById('pdf-viewer').classList.add('active');
+        document.getElementById('universal-modal').style.display = 'none';
+    };
 
-    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
-    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
-    window.renomearTrabalhoAtivo = () => { 
-        let n = prompt("Nome:", document.getElementById('nome-exibicao-peca').innerText);
-        if(n) document.getElementById('nome-exibicao-peca').innerText = n;
-    };
+    window.fecharPDF = () => document.getElementById('pdf-viewer').classList.remove('active');
+    window.limparFolha = () => { if(confirm("Limpar?")) document.getElementById('editor-principal').innerHTML = ""; };
+    window.renomearTrabalhoAtivo = () => { 
+        let n = prompt("Nome:", document.getElementById('nome-exibicao-peca').innerText);
+        if(n) document.getElementById('nome-exibicao-peca').innerText = n;
+    };
 
-    // --- PLACEHOLDERS DAS OUTRAS FUNÇÕES ---
-    window.abrirExames = () => alert("Módulo de Exames OAB Carregado.");
-    window.ativarTreinoLivre = () => { if(confirm("Novo?")) window.limparFolha(); };
-    window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
-    window.ativarModoTeses = () => alert("Modo Teses Ativo.");
-    window.abrirMentoria = () => alert("Redirecionando Mentoria...");
-    window.abrirPergaminho = () => alert("Estruturas de Peças...");
-    window.injetarTeses = () => alert("Injetando Teses...");
-    window.desfazer = () => document.execCommand('undo');
+    // --- PLACEHOLDERS DAS OUTRAS FUNÇÕES ---
+    window.abrirExames = () => alert("Módulo de Exames OAB Carregado.");
+    window.ativarTreinoLivre = () => { if(confirm("Novo?")) window.limparFolha(); };
+    window.ativarModoQuestoes = () => alert("Modo Questões Ativo.");
+    window.ativarModoTeses = () => alert("Modo Teses Ativo.");
+    window.abrirMentoria = () => alert("Redirecionando Mentoria...");
+    window.abrirPergaminho = () => alert("Estruturas de Peças...");
+    window.injetarTeses = () => alert("Injetando Teses...");
+    window.desfazer = () => document.execCommand('undo');
 
-    // --- SALVAMENTO (LOGICA PMDF) ---
-    window.finalizarPeca = async () => {
-        const ed = document.getElementById('editor-principal');
-        const nome = document.getElementById('nome-exibicao-peca').innerText;
-        await set(ref(db, `producao_pmdf/HISTORICO_OFICIAL/${Date.now()}`), {
-            peca: nome,
-            conteudo: ed.innerHTML,
-            data: new Date().toLocaleString()
-        });
-        alert("Salvo com sucesso!");
-    };
+    // --- SALVAMENTO (LOGICA PMDF) ---
+    window.finalizarPeca = async () => {
+        const ed = document.getElementById('editor-principal');
+        const nome = document.getElementById('nome-exibicao-peca').innerText;
+        await set(ref(db, `producao_pmdf/HISTORICO_OFICIAL/${Date.now()}`), {
+            peca: nome,
+            conteudo: ed.innerHTML,
+            data: new Date().toLocaleString()
+        });
+        alert("Salvo com sucesso!");
+    };
 </script>
 </body>
 </html>
